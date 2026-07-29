@@ -1,0 +1,197 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Checkout - MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/cart/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container checkout-page-container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'home' %}">Home</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <a href="{% url 'cart' %}">Cart</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span>Checkout</span>
+    </nav>
+
+    <!-- Stepper Navigation -->
+    <div class="checkout-stepper">
+        <div class="step-item completed">
+            <span class="step-num"><i class="fa-solid fa-check"></i></span>
+            <span class="step-label">Shopping Cart</span>
+        </div>
+        <div class="step-line active"></div>
+        <div class="step-item active">
+            <span class="step-num">2</span>
+            <span class="step-label">Shipping & Payment</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item">
+            <span class="step-num">3</span>
+            <span class="step-label">Order Confirmation</span>
+        </div>
+    </div>
+
+    <form class="checkout-form-grid" action="{% url 'customer_orders' %}" method="GET">
+        <!-- Main Form Column -->
+        <div class="checkout-main-col">
+            <!-- Section 1: Shipping Address -->
+            <div class="card checkout-section-card">
+                <div class="section-title-row">
+                    <h2><i class="fa-solid fa-truck-ramp-box"></i> Shipping Address</h2>
+                </div>
+                <div class="grid grid-cols-2">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" value="John" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" value="Doe" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address (for tracking)</label>
+                    <input type="email" class="form-control" value="john.doe@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Street Address</label>
+                    <input type="text" class="form-control" placeholder="123 Market Street, Apt 4B" required>
+                </div>
+
+                <div class="grid grid-cols-3">
+                    <div class="form-group">
+                        <label class="form-label">City</label>
+                        <input type="text" class="form-control" value="San Francisco" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">State / Province</label>
+                        <input type="text" class="form-control" value="CA" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Zip Code</label>
+                        <input type="text" class="form-control" value="94107" required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Shipping Option -->
+            <div class="card checkout-section-card">
+                <div class="section-title-row">
+                    <h2><i class="fa-solid fa-plane"></i> Shipping Method</h2>
+                </div>
+                <div class="shipping-options-list">
+                    <label class="shipping-option-card active">
+                        <input type="radio" name="shipping_method" checked>
+                        <div class="shipping-info">
+                            <h4>Standard Delivery (3-5 Business Days)</h4>
+                            <p>Free tracked delivery via FedEx</p>
+                        </div>
+                        <span class="shipping-cost text-success">FREE</span>
+                    </label>
+                    <label class="shipping-option-card">
+                        <input type="radio" name="shipping_method">
+                        <div class="shipping-info">
+                            <h4>Express Overnight (1-2 Business Days)</h4>
+                            <p>Priority delivery via UPS Express</p>
+                        </div>
+                        <span class="shipping-cost">$12.99</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Section 3: Payment Details -->
+            <div class="card checkout-section-card">
+                <div class="section-title-row">
+                    <h2><i class="fa-solid fa-credit-card"></i> Payment Method</h2>
+                </div>
+
+                <div class="payment-tabs">
+                    <label class="payment-tab-option">
+                        <input type="radio" name="payment_type" checked onclick="document.getElementById('cc-fields').style.display='block'">
+                        <span><i class="fa-solid fa-credit-card"></i> Credit / Debit Card</span>
+                    </label>
+                    <label class="payment-tab-option">
+                        <input type="radio" name="payment_type" onclick="document.getElementById('cc-fields').style.display='none'">
+                        <span><i class="fa-brands fa-paypal"></i> PayPal</span>
+                    </label>
+                </div>
+
+                <div id="cc-fields" class="cc-fields-box">
+                    <div class="form-group">
+                        <label class="form-label">Cardholder Name</label>
+                        <input type="text" class="form-control" value="JOHN DOE">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-control" placeholder="4532 •••• •••• 8921">
+                    </div>
+                    <div class="grid grid-cols-2">
+                        <div class="form-group">
+                            <label class="form-label">Expiration Date</label>
+                            <input type="text" class="form-control" placeholder="MM/YY">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV Code</label>
+                            <input type="password" class="form-control" placeholder="123">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Summary Column -->
+        <div class="checkout-side-col">
+            <div class="card checkout-summary-card">
+                <h3>Order Review</h3>
+                <div class="checkout-items-mini">
+                    <div class="mini-item">
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=100&q=80" alt="Headphones">
+                        <div class="mini-item-details">
+                            <h4>Noise-Canceling Headphones</h4>
+                            <p>Qty: 1 • $199.99</p>
+                        </div>
+                    </div>
+                    <div class="mini-item">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=100&q=80" alt="Smartwatch">
+                        <div class="mini-item-details">
+                            <h4>Ultra Smartwatch</h4>
+                            <p>Qty: 1 • $149.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-lines">
+                    <div class="summary-line">
+                        <span>Subtotal</span>
+                        <span>$348.99</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Shipping</span>
+                        <span class="text-success">FREE</span>
+                    </div>
+                    <div class="summary-line">
+                        <span>Tax</span>
+                        <span>$27.92</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-line total-line">
+                        <span>Total Due</span>
+                        <span class="total-price">$361.91</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-full btn-place-order">
+                    <i class="fa-solid fa-check"></i> Place Order ($361.91)
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

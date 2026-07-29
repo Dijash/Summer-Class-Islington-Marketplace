@@ -1,0 +1,23 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Logged Out - MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/accounts/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-page-container">
+    <div class="card auth-card logout-card">
+        <div class="auth-icon-circle bg-success"><i class="fa-solid fa-check"></i></div>
+        <h1>Successfully Logged Out</h1>
+        <p>You have been safely signed out of your MarketPlace session.</p>
+
+        <div class="logout-actions">
+            <a href="{% url 'login' %}" class="btn btn-primary"><i class="fa-solid fa-right-to-bracket"></i> Log In Again</a>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-house"></i> Return to Homepage</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

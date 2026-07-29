@@ -1,0 +1,91 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}My Profile - MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/accounts/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container profile-page-container">
+    <!-- Profile Hero Card -->
+    <div class="card profile-header-card">
+        <div class="profile-banner"></div>
+        <div class="profile-meta-row">
+            <div class="profile-avatar-large">
+                <i class="fa-solid fa-user"></i>
+                <button type="button" class="avatar-edit-btn" title="Change Avatar"><i class="fa-solid fa-camera"></i></button>
+            </div>
+            <div class="profile-user-info">
+                <h2>John Doe <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Verified Account</span></h2>
+                <p class="user-email"><i class="fa-regular fa-envelope"></i> john.doe@example.com • Member since Jan 2024</p>
+            </div>
+            <div class="profile-header-actions">
+                <a href="{% url 'customer_orders' %}" class="btn btn-outline-primary"><i class="fa-solid fa-box"></i> My Orders (12)</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Settings Form Grid -->
+    <div class="profile-content-grid">
+        <div class="card profile-form-card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa-regular fa-user"></i> Personal Information</h3>
+            </div>
+            <form onsubmit="event.preventDefault(); alert('Profile updated successfully!');">
+                <div class="grid grid-cols-2">
+                    <div class="form-group">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" value="John" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" value="Doe" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2">
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" class="form-control" value="john.doe@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="tel" class="form-control" value="+1 (555) 234-5678">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Default Shipping Address</label>
+                    <input type="text" class="form-control" value="123 Market Street, Apt 4B, San Francisco, CA 94107">
+                </div>
+
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Profile Changes</button>
+            </form>
+        </div>
+
+        <div class="card profile-form-card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="fa-solid fa-lock"></i> Security & Password</h3>
+            </div>
+            <form onsubmit="event.preventDefault(); alert('Password updated successfully!');">
+                <div class="form-group">
+                    <label class="form-label">Current Password</label>
+                    <input type="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-control" placeholder="At least 8 characters" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirm New Password</label>
+                    <input type="password" class="form-control" placeholder="Repeat new password" required>
+                </div>
+
+                <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-key"></i> Update Password</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

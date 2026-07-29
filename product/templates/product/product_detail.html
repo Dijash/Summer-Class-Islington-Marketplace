@@ -1,0 +1,184 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Premium Noise-Canceling Wireless Headphones - MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/product/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container product-detail-container">
+    <!-- Breadcrumb Navigation -->
+    <nav class="breadcrumb">
+        <a href="{% url 'home' %}">Home</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <a href="{% url 'product_list' %}">Products</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <a href="{% url 'product_list' %}">Electronics</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span>Premium Noise-Canceling Headphones</span>
+    </nav>
+
+    <!-- Top Main Details Grid -->
+    <div class="product-main-grid">
+        <!-- Gallery Column -->
+        <div class="product-gallery">
+            <div class="main-image-wrapper">
+                <span class="badge badge-danger product-badge">-20% OFF</span>
+                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" id="main-product-image" alt="Wireless Headphones Main">
+            </div>
+            <div class="thumbnail-strip">
+                <button class="thumb-btn active" onclick="document.getElementById('main-product-image').src=this.querySelector('img').src">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80" alt="Thumb 1">
+                </button>
+                <button class="thumb-btn" onclick="document.getElementById('main-product-image').src=this.querySelector('img').src">
+                    <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=200&q=80" alt="Thumb 2">
+                </button>
+                <button class="thumb-btn" onclick="document.getElementById('main-product-image').src=this.querySelector('img').src">
+                    <img src="https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=200&q=80" alt="Thumb 3">
+                </button>
+            </div>
+        </div>
+
+        <!-- Info Column -->
+        <div class="product-info-col">
+            <div class="product-header-info">
+                <span class="badge badge-success stock-badge"><i class="fa-solid fa-circle-check"></i> In Stock (24 available)</span>
+                <h1 class="detail-title">Premium Noise-Canceling Wireless Headphones</h1>
+                <div class="detail-meta">
+                    <div class="stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <span class="rating-text">4.8 (128 reviews)</span>
+                    <span class="meta-separator">•</span>
+                    <span class="sku-text">SKU: HD-900-BLK</span>
+                </div>
+            </div>
+
+            <!-- Price Breakdown -->
+            <div class="detail-price-card">
+                <div class="price-main">
+                    <span class="detail-price">$199.99</span>
+                    <span class="detail-price-old">$249.99</span>
+                    <span class="price-discount-tag">Save $50.00</span>
+                </div>
+                <p class="tax-shipping-note"><i class="fa-solid fa-truck"></i> Free Shipping on this item within the US.</p>
+            </div>
+
+            <!-- Short Summary -->
+            <p class="product-summary">Experience studio-quality sound with industry-leading Active Noise Cancellation (ANC), 40-hour battery life, ergonomic memory foam earcups, and dual Bluetooth 5.3 connectivity.</p>
+
+            <!-- Product Specs Key List -->
+            <ul class="quick-specs-list">
+                <li><i class="fa-solid fa-check"></i> Active Noise Cancellation (ANC) mode</li>
+                <li><i class="fa-solid fa-check"></i> Up to 40 hours continuous playtime</li>
+                <li><i class="fa-solid fa-check"></i> Built-in HD microphone for crystal clear calls</li>
+                <li><i class="fa-solid fa-check"></i> Fast charging (10 mins charge = 5 hrs play)</li>
+            </ul>
+
+            <!-- Purchase Controls Form -->
+            <form action="{% url 'cart' %}" method="GET" class="purchase-form">
+                <div class="quantity-row">
+                    <label class="form-label">Quantity:</label>
+                    <div class="quantity-control">
+                        <button type="button" class="qty-btn" onclick="if(this.nextElementSibling.value > 1) this.nextElementSibling.value--;">-</button>
+                        <input type="number" name="quantity" value="1" min="1" max="24" class="qty-input">
+                        <button type="button" class="qty-btn" onclick="this.previousElementSibling.value++;">+</button>
+                    </div>
+                </div>
+
+                <div class="action-buttons-group">
+                    <button type="submit" class="btn btn-primary btn-lg btn-add-cart"><i class="fa-solid fa-cart-shopping"></i> Add to Cart</button>
+                    <a href="{% url 'checkout' %}" class="btn btn-secondary btn-lg"><i class="fa-solid fa-bolt"></i> Buy Now</a>
+                    <button type="button" class="btn btn-outline-secondary btn-icon-only" title="Save to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                </div>
+            </form>
+
+            <!-- Seller Store Info Box -->
+            <div class="card seller-store-card">
+                <div class="seller-store-info">
+                    <div class="seller-avatar"><i class="fa-solid fa-store"></i></div>
+                    <div>
+                        <h4>AudioTech Official Store</h4>
+                        <p class="seller-badges"><span class="badge badge-primary">Verified Seller</span> • 99.2% Positive Feedback</p>
+                    </div>
+                </div>
+                <a href="{% url 'product_list' %}" class="btn btn-sm btn-outline-primary">Visit Store</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Tabs (Description & Reviews) -->
+    <div class="product-tabs-wrapper">
+        <div class="tabs-header">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-description')">Description & Specs</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-reviews')">Customer Reviews (128)</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-shipping')">Shipping & Returns</button>
+        </div>
+
+        <div class="tabs-content">
+            <!-- Tab 1: Description -->
+            <div id="tab-description" class="tab-pane active">
+                <h3>Product Overview</h3>
+                <p>Designed for audiophiles and daily commuters alike, the AudioTech Premium Wireless Headphones deliver immersive acoustic performance. Engineered with custom 40mm neodymium drivers, these headphones reproduce deep, punchy bass, pristine mids, and crisp highs across the entire frequency spectrum.</p>
+                
+                <h4 style="margin-top: 1.5rem;">Technical Specifications</h4>
+                <table class="specs-table">
+                    <tr><td>Brand</td><td>AudioTech</td></tr>
+                    <tr><td>Connectivity</td><td>Bluetooth 5.3 / 3.5mm Aux Cable</td></tr>
+                    <tr><td>Battery Life</td><td>40 Hours (ANC On) / 50 Hours (ANC Off)</td></tr>
+                    <tr><td>Charging Interface</td><td>USB Type-C Fast Charging</td></tr>
+                    <tr><td>Weight</td><td>250 grams</td></tr>
+                    <tr><td>Warranty</td><td>2-Year Manufacturer Warranty</td></tr>
+                </table>
+            </div>
+
+            <!-- Tab 2: Reviews -->
+            <div id="tab-reviews" class="tab-pane" style="display:none;">
+                <div class="reviews-summary-grid">
+                    <div class="review-score-box">
+                        <span class="score-num">4.8</span>
+                        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
+                        <p>Based on 128 verified reviews</p>
+                    </div>
+                </div>
+
+                <div class="review-item card">
+                    <div class="review-user">
+                        <div class="user-avatar-sm"><i class="fa-solid fa-user"></i></div>
+                        <div>
+                            <h5>David K. <span class="badge badge-success">Verified Purchase</span></h5>
+                            <span class="review-date">July 18, 2025</span>
+                        </div>
+                    </div>
+                    <div class="stars" style="margin: 0.5rem 0;"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                    <h4>Incredible sound quality and noise cancellation!</h4>
+                    <p>I fly frequently for work and these headphones completely block out engine noise. Extremely comfortable for 8+ hour flights!</p>
+                </div>
+            </div>
+
+            <!-- Tab 3: Shipping -->
+            <div id="tab-shipping" class="tab-pane" style="display:none;">
+                <h3>Shipping & Delivery Policy</h3>
+                <p>All orders placed before 2:00 PM EST ship same day via FedEx or UPS Ground. Standard delivery typically takes 2–4 business days depending on location.</p>
+                <h4 style="margin-top: 1rem;">Returns & Refund Guarantee</h4>
+                <p>We offer a 30-day hassle-free return policy. If you are not completely satisfied with your purchase, return it in original condition for a full refund.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function switchTab(evt, tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
+    evt.currentTarget.classList.add('active');
+    document.getElementById(tabId).style.display = 'block';
+}
+</script>
+{% endblock %}

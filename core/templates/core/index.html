@@ -1,0 +1,278 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Marketplace - Modern Multi-Vendor E-Commerce Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-wrapper">
+        <div class="hero-content">
+            <span class="hero-badge"><i class="fa-solid fa-bolt"></i> New Season Arrivals 2025</span>
+            <h1 class="hero-title">Discover Unique Products from Top Verified Sellers</h1>
+            <p class="hero-subtitle">Shop millions of electronics, fashion items, home essentials, and gadgets with guaranteed fast shipping and easy returns.</p>
+            <div class="hero-buttons">
+                <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg"><i class="fa-solid fa-bag-shopping"></i> Explore Marketplace</a>
+                <a href="{% url 'seller_dashboard' %}" class="btn btn-outline-primary btn-lg"><i class="fa-solid fa-store"></i> Start Selling</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <span class="stat-number">50K+</span>
+                    <span class="stat-label">Active Items</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">12K+</span>
+                    <span class="stat-label">Verified Sellers</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-number">99.8%</span>
+                    <span class="stat-label">Positive Feedback</span>
+                </div>
+            </div>
+        </div>
+        <div class="hero-media">
+            <div class="hero-image-card">
+                <img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80" alt="Marketplace Showcase" class="hero-img">
+                <div class="floating-badge badge-deal">
+                    <i class="fa-solid fa-fire"></i> Hot Deals Up to 40% Off
+                </div>
+                <div class="floating-badge badge-rating">
+                    <i class="fa-solid fa-star"></i> 4.9 (15k+ Reviews)
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features / Value Props Section -->
+<section class="features-section">
+    <div class="container">
+        <div class="grid grid-cols-4">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-truck-fast"></i></div>
+                <div class="feature-info">
+                    <h4>Express Shipping</h4>
+                    <p>Free delivery on orders over $50 with real-time tracking.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="feature-info">
+                    <h4>Buyer Protection</h4>
+                    <p>Money-back guarantee if items are not as described.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-headset"></i></div>
+                <div class="feature-info">
+                    <h4>24/7 Customer Support</h4>
+                    <p>Dedicated customer care team ready to assist anytime.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-lock"></i></div>
+                <div class="feature-info">
+                    <h4>100% Safe Payment</h4>
+                    <p>Encrypted payment processing via Visa, Mastercard & PayPal.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Categories -->
+<section class="categories-section">
+    <div class="container">
+        <div class="section-header">
+            <span class="subtitle">Explore Categories</span>
+            <h2>Top Shopping Categories</h2>
+        </div>
+        <div class="grid grid-cols-4">
+            <a href="{% url 'product_list' %}" class="category-card">
+                <div class="category-icon"><i class="fa-solid fa-laptop"></i></div>
+                <h3>Electronics & Gadgets</h3>
+                <p>1,240+ Products</p>
+                <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+            <a href="{% url 'product_list' %}" class="category-card">
+                <div class="category-icon"><i class="fa-solid fa-shirt"></i></div>
+                <h3>Fashion & Apparel</h3>
+                <p>3,850+ Products</p>
+                <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+            <a href="{% url 'product_list' %}" class="category-card">
+                <div class="category-icon"><i class="fa-solid fa-couch"></i></div>
+                <h3>Home & Living</h3>
+                <p>940+ Products</p>
+                <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+            <a href="{% url 'product_list' %}" class="category-card">
+                <div class="category-icon"><i class="fa-solid fa-dumbbell"></i></div>
+                <h3>Sports & Outdoors</h3>
+                <p>620+ Products</p>
+                <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products Showcase -->
+<section class="products-section">
+    <div class="container">
+        <div class="section-header-flex">
+            <div>
+                <span class="subtitle">Handpicked Selections</span>
+                <h2>Trending Products</h2>
+            </div>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">View All Products <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+
+        <div class="grid grid-cols-4">
+            <!-- Product Card 1 -->
+            <div class="product-card">
+                <div class="product-thumb">
+                    <span class="badge badge-danger product-badge">-20%</span>
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80" alt="Wireless Headphones">
+                    <div class="product-actions">
+                        <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                        <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <span class="product-category">Electronics</span>
+                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Premium Noise-Canceling Wireless Headphones</a></h3>
+                    <div class="product-rating">
+                        <div class="stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star-half-stroke"></i>
+                        </div>
+                        <span class="rating-count">(128)</span>
+                    </div>
+                    <div class="product-price-row">
+                        <div class="price-box">
+                            <span class="price-current">$199.99</span>
+                            <span class="price-old">$249.99</span>
+                        </div>
+                        <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 2 -->
+            <div class="product-card">
+                <div class="product-thumb">
+                    <span class="badge badge-success product-badge">New</span>
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80" alt="Smart Watch">
+                    <div class="product-actions">
+                        <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                        <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <span class="product-category">Tech</span>
+                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Ultra Fitness Smartwatch with Heart Rate Monitor</a></h3>
+                    <div class="product-rating">
+                        <div class="stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <span class="rating-count">(94)</span>
+                    </div>
+                    <div class="product-price-row">
+                        <div class="price-box">
+                            <span class="price-current">$149.00</span>
+                        </div>
+                        <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 3 -->
+            <div class="product-card">
+                <div class="product-thumb">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80" alt="Running Shoes">
+                    <div class="product-actions">
+                        <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                        <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <span class="product-category">Fashion</span>
+                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Performance Breathable Running Sneakers</a></h3>
+                    <div class="product-rating">
+                        <div class="stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star"></i>
+                        </div>
+                        <span class="rating-count">(56)</span>
+                    </div>
+                    <div class="product-price-row">
+                        <div class="price-box">
+                            <span class="price-current">$89.95</span>
+                        </div>
+                        <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Card 4 -->
+            <div class="product-card">
+                <div class="product-thumb">
+                    <span class="badge badge-warning product-badge">Hot</span>
+                    <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=500&q=80" alt="Gaming Headset">
+                    <div class="product-actions">
+                        <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                        <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <span class="product-category">Gaming</span>
+                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Surround Sound Pro Gaming Headset with RGB</a></h3>
+                    <div class="product-rating">
+                        <div class="stars">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                        </div>
+                        <span class="rating-count">(210)</span>
+                    </div>
+                    <div class="product-price-row">
+                        <div class="price-box">
+                            <span class="price-current">$119.99</span>
+                            <span class="price-old">$149.99</span>
+                        </div>
+                        <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call To Action Seller Banner -->
+<section class="seller-cta-section container">
+    <div class="seller-cta-card">
+        <div class="seller-cta-content">
+            <h2>Grow Your Business on MarketPlace</h2>
+            <p>Reach thousands of active shoppers daily. List your inventory, manage orders seamlessly, and get paid directly to your bank account.</p>
+            <div class="seller-cta-buttons">
+                <a href="{% url 'register' %}" class="btn btn-primary btn-lg"><i class="fa-solid fa-rocket"></i> Open Your Seller Store</a>
+                <a href="{% url 'contact' %}" class="btn btn-outline-secondary btn-lg">Learn How It Works</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Customer Dashboard - MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/customer/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container customer-dashboard-container">
+    <!-- Welcome Header Banner -->
+    <div class="dash-welcome-banner">
+        <div class="welcome-text">
+            <h1>Hello, John Doe! <span class="wave-emoji">👋</span></h1>
+            <p>Welcome to your customer portal. Track active shipments, review order history, and manage your account.</p>
+        </div>
+        <div class="dash-quick-action">
+            <a href="{% url 'product_list' %}" class="btn btn-primary"><i class="fa-solid fa-bag-shopping"></i> Start Shopping</a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards Grid -->
+    <div class="grid grid-cols-4 dash-stats-grid">
+        <div class="dash-stat-card">
+            <div class="stat-icon-box bg-primary-light"><i class="fa-solid fa-box"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">12</span>
+                <span class="stat-name">Total Orders</span>
+            </div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="stat-icon-box bg-warning-light"><i class="fa-solid fa-truck-fast"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">2</span>
+                <span class="stat-name">In Transit</span>
+            </div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="stat-icon-box bg-danger-light"><i class="fa-solid fa-heart"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">8</span>
+                <span class="stat-name">Saved Items</span>
+            </div>
+        </div>
+        <div class="dash-stat-card">
+            <div class="stat-icon-box bg-success-light"><i class="fa-solid fa-wallet"></i></div>
+            <div class="stat-info">
+                <span class="stat-value">$1,420.50</span>
+                <span class="stat-name">Total Spent</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Content Layout -->
+    <div class="dash-layout-grid">
+        <!-- Main Activity Column -->
+        <div class="dash-main-col">
+            <div class="card dash-orders-card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Recent Orders</h2>
+                    <a href="{% url 'customer_orders' %}" class="btn btn-sm btn-outline-primary">View All Orders</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="dash-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Items</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>#ORD-9482</strong></td>
+                                <td>July 28, 2025</td>
+                                <td>2 Items</td>
+                                <td>$361.91</td>
+                                <td><span class="badge badge-warning"><i class="fa-solid fa-truck"></i> In Transit</span></td>
+                                <td><a href="{% url 'customer_orders' %}" class="btn btn-sm btn-outline-secondary">Track</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>#ORD-8391</strong></td>
+                                <td>July 14, 2025</td>
+                                <td>1 Item</td>
+                                <td>$89.95</td>
+                                <td><span class="badge badge-success"><i class="fa-solid fa-check"></i> Delivered</span></td>
+                                <td><a href="{% url 'customer_orders' %}" class="btn btn-sm btn-outline-secondary">Invoice</a></td>
+                            </tr>
+                            <tr>
+                                <td><strong>#ORD-7104</strong></td>
+                                <td>June 29, 2025</td>
+                                <td>3 Items</td>
+                                <td>$420.00</td>
+                                <td><span class="badge badge-success"><i class="fa-solid fa-check"></i> Delivered</span></td>
+                                <td><a href="{% url 'customer_orders' %}" class="btn btn-sm btn-outline-secondary">Invoice</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Summary Column -->
+        <div class="dash-side-col">
+            <div class="card dash-profile-widget">
+                <div class="widget-user">
+                    <div class="avatar-md"><i class="fa-solid fa-user"></i></div>
+                    <div>
+                        <h3>John Doe</h3>
+                        <p>john.doe@example.com</p>
+                    </div>
+                </div>
+                <div class="widget-divider"></div>
+                <div class="widget-address">
+                    <h4><i class="fa-solid fa-location-dot"></i> Default Address</h4>
+                    <p>123 Market Street, Apt 4B<br>San Francisco, CA 94107</p>
+                </div>
+                <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-full"><i class="fa-solid fa-user-pen"></i> Edit Profile Settings</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,117 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}My Orders - MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/customer/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container customer-orders-container">
+    <div class="orders-page-header">
+        <h1>My Order History</h1>
+        <p>Manage and track your past and current marketplace purchases.</p>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="orders-filter-tabs">
+        <button class="order-tab active">All Orders (12)</button>
+        <button class="order-tab">In Transit (2)</button>
+        <button class="order-tab">Delivered (9)</button>
+        <button class="order-tab">Cancelled (1)</button>
+    </div>
+
+    <!-- Orders Cards List -->
+    <div class="orders-list">
+        <!-- Order Card 1 -->
+        <div class="card order-card">
+            <div class="order-card-header">
+                <div class="order-id-group">
+                    <span class="order-number">Order #ORD-9482</span>
+                    <span class="order-date"><i class="fa-regular fa-calendar"></i> Placed on July 28, 2025</span>
+                </div>
+                <div class="order-status-group">
+                    <span class="badge badge-warning"><i class="fa-solid fa-truck"></i> In Transit</span>
+                </div>
+            </div>
+
+            <div class="order-card-body">
+                <div class="order-items-strip">
+                    <div class="order-item-thumb">
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=150&q=80" alt="Headphones">
+                        <div>
+                            <h4>Noise-Canceling Headphones</h4>
+                            <p>Qty: 1 • $199.99</p>
+                        </div>
+                    </div>
+                    <div class="order-item-thumb">
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150&q=80" alt="Smartwatch">
+                        <div>
+                            <h4>Ultra Smartwatch</h4>
+                            <p>Qty: 1 • $149.00</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-meta-info">
+                    <div class="meta-item">
+                        <span>Total Paid</span>
+                        <strong class="text-primary">$361.91</strong>
+                    </div>
+                    <div class="meta-item">
+                        <span>Tracking Number</span>
+                        <strong>FX-998234110-US</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-card-footer">
+                <button type="button" class="btn btn-primary btn-sm"><i class="fa-solid fa-location-crosshairs"></i> Track Live Package</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-file-invoice"></i> Download Invoice PDF</button>
+            </div>
+        </div>
+
+        <!-- Order Card 2 -->
+        <div class="card order-card">
+            <div class="order-card-header">
+                <div class="order-id-group">
+                    <span class="order-number">Order #ORD-8391</span>
+                    <span class="order-date"><i class="fa-regular fa-calendar"></i> Placed on July 14, 2025</span>
+                </div>
+                <div class="order-status-group">
+                    <span class="badge badge-success"><i class="fa-solid fa-check"></i> Delivered</span>
+                </div>
+            </div>
+
+            <div class="order-card-body">
+                <div class="order-items-strip">
+                    <div class="order-item-thumb">
+                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=150&q=80" alt="Sneakers">
+                        <div>
+                            <h4>Performance Running Sneakers</h4>
+                            <p>Qty: 1 • $89.95</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-meta-info">
+                    <div class="meta-item">
+                        <span>Total Paid</span>
+                        <strong class="text-primary">$89.95</strong>
+                    </div>
+                    <div class="meta-item">
+                        <span>Delivered On</span>
+                        <strong>July 17, 2025</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="order-card-footer">
+                <button type="button" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-rotate-left"></i> Buy Again</button>
+                <button type="button" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-star"></i> Write Product Review</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

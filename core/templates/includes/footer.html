@@ -1,0 +1,75 @@
+<!-- Site Footer -->
+<footer class="site-footer">
+    <div class="footer-newsletter">
+        <div class="container newsletter-wrapper">
+            <div class="newsletter-text">
+                <h3>Subscribe to MarketPlace Newsletter</h3>
+                <p>Get instant updates on exclusive deals, flash sales, and top products.</p>
+            </div>
+            <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Subscribed successfully!');">
+                <input type="email" placeholder="Enter your email address" required>
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="footer-content container">
+        <div class="footer-brand-col">
+            <a href="{% url 'home' %}" class="brand-logo footer-logo">
+                <span class="logo-icon"><i class="fa-solid fa-store"></i></span>
+                <span class="logo-text">Islington<span>Marketplace</span></span>
+            </a>
+            <p class="brand-tagline">The premier multi-vendor marketplace for electronics, fashion, home goods, and more. Connecting buyers and sellers globally.</p>
+            <div class="social-links">
+                <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+            </div>
+        </div>
+
+        <div class="footer-links-col">
+            <h4 class="footer-heading">Shop Categories</h4>
+                <ul>
+                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-laptop"></i> Electronics & Tech</a></li>
+                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-shirt"></i> Fashion & Apparel</a></li>
+                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-couch"></i> Home & Garden</a></li>
+                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-wand-magic-sparkles"></i> Beauty & Personal Care</a></li>
+                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-dumbbell"></i> Sports & Fitness</a></li>
+                </ul>
+        </div>
+
+        <div class="footer-links-col">
+            <h4 class="footer-heading">Customer Care</h4>
+                <ul>
+                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-circle-question"></i> Help Center & FAQ</a></li>
+                    <li><a href="{% url 'customer_orders' %}"><i class="fa-solid fa-box"></i> Track Your Order</a></li>
+                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-truck-fast"></i> Shipping & Delivery</a></li>
+                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-arrow-rotate-left"></i> Returns & Refunds</a></li>
+                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-headset"></i> Contact Customer Support</a></li>
+                </ul>
+        </div>
+
+        <div class="footer-links-col">
+            <h4 class="footer-heading">Seller & Business</h4>
+                <ul>
+                    <li><a href="{% url 'seller_dashboard' %}"><i class="fa-solid fa-store"></i> Become a Seller</a></li>
+                    <li><a href="{% url 'seller_add_product' %}"><i class="fa-solid fa-plus-circle"></i> Add New Listing</a></li>
+                    <li><a href="{% url 'seller_manage_products' %}"><i class="fa-solid fa-warehouse"></i> Manage Inventory</a></li>
+                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-handshake"></i> Partner Program</a></li>
+                </ul>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <div class="container footer-bottom-wrapper">
+            <p>&copy; 2025 MarketPlace Inc. All rights reserved.</p>
+            <div class="payment-badges">
+                <span><i class="fa-brands fa-cc-visa"></i></span>
+                <span><i class="fa-brands fa-cc-mastercard"></i></span>
+                <span><i class="fa-brands fa-cc-paypal"></i></span>
+                <span><i class="fa-brands fa-cc-apple-pay"></i></span>
+            </div>
+        </div>
+    </div>
+</footer>

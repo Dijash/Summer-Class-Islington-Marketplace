@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Marketplace - Modern Online Shopping{% endblock %}</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Global Core Styles -->
+    <link rel="stylesheet" href="{% static 'css/core/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/includes/navbar/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/includes/footer/style.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    {% include 'includes/navbar.html' %}
+
+    <!-- Django Messages Container -->
+    {% if messages %}
+        <div class="messages-container container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                    <span>{{ message }}</span>
+                    <button type="button" class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Page Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'includes/footer.html' %}
+
+    <script src="{% static 'js/core/main.js' %}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

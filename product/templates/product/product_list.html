@@ -1,0 +1,322 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Shop All Products - MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/product/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container product-page-container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb">
+        <a href="{% url 'home' %}">Home</a>
+        <i class="fa-solid fa-chevron-right"></i>
+        <span>All Products</span>
+    </nav>
+
+    <div class="product-catalog-layout">
+        <!-- Sidebar Filters -->
+        <aside class="catalog-sidebar">
+            <div class="card filter-card">
+                <div class="filter-header">
+                    <h3><i class="fa-solid fa-filter"></i> Filter Products</h3>
+                    <a href="{% url 'product_list' %}" class="reset-filter">Reset All</a>
+                </div>
+
+                <!-- Category Filter -->
+                <div class="filter-group">
+                    <h4 class="filter-title">Categories</h4>
+                    <ul class="filter-checkbox-list">
+                        <li>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" checked>
+                                <span class="checkmark"></span>
+                                Electronics & Tech <span class="count">(1,240)</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="custom-checkbox">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                Fashion & Wearables <span class="count">(3,850)</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="custom-checkbox">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                Home & Appliances <span class="count">(940)</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="custom-checkbox">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                Gaming & Accessories <span class="count">(510)</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="custom-checkbox">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                Sports & Outdoors <span class="count">(620)</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Price Range Filter -->
+                <div class="filter-group">
+                    <h4 class="filter-title">Price Range</h4>
+                    <div class="price-inputs">
+                        <div class="price-input">
+                            <span>$</span>
+                            <input type="number" value="0" placeholder="Min">
+                        </div>
+                        <span class="range-dash">-</span>
+                        <div class="price-input">
+                            <span>$</span>
+                            <input type="number" value="500" placeholder="Max">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rating Filter -->
+                <div class="filter-group">
+                    <h4 class="filter-title">Customer Rating</h4>
+                    <ul class="filter-radio-list">
+                        <li>
+                            <label class="custom-radio">
+                                <input type="radio" name="rating" checked>
+                                <span class="radiomark"></span>
+                                <span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span> & Up
+                            </label>
+                        </li>
+                        <li>
+                            <label class="custom-radio">
+                                <input type="radio" name="rating">
+                                <span class="radiomark"></span>
+                                <span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></span> & Up
+                            </label>
+                        </li>
+                        <li>
+                            <label class="custom-radio">
+                                <input type="radio" name="rating">
+                                <span class="radiomark"></span>
+                                <span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></span> & Up
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Availability -->
+                <div class="filter-group">
+                    <h4 class="filter-title">Availability</h4>
+                    <label class="custom-checkbox">
+                        <input type="checkbox" checked>
+                        <span class="checkmark"></span>
+                        In Stock Only
+                    </label>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-full"><i class="fa-solid fa-check"></i> Apply Filters</button>
+            </div>
+        </aside>
+
+        <!-- Main Product Catalog Area -->
+        <main class="catalog-main">
+            <!-- Catalog Header Controls -->
+            <div class="catalog-toolbar">
+                <div class="toolbar-info">
+                    <h2>Catalog Items</h2>
+                    <p class="results-count">Showing <strong>1–8</strong> of <strong>148</strong> results</p>
+                </div>
+                <div class="toolbar-actions">
+                    <div class="sort-wrapper">
+                        <label for="sort-select">Sort By:</label>
+                        <select id="sort-select" class="form-select sort-select">
+                            <option value="featured">Featured First</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                            <option value="rating">Highest Rated</option>
+                            <option value="newest">Newest Arrivals</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="grid grid-cols-3 catalog-grid">
+                <!-- Item 1 -->
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <span class="badge badge-danger product-badge">-20%</span>
+                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80" alt="Wireless Headphones">
+                        <div class="product-actions">
+                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <span class="product-category">Electronics • AudioTech Store</span>
+                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Premium Noise-Canceling Wireless Headphones</a></h3>
+                        <div class="product-rating">
+                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
+                            <span class="rating-count">(128 reviews)</span>
+                        </div>
+                        <div class="product-price-row">
+                            <div class="price-box">
+                                <span class="price-current">$199.99</span>
+                                <span class="price-old">$249.99</span>
+                            </div>
+                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <span class="badge badge-success product-badge">New Arrival</span>
+                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80" alt="Smart Watch">
+                        <div class="product-actions">
+                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <span class="product-category">Tech • FitGadgets</span>
+                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Ultra Fitness Smartwatch with Heart Rate Monitor</a></h3>
+                        <div class="product-rating">
+                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <span class="rating-count">(94 reviews)</span>
+                        </div>
+                        <div class="product-price-row">
+                            <div class="price-box">
+                                <span class="price-current">$149.00</span>
+                            </div>
+                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 3 -->
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80" alt="Running Shoes">
+                        <div class="product-actions">
+                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <span class="product-category">Fashion • Apex Footwear</span>
+                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Performance Breathable Running Sneakers</a></h3>
+                        <div class="product-rating">
+                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
+                            <span class="rating-count">(56 reviews)</span>
+                        </div>
+                        <div class="product-price-row">
+                            <div class="price-box">
+                                <span class="price-current">$89.95</span>
+                            </div>
+                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 4 -->
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <span class="badge badge-warning product-badge">Hot</span>
+                        <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=500&q=80" alt="Gaming Headset">
+                        <div class="product-actions">
+                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <span class="product-category">Gaming • CyberZone</span>
+                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Surround Sound Pro Gaming Headset with RGB</a></h3>
+                        <div class="product-rating">
+                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <span class="rating-count">(210 reviews)</span>
+                        </div>
+                        <div class="product-price-row">
+                            <div class="price-box">
+                                <span class="price-current">$119.99</span>
+                                <span class="price-old">$149.99</span>
+                            </div>
+                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 5 -->
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=500&q=80" alt="Vintage Camera">
+                        <div class="product-actions">
+                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <span class="product-category">Electronics • OpticGear</span>
+                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Classic Mirrorless Digital Camera 24MP</a></h3>
+                        <div class="product-rating">
+                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
+                            <span class="rating-count">(42 reviews)</span>
+                        </div>
+                        <div class="product-price-row">
+                            <div class="price-box">
+                                <span class="price-current">$649.00</span>
+                            </div>
+                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 6 -->
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <span class="badge badge-info product-badge">Featured</span>
+                        <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=500&q=80" alt="Smart Watch Black">
+                        <div class="product-actions">
+                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-details">
+                        <span class="product-category">Tech • Nova Electronics</span>
+                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Pro Waterproof Smartwatch with GPS Navigation</a></h3>
+                        <div class="product-rating">
+                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+                            <span class="rating-count">(188 reviews)</span>
+                        </div>
+                        <div class="product-price-row">
+                            <div class="price-box">
+                                <span class="price-current">$179.95</span>
+                            </div>
+                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="pagination-wrapper">
+                <ul class="pagination">
+                    <li class="page-item disabled"><a href="#" class="page-link"><i class="fa-solid fa-chevron-left"></i> Previous</a></li>
+                    <li class="page-item active"><a href="#" class="page-link">1</a></li>
+                    <li class="page-item"><a href="#" class="page-link">2</a></li>
+                    <li class="page-item"><a href="#" class="page-link">3</a></li>
+                    <li class="page-item"><a href="#" class="page-link">Next <i class="fa-solid fa-chevron-right"></i></a></li>
+                </ul>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
