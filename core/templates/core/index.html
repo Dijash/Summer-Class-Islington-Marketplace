@@ -4,43 +4,75 @@
 {% block title %}Marketplace - Modern Multi-Vendor E-Commerce Platform{% endblock %}
 
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section">
-    <div class="container hero-wrapper">
-        <div class="hero-content">
-            <span class="hero-badge"><i class="fa-solid fa-bolt"></i> New Season Arrivals 2025</span>
-            <h1 class="hero-title">Discover Unique Products from Top Verified Sellers</h1>
-            <p class="hero-subtitle">Shop millions of electronics, fashion items, home essentials, and gadgets with guaranteed fast shipping and easy returns.</p>
-            <div class="hero-buttons">
-                <a href="{% url 'product_list' %}" class="btn btn-primary btn-lg"><i class="fa-solid fa-bag-shopping"></i> Explore Marketplace</a>
-                <a href="{% url 'seller_dashboard' %}" class="btn btn-outline-primary btn-lg"><i class="fa-solid fa-store"></i> Start Selling</a>
+<!-- Dynamic Hero Ad Carousel Section -->
+<section class="hero-ad-section">
+    <div class="container">
+        <div class="hero-carousel-container" id="heroCarousel">
+            <div class="hero-carousel-track" id="heroCarouselTrack">
+                {% for banner in hero_banners %}
+                <div class="hero-slide {% if forloop.first %}active{% endif %}" data-slide-index="{{ forloop.counter0 }}">
+                    <div class="hero-slide-bg" style="background-image: url('{{ banner.get_image_url }}');"></div>
+                    <div class="hero-slide-overlay"></div>
+
+                    <div class="hero-slide-content">
+                        {% if banner.badge_text %}
+                        <span class="hero-slide-badge">
+                            {{ banner.badge_text }}
+                        </span>
+                        {% endif %}
+                        <h1 class="hero-slide-title">{{ banner.title }}</h1>
+                        {% if banner.subtitle %}
+                        <p class="hero-slide-subtitle">{{ banner.subtitle }}</p>
+                        {% endif %}
+                        <div class="hero-slide-buttons">
+                            {% if banner.button_text %}
+                            <a href="{{ banner.button_link }}" class="btn btn-hero-primary">
+                                {{ banner.button_text }}
+                            </a>
+                            {% endif %}
+                            {% if banner.secondary_button_text %}
+                            <a href="{{ banner.secondary_button_link }}" class="btn btn-hero-secondary">
+                                {{ banner.secondary_button_text }}
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <!-- Fallback static slide matching exact reference image -->
+                <div class="hero-slide active" data-slide-index="0">
+                    <div class="hero-slide-bg"
+                        style="background-image: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80');">
+                    </div>
+                    <div class="hero-slide-overlay"></div>
+
+                    <div class="hero-slide-content">
+                        <h1 class="hero-slide-title">MIN. 40% OFF</h1>
+                        <p class="hero-slide-subtitle">Skip the outfit dilemma today</p>
+                        <div class="hero-slide-buttons">
+                            <a href="{% url 'product_list' %}" class="btn btn-hero-primary">SHOP NOW</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <span class="stat-number">50K+</span>
-                    <span class="stat-label">Active Items</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <span class="stat-number">12K+</span>
-                    <span class="stat-label">Verified Sellers</span>
-                </div>
-                <div class="stat-divider"></div>
-                <div class="stat-item">
-                    <span class="stat-number">99.8%</span>
-                    <span class="stat-label">Positive Feedback</span>
-                </div>
-            </div>
-        </div>
-        <div class="hero-media">
-            <div class="hero-image-card">
-                <img src="https://images.unsplash.com/photo-1472851294608-062f824d29cc?auto=format&fit=crop&w=800&q=80" alt="Marketplace Showcase" class="hero-img">
-                <div class="floating-badge badge-deal">
-                    <i class="fa-solid fa-fire"></i> Hot Deals Up to 40% Off
-                </div>
-                <div class="floating-badge badge-rating">
-                    <i class="fa-solid fa-star"></i> 4.9 (15k+ Reviews)
-                </div>
+
+            <!-- Navigation Controls (Previous / Next Arrows) -->
+            <button type="button" class="hero-carousel-nav prev-btn" id="heroPrevBtn" aria-label="Previous Slide">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <button type="button" class="hero-carousel-nav next-btn" id="heroNextBtn" aria-label="Next Slide">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
+
+            <!-- Carousel Pagination Dots -->
+            <div class="hero-carousel-dots" id="heroCarouselDots">
+                {% for banner in hero_banners %}
+                <button type="button" class="carousel-dot {% if forloop.first %}active{% endif %}"
+                    data-dot-index="{{ forloop.counter0 }}" aria-label="Go to slide {{ forloop.counter }}"></button>
+                {% empty %}
+                <button type="button" class="carousel-dot active" data-dot-index="0" aria-label="Go to slide 1"></button>
+                {% endfor %}
             </div>
         </div>
     </div>
@@ -109,7 +141,7 @@
                 <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
             </a>
             <a href="{% url 'product_list' %}" class="category-card">
-                <div class="category-icon"><i class="fa-solid fa-dumbbell"></i></div>
+                <div class="category-icon"><i class="fa-solid fa-basketball"></i></div>
                 <h3>Sports & Outdoors</h3>
                 <p>620+ Products</p>
                 <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
@@ -118,143 +150,140 @@
     </div>
 </section>
 
-<!-- Featured Products Showcase -->
-<section class="products-section">
+<!-- Featured / Popular Products Grid Section -->
+<section class="featured-products-section">
     <div class="container">
         <div class="section-header-flex">
             <div>
-                <span class="subtitle">Handpicked Selections</span>
-                <h2>Trending Products</h2>
+                <span class="subtitle">Curated Selection</span>
+                <h2>Trending Marketplace Products</h2>
             </div>
-            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">View All Products <i class="fa-solid fa-arrow-right"></i></a>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-primary">View All Products <i
+                    class="fa-solid fa-arrow-right"></i></a>
         </div>
 
         <div class="grid grid-cols-4">
-            <!-- Product Card 1 -->
+            <!-- Sample Product 1 -->
             <div class="product-card">
-                <div class="product-thumb">
-                    <span class="badge badge-danger product-badge">-20%</span>
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80" alt="Wireless Headphones">
-                    <div class="product-actions">
-                        <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                        <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                    </div>
+                <div class="product-img-box">
+                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
+                        alt="Headphones" class="product-img">
+                    <span class="product-badge badge-sale">SALE</span>
+                    <button class="wishlist-toggle-btn" title="Add to Wishlist"><i
+                            class="fa-regular fa-heart"></i></button>
                 </div>
                 <div class="product-details">
-                    <span class="product-category">Electronics</span>
-                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Premium Noise-Canceling Wireless Headphones</a></h3>
+                    <div class="product-category">Electronics</div>
+                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Premium Noise-Canceling Wireless
+                            Headphones</a></h3>
                     <div class="product-rating">
-                        <div class="stars">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star-half-stroke"></i>
-                        </div>
-                        <span class="rating-count">(128)</span>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                        <span>(4.8)</span>
                     </div>
-                    <div class="product-price-row">
-                        <div class="price-box">
-                            <span class="price-current">$199.99</span>
-                            <span class="price-old">$249.99</span>
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span class="current-price">$199.99</span>
+                            <span class="old-price">$249.99</span>
                         </div>
-                        <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        <a href="{% url 'cart' %}" class="btn btn-primary btn-sm"><i
+                                class="fa-solid fa-cart-shopping"></i> Add</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Product Card 2 -->
+            <!-- Sample Product 2 -->
             <div class="product-card">
-                <div class="product-thumb">
-                    <span class="badge badge-success product-badge">New</span>
-                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80" alt="Smart Watch">
-                    <div class="product-actions">
-                        <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                        <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                    </div>
+                <div class="product-img-box">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80"
+                        alt="Smartwatch" class="product-img">
+                    <span class="product-badge badge-new">NEW</span>
+                    <button class="wishlist-toggle-btn" title="Add to Wishlist"><i
+                            class="fa-regular fa-heart"></i></button>
                 </div>
                 <div class="product-details">
-                    <span class="product-category">Tech</span>
-                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Ultra Fitness Smartwatch with Heart Rate Monitor</a></h3>
+                    <div class="product-category">Wearables</div>
+                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Ultra Fitness Smartwatch with Heart
+                            Rate Monitor</a></h3>
                     <div class="product-rating">
-                        <div class="stars">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                        </div>
-                        <span class="rating-count">(94)</span>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <span>(5.0)</span>
                     </div>
-                    <div class="product-price-row">
-                        <div class="price-box">
-                            <span class="price-current">$149.00</span>
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span class="current-price">$149.00</span>
                         </div>
-                        <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        <a href="{% url 'cart' %}" class="btn btn-primary btn-sm"><i
+                                class="fa-solid fa-cart-shopping"></i> Add</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Product Card 3 -->
+            <!-- Sample Product 3 -->
             <div class="product-card">
-                <div class="product-thumb">
-                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80" alt="Running Shoes">
-                    <div class="product-actions">
-                        <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                        <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                    </div>
+                <div class="product-img-box">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80"
+                        alt="Sneakers" class="product-img">
+                    <button class="wishlist-toggle-btn" title="Add to Wishlist"><i
+                            class="fa-regular fa-heart"></i></button>
                 </div>
                 <div class="product-details">
-                    <span class="product-category">Fashion</span>
-                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Performance Breathable Running Sneakers</a></h3>
+                    <div class="product-category">Footwear</div>
+                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Performance Breathable Running
+                            Sneakers</a></h3>
                     <div class="product-rating">
-                        <div class="stars">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-regular fa-star"></i>
-                        </div>
-                        <span class="rating-count">(56)</span>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-regular fa-star"></i>
+                        <span>(4.2)</span>
                     </div>
-                    <div class="product-price-row">
-                        <div class="price-box">
-                            <span class="price-current">$89.95</span>
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span class="current-price">$89.95</span>
                         </div>
-                        <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        <a href="{% url 'cart' %}" class="btn btn-primary btn-sm"><i
+                                class="fa-solid fa-cart-shopping"></i> Add</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Product Card 4 -->
+            <!-- Sample Product 4 -->
             <div class="product-card">
-                <div class="product-thumb">
-                    <span class="badge badge-warning product-badge">Hot</span>
-                    <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=500&q=80" alt="Gaming Headset">
-                    <div class="product-actions">
-                        <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                        <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                    </div>
+                <div class="product-img-box">
+                    <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=500&q=80"
+                        alt="Gaming Headset" class="product-img">
+                    <span class="product-badge badge-hot">HOT</span>
+                    <button class="wishlist-toggle-btn" title="Add to Wishlist"><i
+                            class="fa-regular fa-heart"></i></button>
                 </div>
                 <div class="product-details">
-                    <span class="product-category">Gaming</span>
-                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Surround Sound Pro Gaming Headset with RGB</a></h3>
+                    <div class="product-category">Gaming</div>
+                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Surround Sound Pro Gaming Headset
+                            with RGB</a></h3>
                     <div class="product-rating">
-                        <div class="stars">
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                            <i class="fa-solid fa-star"></i>
-                        </div>
-                        <span class="rating-count">(210)</span>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                        <span>(4.7)</span>
                     </div>
-                    <div class="product-price-row">
-                        <div class="price-box">
-                            <span class="price-current">$119.99</span>
-                            <span class="price-old">$149.99</span>
+                    <div class="product-footer">
+                        <div class="product-price">
+                            <span class="current-price">$119.00</span>
+                            <span class="old-price">$149.00</span>
                         </div>
-                        <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
+                        <a href="{% url 'cart' %}" class="btn btn-primary btn-sm"><i
+                                class="fa-solid fa-cart-shopping"></i> Add</a>
                     </div>
                 </div>
             </div>
@@ -263,16 +292,87 @@
 </section>
 
 <!-- Call To Action Seller Banner -->
-<section class="seller-cta-section container">
-    <div class="seller-cta-card">
-        <div class="seller-cta-content">
-            <h2>Grow Your Business on MarketPlace</h2>
-            <p>Reach thousands of active shoppers daily. List your inventory, manage orders seamlessly, and get paid directly to your bank account.</p>
-            <div class="seller-cta-buttons">
-                <a href="{% url 'register' %}" class="btn btn-primary btn-lg"><i class="fa-solid fa-rocket"></i> Open Your Seller Store</a>
-                <a href="{% url 'contact' %}" class="btn btn-outline-secondary btn-lg">Learn How It Works</a>
+<section class="cta-seller-section">
+    <div class="container">
+        <div class="cta-seller-box">
+            <div class="cta-seller-content">
+                <span class="badge badge-seller">BECOME A VERIFIED SELLER</span>
+                <h2>Grow Your Business on Islington Marketplace</h2>
+                <p>Reach thousands of active shoppers daily. List your inventory, manage orders seamlessly, and get paid
+                    directly to your bank account.</p>
+                <div class="cta-buttons">
+                    <a href="{% url 'register' %}" class="btn btn-seller btn-lg"><i class="fa-solid fa-store"></i> Open
+                        Your Seller Store</a>
+                    <a href="{% url 'contact' %}" class="btn btn-outline-secondary btn-lg">Learn How It Works</a>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.carousel-dot');
+        const prevBtn = document.getElementById('heroPrevBtn');
+        const nextBtn = document.getElementById('heroNextBtn');
+        const carouselContainer = document.getElementById('heroCarousel');
+
+        let currentIndex = 0;
+        const totalSlides = slides.length;
+        let autoPlayInterval = null;
+
+        if (totalSlides <= 1) {
+            if (prevBtn) prevBtn.style.display = 'none';
+            if (nextBtn) nextBtn.style.display = 'none';
+            return;
+        }
+
+        function goToSlide(index) {
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            currentIndex = (index + totalSlides) % totalSlides;
+
+            if (slides[currentIndex]) slides[currentIndex].classList.add('active');
+            if (dots[currentIndex]) dots[currentIndex].classList.add('active');
+        }
+
+        function nextSlide() {
+            goToSlide(currentIndex + 1);
+        }
+
+        function prevSlide() {
+            goToSlide(currentIndex - 1);
+        }
+
+        if (nextBtn) nextBtn.addEventListener('click', nextSlide);
+        if (prevBtn) prevBtn.addEventListener('click', prevSlide);
+
+        dots.forEach((dot, idx) => {
+            dot.addEventListener('click', () => goToSlide(idx));
+        });
+
+        // Auto Play Slide Rotation every 5 seconds
+        function startAutoPlay() {
+            if (!autoPlayInterval) {
+                autoPlayInterval = setInterval(nextSlide, 5000);
+            }
+        }
+
+        function stopAutoPlay() {
+            if (autoPlayInterval) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+            }
+        }
+
+        if (carouselContainer) {
+            carouselContainer.addEventListener('mouseenter', stopAutoPlay);
+            carouselContainer.addEventListener('mouseleave', startAutoPlay);
+        }
+
+        startAutoPlay();
+    });
+</script>
 {% endblock %}
