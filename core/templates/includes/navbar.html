@@ -1,119 +1,189 @@
 <header class="site-header">
     <div class="nav-main-container">
         <nav class="nav-main">
-            <!-- Stacked Brand Logo with Icon in Front -->
-            <a href="{% url 'home' %}" class="nav-brand">
-                <i class="fa-solid fa-store brand-icon"></i>
-                <div class="brand-stacked">
-                    <span class="brand-top">ISLINGTON</span>
-                    <span class="brand-bottom">MARKETPLACE</span>
-                </div>
-            </a>
+            <!-- Brand Section Div -->
+            <div class="nav-brand-section">
+                <!-- Mobile Hamburger Toggle Button -->
+                <button type="button" class="icon-btn mobile-menu-toggle" id="mobileMenuToggle" aria-label="Open Menu" title="Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
 
-            <!-- Primary Navigation Links (Red SALE link) -->
-            <ul class="nav-primary-links">
-                <li><a href="{% url 'product_list' %}" class="nav-item-link highlight-sale-link">SALE</a></li>
-                <li><a href="{% url 'product_list' %}" class="nav-item-link">MENS</a></li>
-                <li><a href="{% url 'product_list' %}" class="nav-item-link">WOMENS</a></li>
-                <li><a href="{% url 'contact' %}" class="nav-item-link">CONTACT</a></li>
-            </ul>
-
-            <!-- Right Side Action Icons & Expandable Search Bar -->
-            <div class="nav-actions">
-                <!-- Smooth Expandable Search Bar Container -->
-                <div class="nav-search-container" id="searchContainer">
-                    <button type="button" aria-label="Search" class="icon-btn search-trigger" id="searchToggleBtn" title="Search ">
-                        <i class="fa-solid fa-magnifying-glass search-icon-main"></i>
-                    </button>
-                    <form action="{% url 'product_list' %}" method="GET" class="expandable-search-form" id="searchForm">
-                        <input type="text" name="q" placeholder="Search products..." class="search-expand-input" id="searchInput" aria-label="Search" autocomplete="off">
-                        <button type="submit" class="search-submit-btn" title="Submit Search">
-                            <i class="fa-solid fa-arrow-right"></i>
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Wishlist Icon (Outline by default, fills solid red on hover) -->
-                <a href="{% url 'product_list' %}" aria-label="Wishlist" class="icon-btn wishlist-btn" title="Wishlist">
-                    <i class="fa-regular fa-heart wishlist-icon"></i>
+                <!-- Stacked Brand Logo with Icon in Front -->
+                <a href="{% url 'home' %}" class="nav-brand">
+                    <i class="fa-solid fa-store brand-icon"></i>
+                    <div class="brand-stacked">
+                        <span class="brand-top">ISLINGTON</span>
+                        <span class="brand-bottom">MARKETPLACE</span>
+                    </div>
                 </a>
+            </div>
 
-                <!-- Interactive Cart Icon & Dropdown Container -->
-                <div class="cart-dropdown-container">
-                    <button type="button" class="icon-btn cart-toggle-btn" aria-label="Shopping Cart" id="cartDropdownToggle" title="Shopping Cart">
-                        <i class="fa-solid fa-cart-shopping"></i>
-                    </button>
+            <!-- Primary Navigation Links Section Div -->
+            <div class="nav-links-section">
+                <ul class="nav-primary-links">
+                    <li><a href="{% url 'product_list' %}" class="nav-item-link highlight-sale-link">SALE</a></li>
+                    <li><a href="{% url 'product_list' %}" class="nav-item-link">MENS</a></li>
+                    <li><a href="{% url 'product_list' %}" class="nav-item-link">WOMENS</a></li>
+                    <li><a href="{% url 'contact' %}" class="nav-item-link">CONTACT</a></li>
+                </ul>
+            </div>
 
-                    <!-- Mini Cart Dropdown Menu -->
-                    <div class="mini-cart-dropdown" id="miniCartDropdown">
-                        <div class="mini-cart-header">
-                            <h3>Shopping Cart</h3>
-                            <span class="item-count-text">2 Items</span>
-                        </div>
-                        
-                        <div class="mini-cart-items">
-                            <!-- Cart Item 1 -->
-                            <div class="mini-cart-item">
-                                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=120&q=80" alt="Headphones" class="mini-cart-thumb">
-                                <div class="mini-cart-details">
-                                    <a href="{% url 'product_detail' %}" class="mini-item-title">Noise-Canceling Headphones</a>
-                                    <div class="mini-item-price">1 × <strong>$199.99</strong></div>
+            <!-- Actions Section Div -->
+            <div class="nav-actions-section">
+                <div class="nav-actions">
+                    <!-- Smooth Expandable Search Bar Container -->
+                    <div class="nav-search-container" id="searchContainer">
+                        <button type="button" aria-label="Search" class="icon-btn search-trigger" id="searchToggleBtn" title="Search (Ctrl + /)">
+                            <i class="fa-solid fa-magnifying-glass search-icon-main"></i>
+                        </button>
+                        <form action="{% url 'product_list' %}" method="GET" class="expandable-search-form" id="searchForm">
+                            <input type="text" name="q" placeholder="Search products... (Ctrl + /)" class="search-expand-input" id="searchInput" aria-label="Search" autocomplete="off">
+                            <button type="submit" class="search-submit-btn" title="Submit Search">
+                                <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Wishlist Icon (Outline by default, fills solid red on hover) -->
+                    <a href="{% url 'product_list' %}" aria-label="Wishlist" class="icon-btn wishlist-btn" title="Wishlist">
+                        <i class="fa-regular fa-heart wishlist-icon"></i>
+                    </a>
+
+                    <!-- Interactive Cart Icon & Dropdown Container -->
+                    <div class="cart-dropdown-container">
+                        <button type="button" class="icon-btn cart-toggle-btn" aria-label="Shopping Cart" id="cartDropdownToggle" title="Shopping Cart">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </button>
+
+                        <!-- Mini Cart Dropdown Menu -->
+                        <div class="mini-cart-dropdown" id="miniCartDropdown">
+                            <div class="mini-cart-header">
+                                <h3>Shopping Cart</h3>
+                                <span class="item-count-text">2 Items</span>
+                            </div>
+                            
+                            <div class="mini-cart-items">
+                                <!-- Cart Item 1 -->
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=120&q=80" alt="Headphones" class="mini-cart-thumb">
+                                    <div class="mini-cart-details">
+                                        <a href="{% url 'product_detail' %}" class="mini-item-title">Noise-Canceling Headphones</a>
+                                        <div class="mini-item-price">1 × <strong>$199.99</strong></div>
+                                    </div>
+                                    <button type="button" class="mini-item-remove" title="Remove">&times;</button>
                                 </div>
-                                <button type="button" class="mini-item-remove" title="Remove">&times;</button>
-                            </div>
 
-                            <!-- Cart Item 2 -->
-                            <div class="mini-cart-item">
-                                <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=120&q=80" alt="Smartwatch" class="mini-cart-thumb">
-                                <div class="mini-cart-details">
-                                    <a href="{% url 'product_detail' %}" class="mini-item-title">Ultra Fitness Smartwatch</a>
-                                    <div class="mini-item-price">1 × <strong>$149.00</strong></div>
+                                <!-- Cart Item 2 -->
+                                <div class="mini-cart-item">
+                                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=120&q=80" alt="Smartwatch" class="mini-cart-thumb">
+                                    <div class="mini-cart-details">
+                                        <a href="{% url 'product_detail' %}" class="mini-item-title">Ultra Fitness Smartwatch</a>
+                                        <div class="mini-item-price">1 × <strong>$149.00</strong></div>
+                                    </div>
+                                    <button type="button" class="mini-item-remove" title="Remove">&times;</button>
                                 </div>
-                                <button type="button" class="mini-item-remove" title="Remove">&times;</button>
                             </div>
-                        </div>
 
-                        <div class="mini-cart-footer">
-                            <div class="mini-cart-subtotal">
-                                <span>Subtotal</span>
-                                <strong>$348.99</strong>
-                            </div>
-                            <div class="mini-cart-actions">
-                                <a href="{% url 'cart' %}" class="btn btn-outline-secondary btn-sm btn-full">View Full Cart</a>
-                                <a href="{% url 'checkout' %}" class="btn btn-primary btn-sm btn-full">Checkout Now</a>
+                            <div class="mini-cart-footer">
+                                <div class="mini-cart-subtotal">
+                                    <span>Subtotal</span>
+                                    <strong>$348.99</strong>
+                                </div>
+                                <div class="mini-cart-actions">
+                                    <a href="{% url 'cart' %}" class="btn btn-outline-secondary btn-sm btn-full">View Full Cart</a>
+                                    <a href="{% url 'checkout' %}" class="btn btn-primary btn-sm btn-full">Checkout Now</a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {% if user.is_authenticated %}
-                    <a href="{% url 'profile' %}" aria-label="Account Profile" class="icon-btn profile-btn" title="Profile">
-                        <i class="fa-regular fa-user"></i>
-                    </a>
-                {% else %}
-                    <a href="{% url 'login' %}" aria-label="Sign In" class="icon-btn profile-btn" title="Log In / Register">
-                        <i class="fa-regular fa-user"></i>
-                    </a>
-                {% endif %}
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'profile' %}" aria-label="Account Profile" class="icon-btn profile-btn" title="Profile">
+                            <i class="fa-regular fa-user"></i>
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" aria-label="Sign In" class="icon-btn profile-btn" title="Log In / Register">
+                            <i class="fa-regular fa-user"></i>
+                        </a>
+                    {% endif %}
+                </div>
             </div>
         </nav>
     </div>
 
-    <!-- Secondary Category Sub-Nav -->
+    <!-- Secondary Category Sub-Nav Container -->
     <div class="nav-secondary-container">
-        <ul class="nav-secondary-links">
-            <li><a href="{% url 'product_list' %}" class="sub-nav-link">NEW ARRIVALS</a></li>
-            <li><a href="{% url 'product_list' %}" class="sub-nav-link">CLOTHING</a></li>
-            <li><a href="{% url 'product_list' %}" class="sub-nav-link">DESIGNERS</a></li>
-            <li><a href="{% url 'product_list' %}" class="sub-nav-link">DRESSES</a></li>
-            <li><a href="{% url 'product_list' %}" class="sub-nav-link">SHOES</a></li>
-            <li><a href="{% url 'product_list' %}" class="sub-nav-link">ACCESSORIES</a></li>
-            <li><a href="{% url 'product_list' %}" class="sub-nav-link">BEAUTY</a></li>
-            <li><a href="{% url 'product_list' %}" class="sub-nav-link highlight-sale">SALE</a></li>
-            <li><a href="{% url 'seller_dashboard' %}" class="sub-nav-link">SELLERS</a></li>
-        </ul>
+        <div class="nav-secondary-wrapper">
+            <ul class="nav-secondary-links">
+                <li><a href="{% url 'product_list' %}" class="sub-nav-link">NEW ARRIVALS</a></li>
+                <li><a href="{% url 'product_list' %}" class="sub-nav-link">CLOTHING</a></li>
+                <li><a href="{% url 'product_list' %}" class="sub-nav-link">DESIGNERS</a></li>
+                <li><a href="{% url 'product_list' %}" class="sub-nav-link">DRESSES</a></li>
+                <li><a href="{% url 'product_list' %}" class="sub-nav-link">SHOES</a></li>
+                <li><a href="{% url 'product_list' %}" class="sub-nav-link">ACCESSORIES</a></li>
+                <li><a href="{% url 'product_list' %}" class="sub-nav-link">BEAUTY</a></li>
+                <li><a href="{% url 'product_list' %}" class="sub-nav-link highlight-sale">SALE</a></li>
+                <li><a href="{% url 'seller_dashboard' %}" class="sub-nav-link">SELLERS</a></li>
+            </ul>
+        </div>
     </div>
 </header>
+
+<!-- Off-Canvas Mobile Navigation Drawer & Backdrop -->
+<div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+<div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <div class="mobile-drawer-header">
+        <a href="{% url 'home' %}" class="nav-brand">
+            <i class="fa-solid fa-store brand-icon"></i>
+            <div class="brand-stacked">
+                <span class="brand-top">ISLINGTON</span>
+                <span class="brand-bottom">MARKETPLACE</span>
+            </div>
+        </a>
+        <button type="button" class="mobile-drawer-close" id="mobileDrawerClose" aria-label="Close Menu">&times;</button>
+    </div>
+
+    <div class="mobile-drawer-body">
+        <form action="{% url 'product_list' %}" method="GET" class="mobile-search-form">
+            <input type="text" name="q" placeholder="Search marketplace..." class="mobile-search-input" required>
+            <button type="submit" class="mobile-search-btn" aria-label="Submit Search">
+                <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
+        </form>
+
+        <div class="mobile-menu-section">
+            <h4 class="mobile-section-title">NAVIGATION</h4>
+            <ul class="mobile-nav-list">
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item highlight-sale"><i class="fa-solid fa-fire text-danger"></i> SALE & OFFERS</a></li>
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-person"></i> MENS COLLECTION</a></li>
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-person-dress"></i> WOMENS COLLECTION</a></li>
+                <li><a href="{% url 'contact' %}" class="mobile-nav-item"><i class="fa-solid fa-headset"></i> CONTACT US</a></li>
+            </ul>
+        </div>
+
+        <div class="mobile-menu-section">
+            <h4 class="mobile-section-title">SHOP CATEGORIES</h4>
+            <ul class="mobile-nav-list">
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-bolt"></i> NEW ARRIVALS</a></li>
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-shirt"></i> CLOTHING</a></li>
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-gem"></i> DESIGNERS</a></li>
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-vest flex"></i> DRESSES</a></li>
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-shoe-prints"></i> SHOES</a></li>
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-glasses"></i> ACCESSORIES</a></li>
+                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-wand-magic-sparkles"></i> BEAUTY</a></li>
+                <li><a href="{% url 'seller_dashboard' %}" class="mobile-nav-item"><i class="fa-solid fa-store"></i> SELLERS DASHBOARD</a></li>
+            </ul>
+        </div>
+
+        <div class="mobile-menu-footer">
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-full"><i class="fa-regular fa-user"></i> My Account Profile</a>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn btn-primary btn-full"><i class="fa-solid fa-right-to-bracket"></i> Sign In / Register</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -161,7 +231,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Global Keyboard Shortcut: Ctrl + / (or Cmd + /) & Escape Key
         document.addEventListener('keydown', function(e) {
-            // Trigger search expansion on Ctrl + / or Cmd + /
             if ((e.ctrlKey || e.metaKey) && e.key === '/') {
                 e.preventDefault();
                 if (searchContainer && searchInput) {
@@ -174,12 +243,44 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
 
-            // Close search bar on Escape key
             if (e.key === 'Escape' && searchContainer.classList.contains('active')) {
                 searchContainer.classList.remove('active');
                 if (searchInput) searchInput.blur();
             }
         });
     }
+
+    // Mobile Navigation Drawer Toggle Logic
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const mobileDrawerClose = document.getElementById('mobileDrawerClose');
+    const mobileNavDrawer = document.getElementById('mobileNavDrawer');
+    const mobileNavBackdrop = document.getElementById('mobileNavBackdrop');
+
+    function openMobileDrawer() {
+        if (mobileNavDrawer && mobileNavBackdrop) {
+            mobileNavDrawer.classList.add('active');
+            mobileNavBackdrop.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeMobileDrawer() {
+        if (mobileNavDrawer && mobileNavBackdrop) {
+            mobileNavDrawer.classList.remove('active');
+            mobileNavBackdrop.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    }
+
+    if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', openMobileDrawer);
+    if (mobileDrawerClose) mobileDrawerClose.addEventListener('click', closeMobileDrawer);
+    if (mobileNavBackdrop) mobileNavBackdrop.addEventListener('click', closeMobileDrawer);
+
+    // Auto-close drawer if screen is resized to desktop width
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 992) {
+            closeMobileDrawer();
+        }
+    });
 });
 </script>
