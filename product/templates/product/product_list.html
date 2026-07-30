@@ -1,7 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 
-{% block title %}Shop All Products - MarketPlace{% endblock %}
+{% block title %}{% if selected_category %}{{ selected_category.name }} - MarketPlace{% else %}Shop All Products - MarketPlace{% endif %}{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/product/style.css' %}">
@@ -13,115 +13,294 @@
     <nav class="breadcrumb">
         <a href="{% url 'home' %}">Home</a>
         <i class="fa-solid fa-chevron-right"></i>
-        <span>All Products</span>
+        {% if selected_category %}
+            <a href="{% url 'product_list' %}">All Products</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>{{ selected_category.name }}</span>
+        {% else %}
+            <span>All Products</span>
+        {% endif %}
     </nav>
 
     <div class="product-catalog-layout">
         <!-- Sidebar Filters -->
         <aside class="catalog-sidebar">
-            <div class="card filter-card">
-                <div class="filter-header">
-                    <h3><i class="fa-solid fa-filter"></i> Filter Products</h3>
-                    <a href="{% url 'product_list' %}" class="reset-filter">Reset All</a>
+            <div class="filter-card">
+                <!-- Header -->
+                <div class="filter-main-header">
+                    <h3><i class="fa-solid fa-sliders text-pink"></i> Filters</h3>
+                    {% if selected_category or category_display_name or request.GET.brand or min_price or max_price or selected_color or selected_size or selected_rating or request.GET.sale or request.GET.sort %}
+                        <a href="{% url 'product_list' %}" class="reset-filter"><i class="fa-solid fa-rotate-left"></i> Clear All</a>
+                    {% endif %}
                 </div>
 
-                <!-- Category Filter -->
-                <div class="filter-group">
-                    <h4 class="filter-title">Categories</h4>
-                    <ul class="filter-checkbox-list">
-                        <li>
-                            <label class="custom-checkbox">
-                                <input type="checkbox" checked>
-                                <span class="checkmark"></span>
-                                Electronics & Tech <span class="count">(1,240)</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="custom-checkbox">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                Fashion & Wearables <span class="count">(3,850)</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="custom-checkbox">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                Home & Appliances <span class="count">(940)</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="custom-checkbox">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                Gaming & Accessories <span class="count">(510)</span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="custom-checkbox">
-                                <input type="checkbox">
-                                <span class="checkmark"></span>
-                                Sports & Outdoors <span class="count">(620)</span>
-                            </label>
-                        </li>
-                    </ul>
+                <!-- Active Filter Tags -->
+                {% if selected_category or category_display_name or request.GET.brand or min_price or max_price or selected_color or selected_size or selected_rating or request.GET.sale or request.GET.sort %}
+                    <div class="active-filter-chips">
+                        {% if category_display_name or selected_category %}
+                            <span class="filter-chip">
+                                Category: {% if category_display_name %}{{ category_display_name }}{% else %}{{ selected_category.name }}{% endif %}
+                                <a href="#" onclick="removeFilterParam('category'); removeFilterParam('sort'); removeFilterParam('sale'); return false;"><i class="fa-solid fa-xmark"></i></a>
+                            </span>
+                        {% endif %}
+                        {% if request.GET.brand %}
+                            <span class="filter-chip">
+                                Brand: {{ request.GET.brand }} 
+                                <a href="#" onclick="removeFilterParam('brand'); return false;"><i class="fa-solid fa-xmark"></i></a>
+                            </span>
+                        {% endif %}
+                        {% if min_price or max_price %}
+                            <span class="filter-chip">
+                                Price: ₹{{ min_price|default:"500" }} - ₹{{ max_price|default:"10000" }}
+                                <a href="#" onclick="removeFilterParam('min_price'); removeFilterParam('max_price'); return false;"><i class="fa-solid fa-xmark"></i></a>
+                            </span>
+                        {% endif %}
+                        {% if selected_color %}
+                            <span class="filter-chip">
+                                Color: {{ selected_color }} 
+                                <a href="#" onclick="removeFilterParam('color'); return false;"><i class="fa-solid fa-xmark"></i></a>
+                            </span>
+                        {% endif %}
+                        {% if selected_size %}
+                            <span class="filter-chip">
+                                Size: {{ selected_size }} 
+                                <a href="#" onclick="removeFilterParam('size'); return false;"><i class="fa-solid fa-xmark"></i></a>
+                            </span>
+                        {% endif %}
+                        {% if selected_rating %}
+                            <span class="filter-chip">
+                                Rating: {{ selected_rating }}+ ★
+                                <a href="#" onclick="removeFilterParam('rating'); return false;"><i class="fa-solid fa-xmark"></i></a>
+                            </span>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                <!-- Section 1: Categories & Product Type -->
+                <div class="accordion-group open">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span class="accordion-title"><i class="fa-solid fa-layer-group group-icon"></i> Category</span>
+                        <i class="fa-solid fa-minus accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content" style="display: block;">
+                        <ul class="user-friendly-cat-list">
+                            <li>
+                                <a href="{% url 'product_list' %}" class="cat-pill-link {% if not selected_category %}active{% endif %}">
+                                    <span>All Categories</span>
+                                </a>
+                            </li>
+                            {% for pcat in parent_categories %}
+                                <li class="parent-cat-node {% if selected_category and selected_category.id == pcat.id or selected_category and selected_category.parent_id == pcat.id %}expanded{% endif %}">
+                                    <div class="parent-cat-flex">
+                                        <a href="#" onclick="toggleFilterParam('category', '{{ pcat.slug }}'); return false;" class="cat-pill-link {% if selected_category and selected_category.id == pcat.id %}active{% endif %}">
+                                            <i class="fa-solid fa-folder-open cat-folder-icon"></i>
+                                            <span>{{ pcat.name }}</span>
+                                        </a>
+                                        {% if pcat.subcategories.all %}
+                                            <button type="button" class="subcat-expand-btn" onclick="toggleSubcatTree(this, event)">
+                                                <i class="fa-solid {% if selected_category and selected_category.id == pcat.id or selected_category and selected_category.parent_id == pcat.id %}fa-minus{% else %}fa-plus{% endif %}"></i>
+                                            </button>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if pcat.subcategories.all %}
+                                        <ul class="subcat-tree-list"{% if selected_category and selected_category.id == pcat.id or selected_category and selected_category.parent_id == pcat.id %} style="display: block;"{% else %} style="display: none;"{% endif %}>
+                                            {% for sub in pcat.subcategories.all %}
+                                                <li>
+                                                    <a href="#" onclick="toggleFilterParam('category', '{{ sub.slug }}'); return false;" class="subcat-pill-link {% if selected_category and selected_category.id == sub.id %}active{% endif %}">
+                                                        <i class="fa-solid fa-chevron-right subcat-arrow"></i>
+                                                        <span class="sub-name">{{ sub.name }}</span>
+                                                        <span class="sub-count">{{ sub.products.count|default:"18" }}</span>
+                                                    </a>
+                                                </li>
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
                 </div>
 
-                <!-- Price Range Filter -->
-                <div class="filter-group">
-                    <h4 class="filter-title">Price Range</h4>
-                    <div class="price-inputs">
-                        <div class="price-input">
-                            <span>$</span>
-                            <input type="number" value="0" placeholder="Min">
+                <!-- Section 2: Dual Price Range Slider -->
+                <div class="accordion-group open">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span class="accordion-title"><i class="fa-solid fa-indian-rupee-sign group-icon"></i> Price Range</span>
+                        <i class="fa-solid fa-minus accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content" style="display: block;">
+                        <form method="GET" action="{% url 'product_list' %}" id="priceSliderForm">
+                            {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category.slug }}">{% endif %}
+                            {% if request.GET.brand %}<input type="hidden" name="brand" value="{{ request.GET.brand }}">{% endif %}
+                            {% if selected_color %}<input type="hidden" name="color" value="{{ selected_color }}">{% endif %}
+                            {% if selected_size %}<input type="hidden" name="size" value="{{ selected_size }}">{% endif %}
+                            {% if selected_rating %}<input type="hidden" name="rating" value="{{ selected_rating }}">{% endif %}
+
+                            <!-- Current Selected Range Label -->
+                            <div class="price-range-display">
+                                <span>Range: <strong id="priceRangeText">₹{{ min_price|default:"500" }} - ₹{{ max_price|default:"10000" }}</strong></span>
+                            </div>
+
+                            <!-- Dual Thumb Range Slider Container -->
+                            <div class="dual-range-container" id="dualRangeWrapper">
+                                <div class="dual-slider-track-bg"></div>
+                                <div class="dual-slider-track-highlight" id="dualSliderTrack"></div>
+                                <input type="range" id="dualMinSlider" min="0" max="10000" step="100" value="{{ min_price|default:"500" }}" oninput="updateDualSlider('min')" onmousedown="bringSliderToFront('min')" ontouchstart="bringSliderToFront('min')">
+                                <input type="range" id="dualMaxSlider" min="0" max="10000" step="100" value="{{ max_price|default:"10000" }}" oninput="updateDualSlider('max')" onmousedown="bringSliderToFront('max')" ontouchstart="bringSliderToFront('max')">
+                            </div>
+                            <div class="slider-ticks">
+                                <span>₹0</span>
+                                <span>₹5,000</span>
+                                <span>₹10,000</span>
+                            </div>
+
+                            <!-- Min/Max Card Inputs -->
+                            <div class="price-input-cards-flex">
+                                <div class="price-card-input">
+                                    <span class="card-input-label">Min</span>
+                                    <div class="price-currency-wrap">
+                                        <span class="currency-symbol">₹</span>
+                                        <input type="number" id="minPriceInput" name="min_price" value="{{ min_price|default:"500" }}" min="0" max="10000" oninput="onMinInput(this.value)">
+                                    </div>
+                                </div>
+                                <span class="price-to-divider">to</span>
+                                <div class="price-card-input">
+                                    <span class="card-input-label">Max</span>
+                                    <div class="price-currency-wrap">
+                                        <span class="currency-symbol">₹</span>
+                                        <input type="number" id="maxPriceInput" name="max_price" value="{{ max_price|default:"10000" }}" min="0" max="10000" oninput="onMaxInput(this.value)">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Apply Button -->
+                            <button type="submit" class="btn-apply-price-range">
+                                <i class="fa-solid fa-filter"></i> Apply Price Range
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Section 3: Brand with Search Input -->
+                <div class="accordion-group open">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span class="accordion-title"><i class="fa-solid fa-tags group-icon"></i> Brand</span>
+                        <i class="fa-solid fa-minus accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content" style="display: block;">
+                        <div class="brand-search-box">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" placeholder="Search brand..." onkeyup="filterBrandItems(this)">
                         </div>
-                        <span class="range-dash">-</span>
-                        <div class="price-input">
-                            <span>$</span>
-                            <input type="number" value="500" placeholder="Max">
+                        <ul class="user-friendly-brand-list" id="brandItemsList">
+                            {% for b in brands %}
+                                <li class="brand-item">
+                                    <a href="#" onclick="toggleFilterParam('brand', '{{ b.brand_name }}'); return false;" class="brand-link {% if request.GET.brand == b.brand_name %}active{% endif %}">
+                                        <span class="brand-name-text">{{ b.brand_name }}</span>
+                                        <span class="brand-badge-count">{{ b.count }}</span>
+                                    </a>
+                                </li>
+                            {% empty %}
+                                <li class="brand-item"><a href="#" onclick="toggleFilterParam('brand', 'Jockey'); return false;" class="brand-link"><span>Jockey</span> <span class="brand-badge-count">48</span></a></li>
+                                <li class="brand-item"><a href="#" onclick="toggleFilterParam('brand', 'Nike'); return false;" class="brand-link"><span>Nike</span> <span class="brand-badge-count">62</span></a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Section 4: Colour (Interactive Visual Swatches) -->
+                <div class="accordion-group open">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span class="accordion-title"><i class="fa-solid fa-palette group-icon"></i> Colour</span>
+                        <i class="fa-solid fa-minus accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content" style="display: block;">
+                        <div class="visual-color-swatches-grid">
+                            <button type="button" class="visual-color-chip {% if selected_color == 'Black' %}active{% endif %}" style="--chip-bg: #111111;" onclick="toggleFilterParam('color', 'Black')" title="Classic Black">
+                                <span class="chip-dot"></span>
+                                <span class="chip-label">Black</span>
+                            </button>
+                            <button type="button" class="visual-color-chip {% if selected_color == 'Navy' %}active{% endif %}" style="--chip-bg: #1B263B;" onclick="toggleFilterParam('color', 'Navy')" title="Midnight Navy">
+                                <span class="chip-dot"></span>
+                                <span class="chip-label">Navy</span>
+                            </button>
+                            <button type="button" class="visual-color-chip {% if selected_color == 'Orchid' %}active{% endif %}" style="--chip-bg: #D4829C;" onclick="toggleFilterParam('color', 'Orchid')" title="Orchid Smoke">
+                                <span class="chip-dot"></span>
+                                <span class="chip-label">Orchid</span>
+                            </button>
+                            <button type="button" class="visual-color-chip {% if selected_color == 'Pink' %}active{% endif %}" style="--chip-bg: #F4ACB7;" onclick="toggleFilterParam('color', 'Pink')" title="Blush Pink">
+                                <span class="chip-dot"></span>
+                                <span class="chip-label">Pink</span>
+                            </button>
+                            <button type="button" class="visual-color-chip {% if selected_color == 'Green' %}active{% endif %}" style="--chip-bg: #2D6A4F;" onclick="toggleFilterParam('color', 'Green')" title="Emerald Green">
+                                <span class="chip-dot"></span>
+                                <span class="chip-label">Green</span>
+                            </button>
+                            <button type="button" class="visual-color-chip {% if selected_color == 'Nude' %}active{% endif %}" style="--chip-bg: #DDB8A2;" onclick="toggleFilterParam('color', 'Nude')" title="Cream Nude">
+                                <span class="chip-dot"></span>
+                                <span class="chip-label">Nude</span>
+                            </button>
+                            <button type="button" class="visual-color-chip {% if selected_color == 'Grey' %}active{% endif %}" style="--chip-bg: #94A3B8;" onclick="toggleFilterParam('color', 'Grey')" title="Heather Grey">
+                                <span class="chip-dot"></span>
+                                <span class="chip-label">Grey</span>
+                            </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Rating Filter -->
-                <div class="filter-group">
-                    <h4 class="filter-title">Customer Rating</h4>
-                    <ul class="filter-radio-list">
-                        <li>
-                            <label class="custom-radio">
-                                <input type="radio" name="rating" checked>
-                                <span class="radiomark"></span>
-                                <span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></span> & Up
-                            </label>
-                        </li>
-                        <li>
-                            <label class="custom-radio">
-                                <input type="radio" name="rating">
-                                <span class="radiomark"></span>
-                                <span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></span> & Up
-                            </label>
-                        </li>
-                        <li>
-                            <label class="custom-radio">
-                                <input type="radio" name="rating">
-                                <span class="radiomark"></span>
-                                <span class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i><i class="fa-regular fa-star"></i></span> & Up
-                            </label>
-                        </li>
-                    </ul>
+                <!-- Section 5: Size Pills -->
+                <div class="accordion-group open">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span class="accordion-title"><i class="fa-solid fa-ruler-combined group-icon"></i> Size</span>
+                        <i class="fa-solid fa-minus accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content" style="display: block;">
+                        <div class="visual-size-pills-grid">
+                            <button type="button" class="size-pill-btn {% if selected_size == 'XS' %}active{% endif %}" onclick="toggleFilterParam('size', 'XS')">XS</button>
+                            <button type="button" class="size-pill-btn {% if selected_size == 'S' %}active{% endif %}" onclick="toggleFilterParam('size', 'S')">S</button>
+                            <button type="button" class="size-pill-btn {% if selected_size == 'M' %}active{% endif %}" onclick="toggleFilterParam('size', 'M')">M</button>
+                            <button type="button" class="size-pill-btn {% if selected_size == 'L' %}active{% endif %}" onclick="toggleFilterParam('size', 'L')">L</button>
+                            <button type="button" class="size-pill-btn {% if selected_size == 'XL' %}active{% endif %}" onclick="toggleFilterParam('size', 'XL')">XL</button>
+                            <button type="button" class="size-pill-btn {% if selected_size == 'XXL' %}active{% endif %}" onclick="toggleFilterParam('size', 'XXL')">XXL</button>
+                            <button type="button" class="size-pill-btn {% if selected_size == '32B' %}active{% endif %}" onclick="toggleFilterParam('size', '32B')">32B</button>
+                            <button type="button" class="size-pill-btn {% if selected_size == '34C' %}active{% endif %}" onclick="toggleFilterParam('size', '34C')">34C</button>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Availability -->
-                <div class="filter-group">
-                    <h4 class="filter-title">Availability</h4>
-                    <label class="custom-checkbox">
-                        <input type="checkbox" checked>
-                        <span class="checkmark"></span>
-                        In Stock Only
-                    </label>
-                </div>
+                <!-- Section 6: Interactive Rating Slider -->
+                <div class="accordion-group open">
+                    <div class="accordion-header" onclick="toggleAccordion(this)">
+                        <span class="accordion-title"><i class="fa-solid fa-star group-icon"></i> Customer Rating</span>
+                        <i class="fa-solid fa-minus accordion-icon"></i>
+                    </div>
+                    <div class="accordion-content" style="display: block;">
+                        <div class="rating-slider-container">
+                            <div class="rating-display-row">
+                                <span>Minimum: <strong id="ratingValText">{{ selected_rating|default:"4.0" }} ★</strong> & Up</span>
+                                <span class="stars-gold" id="ratingStarsPreview">
+                                    <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i>
+                                </span>
+                            </div>
+                            
+                            <div class="rating-slider-wrapper">
+                                <input type="range" class="rating-range-input" id="ratingSlider" min="1.0" max="5.0" step="0.5" value="{{ selected_rating|default:"4.0" }}" oninput="onRatingSliderInput(this.value)" onchange="toggleFilterParam('rating', this.value)">
+                                <div class="slider-ticks">
+                                    <span>1.0★</span>
+                                    <span>3.0★</span>
+                                    <span>5.0★</span>
+                                </div>
+                            </div>
+                        </div>
 
-                <button type="button" class="btn btn-primary btn-full"><i class="fa-solid fa-check"></i> Apply Filters</button>
+                        <!-- Quick Rating Preset Pills -->
+                        <div class="rating-quick-pills">
+                            <button type="button" class="rating-pill-btn {% if selected_rating == '4.5' %}active{% endif %}" onclick="toggleFilterParam('rating', '4.5')">4.5+ ★</button>
+                            <button type="button" class="rating-pill-btn {% if selected_rating == '4.0' %}active{% endif %}" onclick="toggleFilterParam('rating', '4.0')">4.0+ ★</button>
+                            <button type="button" class="rating-pill-btn {% if selected_rating == '3.5' %}active{% endif %}" onclick="toggleFilterParam('rating', '3.5')">3.5+ ★</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </aside>
 
@@ -130,193 +309,272 @@
             <!-- Catalog Header Controls -->
             <div class="catalog-toolbar">
                 <div class="toolbar-info">
-                    <h2>Catalog Items</h2>
-                    <p class="results-count">Showing <strong>1–8</strong> of <strong>148</strong> results</p>
-                </div>
-                <div class="toolbar-actions">
-                    <div class="sort-wrapper">
-                        <label for="sort-select">Sort By:</label>
-                        <select id="sort-select" class="form-select sort-select">
-                            <option value="featured">Featured First</option>
-                            <option value="price-low">Price: Low to High</option>
-                            <option value="price-high">Price: High to Low</option>
-                            <option value="rating">Highest Rated</option>
-                            <option value="newest">Newest Arrivals</option>
-                        </select>
-                    </div>
+                    <h2>{% if category_display_name %}{{ category_display_name }}{% elif selected_category %}{{ selected_category.name }}{% else %}Catalog Products{% endif %}</h2>
+                    <p class="results-count">Showing <strong>{{ page_obj.start_index }}–{{ page_obj.end_index }}</strong> of <strong>{{ page_obj.paginator.count }}</strong> products</p>
                 </div>
             </div>
 
             <!-- Products Grid -->
             <div class="grid grid-cols-3 catalog-grid">
-                <!-- Item 1 -->
-                <div class="product-card">
-                    <div class="product-thumb">
-                        <span class="badge badge-danger product-badge">-20%</span>
-                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80" alt="Wireless Headphones">
-                        <div class="product-actions">
-                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-details">
-                        <span class="product-category">Electronics • AudioTech Store</span>
-                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Premium Noise-Canceling Wireless Headphones</a></h3>
-                        <div class="product-rating">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
-                            <span class="rating-count">(128 reviews)</span>
-                        </div>
-                        <div class="product-price-row">
-                            <div class="price-box">
-                                <span class="price-current">$199.99</span>
-                                <span class="price-old">$249.99</span>
+                {% for p in page_obj %}
+                    <div class="product-card">
+                        <div class="product-thumb">
+                            {% if p.discount_percentage > 0 %}
+                                <span class="badge badge-danger product-badge">-{{ p.discount_percentage }}%</span>
+                            {% endif %}
+                            <img src="{{ p.primary_image }}" alt="{{ p.title }}">
+                            <div class="product-actions">
+                                <button type="button" class="action-btn" onclick="toggleWishlist('{{ p.id }}', this)" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                                <a href="{% url 'product_detail' p.slug %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
                             </div>
-                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Item 2 -->
-                <div class="product-card">
-                    <div class="product-thumb">
-                        <span class="badge badge-success product-badge">New Arrival</span>
-                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80" alt="Smart Watch">
-                        <div class="product-actions">
-                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-details">
-                        <span class="product-category">Tech • FitGadgets</span>
-                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Ultra Fitness Smartwatch with Heart Rate Monitor</a></h3>
-                        <div class="product-rating">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                            <span class="rating-count">(94 reviews)</span>
-                        </div>
-                        <div class="product-price-row">
-                            <div class="price-box">
-                                <span class="price-current">$149.00</span>
+                        <div class="product-details">
+                            <span class="product-category">{{ p.brand_name }} • {{ p.category.name }}</span>
+                            <h3 class="product-title"><a href="{% url 'product_detail' p.slug %}">{{ p.title }}</a></h3>
+                            <div class="product-rating">
+                                <div class="stars"><i class="fa-solid fa-star"></i></div>
+                                <span class="rating-count"><strong>{{ p.rating }}</strong> ({{ p.reviews_count }} reviews)</span>
                             </div>
-                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Item 3 -->
-                <div class="product-card">
-                    <div class="product-thumb">
-                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80" alt="Running Shoes">
-                        <div class="product-actions">
-                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-details">
-                        <span class="product-category">Fashion • Apex Footwear</span>
-                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Performance Breathable Running Sneakers</a></h3>
-                        <div class="product-rating">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-regular fa-star"></i></div>
-                            <span class="rating-count">(56 reviews)</span>
-                        </div>
-                        <div class="product-price-row">
-                            <div class="price-box">
-                                <span class="price-current">$89.95</span>
+                            <div class="product-price-row">
+                                <div class="price-box">
+                                    <span class="price-current">₹{{ p.price|floatformat:0 }}</span>
+                                    {% if p.mrp > p.price %}
+                                        <span class="price-old">₹{{ p.mrp|floatformat:0 }}</span>
+                                    {% endif %}
+                                </div>
+                                <a href="{% url 'product_detail' p.slug %}" class="btn-cart-add"><i class="fa-solid fa-bag-shopping"></i></a>
                             </div>
-                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
                         </div>
                     </div>
-                </div>
-
-                <!-- Item 4 -->
-                <div class="product-card">
-                    <div class="product-thumb">
-                        <span class="badge badge-warning product-badge">Hot</span>
-                        <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=500&q=80" alt="Gaming Headset">
-                        <div class="product-actions">
-                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                        </div>
+                {% empty %}
+                    <div class="no-products-box" style="grid-column: 1 / -1; padding: 3rem; text-align: center;">
+                        <h3>No products found matching active filters</h3>
+                        <p style="color: #64748b; margin-top: 0.5rem;">Try resetting your filters or adjusting your parameters.</p>
+                        <a href="{% url 'product_list' %}" class="btn btn-primary" style="margin-top: 1rem;">Clear All Filters</a>
                     </div>
-                    <div class="product-details">
-                        <span class="product-category">Gaming • CyberZone</span>
-                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Surround Sound Pro Gaming Headset with RGB</a></h3>
-                        <div class="product-rating">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                            <span class="rating-count">(210 reviews)</span>
-                        </div>
-                        <div class="product-price-row">
-                            <div class="price-box">
-                                <span class="price-current">$119.99</span>
-                                <span class="price-old">$149.99</span>
-                            </div>
-                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Item 5 -->
-                <div class="product-card">
-                    <div class="product-thumb">
-                        <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=500&q=80" alt="Vintage Camera">
-                        <div class="product-actions">
-                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-details">
-                        <span class="product-category">Electronics • OpticGear</span>
-                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Classic Mirrorless Digital Camera 24MP</a></h3>
-                        <div class="product-rating">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
-                            <span class="rating-count">(42 reviews)</span>
-                        </div>
-                        <div class="product-price-row">
-                            <div class="price-box">
-                                <span class="price-current">$649.00</span>
-                            </div>
-                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Item 6 -->
-                <div class="product-card">
-                    <div class="product-thumb">
-                        <span class="badge badge-info product-badge">Featured</span>
-                        <img src="https://images.unsplash.com/photo-1546868871-7041f2a55e12?auto=format&fit=crop&w=500&q=80" alt="Smart Watch Black">
-                        <div class="product-actions">
-                            <button class="action-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                            <a href="{% url 'product_detail' %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
-                        </div>
-                    </div>
-                    <div class="product-details">
-                        <span class="product-category">Tech • Nova Electronics</span>
-                        <h3 class="product-title"><a href="{% url 'product_detail' %}">Pro Waterproof Smartwatch with GPS Navigation</a></h3>
-                        <div class="product-rating">
-                            <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                            <span class="rating-count">(188 reviews)</span>
-                        </div>
-                        <div class="product-price-row">
-                            <div class="price-box">
-                                <span class="price-current">$179.95</span>
-                            </div>
-                            <a href="{% url 'cart' %}" class="btn-cart-add"><i class="fa-solid fa-cart-plus"></i></a>
-                        </div>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
 
             <!-- Pagination Controls -->
-            <div class="pagination-wrapper">
-                <ul class="pagination">
-                    <li class="page-item disabled"><a href="#" class="page-link"><i class="fa-solid fa-chevron-left"></i> Previous</a></li>
-                    <li class="page-item active"><a href="#" class="page-link">1</a></li>
-                    <li class="page-item"><a href="#" class="page-link">2</a></li>
-                    <li class="page-item"><a href="#" class="page-link">3</a></li>
-                    <li class="page-item"><a href="#" class="page-link">Next <i class="fa-solid fa-chevron-right"></i></a></li>
-                </ul>
-            </div>
+            {% if page_obj.has_other_pages %}
+                <div class="pagination-wrapper">
+                    <ul class="pagination">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item"><a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if selected_color %}&color={{ selected_color }}{% endif %}{% if selected_size %}&size={{ selected_size }}{% endif %}{% if selected_rating %}&rating={{ selected_rating }}{% endif %}" class="page-link"><i class="fa-solid fa-chevron-left"></i> Previous</a></li>
+                        {% endif %}
+
+                        <li class="page-item active"><span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span></li>
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item"><a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if request.GET.brand %}&brand={{ request.GET.brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}{% if selected_color %}&color={{ selected_color }}{% endif %}{% if selected_size %}&size={{ selected_size }}{% endif %}{% if selected_rating %}&rating={{ selected_rating }}{% endif %}" class="page-link">Next <i class="fa-solid fa-chevron-right"></i></a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            {% endif %}
         </main>
     </div>
 </div>
+
+<script>
+function toggleAccordion(header) {
+    const accordionGroup = header.closest('.accordion-group');
+    const content = accordionGroup.querySelector('.accordion-content');
+    const icon = header.querySelector('.accordion-icon');
+
+    const isOpen = accordionGroup.classList.contains('open');
+
+    if (isOpen) {
+        accordionGroup.classList.remove('open');
+        content.style.display = 'none';
+        icon.className = 'fa-solid fa-plus accordion-icon';
+    } else {
+        accordionGroup.classList.add('open');
+        content.style.display = 'block';
+        icon.className = 'fa-solid fa-minus accordion-icon';
+    }
+}
+
+function toggleSubcatTree(btn, evt) {
+    evt.stopPropagation();
+    const parentNode = btn.closest('.parent-cat-node');
+    const subList = parentNode.querySelector('.subcat-tree-list');
+    const icon = btn.querySelector('i');
+
+    const isOpen = parentNode.classList.contains('expanded');
+
+    if (isOpen) {
+        parentNode.classList.remove('expanded');
+        if (subList) subList.style.display = 'none';
+        icon.className = 'fa-solid fa-plus';
+    } else {
+        parentNode.classList.add('expanded');
+        if (subList) subList.style.display = 'block';
+        icon.className = 'fa-solid fa-minus';
+    }
+}
+
+function filterBrandItems(input) {
+    const filter = input.value.toLowerCase();
+    const items = document.querySelectorAll('#brandItemsList .brand-item');
+
+    items.forEach(item => {
+        const text = item.innerText.toLowerCase();
+        if (text.includes(filter)) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function toggleFilterParam(key, value) {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get(key) === value) {
+        urlParams.delete(key);
+    } else {
+        urlParams.set(key, value);
+    }
+    urlParams.delete('page');
+    window.location.search = urlParams.toString();
+}
+
+function removeFilterParam(key) {
+    const urlParams = new URLSearchParams(window.location.search);
+    urlParams.delete(key);
+    urlParams.delete('page');
+    window.location.search = urlParams.toString();
+}
+
+function onRatingSliderInput(val) {
+    const textEl = document.getElementById('ratingValText');
+    const starsEl = document.getElementById('ratingStarsPreview');
+    if (textEl) textEl.innerText = val + ' ★';
+
+    if (starsEl) {
+        let num = parseFloat(val);
+        let html = '';
+        for (let i = 1; i <= 5; i++) {
+            if (num >= i) {
+                html += '<i class="fa-solid fa-star"></i>';
+            } else if (num >= i - 0.5) {
+                html += '<i class="fa-solid fa-star-half-stroke"></i>';
+            } else {
+                html += '<i class="fa-regular fa-star"></i>';
+            }
+        }
+        starsEl.innerHTML = html;
+    }
+}
+
+function bringSliderToFront(target) {
+    const minSlider = document.getElementById('dualMinSlider');
+    const maxSlider = document.getElementById('dualMaxSlider');
+    if (target === 'min') {
+        minSlider.style.zIndex = '10';
+        maxSlider.style.zIndex = '5';
+    } else {
+        maxSlider.style.zIndex = '10';
+        minSlider.style.zIndex = '5';
+    }
+}
+
+function updateDualSlider(activeInput) {
+    const minSlider = document.getElementById('dualMinSlider');
+    const maxSlider = document.getElementById('dualMaxSlider');
+    const minInput = document.getElementById('minPriceInput');
+    const maxInput = document.getElementById('maxPriceInput');
+    const track = document.getElementById('dualSliderTrack');
+
+    if (!minSlider || !maxSlider) return;
+
+    let minVal = parseInt(minSlider.value);
+    let maxVal = parseInt(maxSlider.value);
+
+    if (activeInput === 'min') {
+        if (minVal >= maxVal - 100) {
+            minVal = maxVal - 100;
+            minSlider.value = minVal;
+        }
+    } else if (activeInput === 'max') {
+        if (maxVal <= minVal + 100) {
+            maxVal = minVal + 100;
+            maxSlider.value = maxVal;
+        }
+    } else {
+        if (minVal >= maxVal) {
+            minVal = maxVal - 100;
+            minSlider.value = minVal;
+        }
+    }
+
+    if (minInput) minInput.value = minVal;
+    if (maxInput) maxInput.value = maxVal;
+
+    const percentMin = (minVal / 10000) * 100;
+    const percentMax = (maxVal / 10000) * 100;
+
+    if (track) {
+        track.style.left = percentMin + '%';
+        track.style.width = Math.max(0, percentMax - percentMin) + '%';
+    }
+
+    const rangeText = document.getElementById('priceRangeText');
+    if (rangeText) {
+        rangeText.innerText = '₹' + minVal.toLocaleString() + ' - ₹' + maxVal.toLocaleString();
+    }
+}
+
+function onMinInput(val) {
+    const minSlider = document.getElementById('dualMinSlider');
+    if (minSlider) {
+        minSlider.value = val;
+        bringSliderToFront('min');
+        updateDualSlider('min');
+    }
+}
+
+function onMaxInput(val) {
+    const maxSlider = document.getElementById('dualMaxSlider');
+    if (maxSlider) {
+        maxSlider.value = val;
+        bringSliderToFront('max');
+        updateDualSlider('max');
+    }
+}
+
+// Initialize Dual Slider & Rating Preview on page load
+document.addEventListener('DOMContentLoaded', function() {
+    bringSliderToFront('min');
+    updateDualSlider();
+    const ratingSlider = document.getElementById('ratingSlider');
+    if (ratingSlider) {
+        onRatingSliderInput(ratingSlider.value);
+    }
+});
+
+function toggleWishlist(productId, btn) {
+    fetch(`/customer/wishlist/toggle/${productId}/`, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const icon = btn.querySelector('i');
+        if (data.added) {
+            icon.className = 'fa-solid fa-heart';
+            btn.style.color = '#e91e63';
+            if (typeof showToast === 'function') {
+                showToast('Added to Wishlist!', 'success');
+            }
+        } else {
+            icon.className = 'fa-regular fa-heart';
+            btn.style.color = '';
+            if (typeof showToast === 'function') {
+                showToast('Removed from Wishlist', 'remove');
+            }
+        }
+    });
+}
+</script>
 {% endblock %}

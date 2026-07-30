@@ -13,16 +13,37 @@
     <div class="card profile-header-card">
         <div class="profile-banner"></div>
         <div class="profile-meta-row">
-            <div class="profile-avatar-large">
-                <i class="fa-solid fa-user"></i>
-                <button type="button" class="avatar-edit-btn" title="Change Avatar"><i class="fa-solid fa-camera"></i></button>
+            <div class="profile-avatar-large" id="avatarContainer">
+                <i class="fa-solid fa-user" id="avatarDefaultIcon"></i>
+                <img id="avatarImage" src="" alt="Profile Photo" style="display: none;">
+                <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
+                
+                <button type="button" class="avatar-edit-btn" id="avatarEditBtn" title="Update Profile Photo">
+                    <i class="fa-solid fa-camera"></i>
+                </button>
             </div>
             <div class="profile-user-info">
-                <h2>John Doe <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Verified Account</span></h2>
-                <p class="user-email"><i class="fa-regular fa-envelope"></i> john.doe@example.com • Member since Jan 2024</p>
+                <h2>
+                    {% if user.is_authenticated %}
+                        {{ user.get_full_name|default:user.username }}
+                    {% else %}
+                        John Doe
+                    {% endif %}
+                    <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Verified Account</span>
+                </h2>
+                <p class="user-email">
+                    <i class="fa-regular fa-envelope"></i> 
+                    {% if user.is_authenticated %}
+                        {{ user.email|default:user.username }}
+                    {% else %}
+                        john.doe@example.com
+                    {% endif %}
+                    • Member since {{ user.date_joined|date:"M Y"|default:"Jan 2024" }}
+                </p>
             </div>
             <div class="profile-header-actions">
                 <a href="{% url 'customer_orders' %}" class="btn btn-outline-primary"><i class="fa-solid fa-box"></i> My Orders (12)</a>
+                <a href="{% url 'logout' %}" class="btn btn-outline-danger"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
             </div>
         </div>
     </div>
@@ -33,22 +54,22 @@
             <div class="card-header">
                 <h3 class="card-title"><i class="fa-regular fa-user"></i> Personal Information</h3>
             </div>
-            <form onsubmit="event.preventDefault(); alert('Profile updated successfully!');">
+            <form onsubmit="event.preventDefault(); if(typeof showToast === 'function') showToast('Profile updated successfully!'); else alert('Profile updated successfully!');">
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label class="form-label">First Name</label>
-                        <input type="text" class="form-control" value="John" required>
+                        <input type="text" class="form-control" value="{% if user.is_authenticated %}{{ user.first_name|default:'John' }}{% else %}John{% endif %}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Last Name</label>
-                        <input type="text" class="form-control" value="Doe" required>
+                        <input type="text" class="form-control" value="{% if user.is_authenticated %}{{ user.last_name|default:'Doe' }}{% else %}Doe{% endif %}" required>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label class="form-label">Email Address</label>
-                        <input type="email" class="form-control" value="john.doe@example.com" required>
+                        <input type="email" class="form-control" value="{% if user.is_authenticated %}{{ user.email|default:'john.doe@example.com' }}{% else %}john.doe@example.com{% endif %}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Phone Number</label>
@@ -72,15 +93,33 @@
             <form onsubmit="event.preventDefault(); alert('Password updated successfully!');">
                 <div class="form-group">
                     <label class="form-label">Current Password</label>
-                    <input type="password" class="form-control" placeholder="••••••••" required>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input type="password" class="form-control" placeholder="••••••••" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">New Password</label>
-                    <input type="password" class="form-control" placeholder="At least 8 characters" required>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-key input-icon"></i>
+                        <input type="password" class="form-control" placeholder="At least 8 characters" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Confirm New Password</label>
-                    <input type="password" class="form-control" placeholder="Repeat new password" required>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-shield-halved input-icon"></i>
+                        <input type="password" class="form-control" placeholder="Repeat new password" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-key"></i> Update Password</button>
@@ -88,4 +127,54 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarFileInput = document.getElementById('avatarFileInput');
+    const avatarEditBtn = document.getElementById('avatarEditBtn');
+    const avatarImage = document.getElementById('avatarImage');
+    const avatarDefaultIcon = document.getElementById('avatarDefaultIcon');
+
+    // Load saved avatar from localStorage
+    const savedAvatar = localStorage.getItem('user_profile_avatar');
+    if (savedAvatar) {
+        avatarImage.src = savedAvatar;
+        avatarImage.style.display = 'block';
+        avatarDefaultIcon.style.display = 'none';
+    }
+
+    // Trigger file dialog on clicking edit button
+    if (avatarEditBtn && avatarFileInput) {
+        avatarEditBtn.addEventListener('click', function() {
+            avatarFileInput.click();
+        });
+    }
+
+    // Handle photo selection / update
+    if (avatarFileInput) {
+        avatarFileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (!file.type.startsWith('image/')) {
+                    if (typeof showToast === 'function') showToast('Please select a valid image file', 'remove');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const base64Data = event.target.result;
+                    avatarImage.src = base64Data;
+                    avatarImage.style.display = 'block';
+                    avatarDefaultIcon.style.display = 'none';
+                    localStorage.setItem('user_profile_avatar', base64Data);
+                    if (typeof showToast === 'function') {
+                        showToast('Profile photo updated successfully!');
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
 {% endblock %}

@@ -78,234 +78,167 @@
     </div>
 </section>
 
-<!-- Features / Value Props Section -->
-<section class="features-section">
+<!-- Women's Brand Spotlight Section -->
+<section class="brand-spotlight-section">
     <div class="container">
-        <div class="grid grid-cols-4">
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fa-solid fa-truck-fast"></i></div>
-                <div class="feature-info">
-                    <h4>Express Shipping</h4>
-                    <p>Free delivery on orders over $50 with real-time tracking.</p>
-                </div>
+        <h2 class="spotlight-title">Women's Brand Spotlight</h2>
+
+        <div class="spotlight-carousel-wrapper">
+            <button type="button" class="spotlight-nav-btn prev-btn" id="spotlightPrevBtnWomen" aria-label="Previous Women Brands">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="spotlight-track" id="spotlightTrackWomen">
+                {% for brand in women_brand_spotlights %}
+                <a href="{{ brand.get_destination_url }}" class="spotlight-card">
+                    <div class="spotlight-image-wrapper">
+                        <img src="{{ brand.get_image_url }}" alt="{{ brand.name }} Women Brand Spotlight" class="spotlight-img">
+                        <div class="spotlight-brand-logo">
+                            {% if "LAKMĒ" in brand.logo_text or "MAYBELLINE" in brand.logo_text %}
+                            <div class="logo-lakme">
+                                <span class="brand-sub1">LAKMĒ</span>
+                                <span class="brand-pipe">|</span>
+                                <span class="brand-sub2">MAYBELLINE<br><small>NEW YORK</small></span>
+                            </div>
+                            {% elif "aurelīa" in brand.logo_text or "W |" in brand.logo_text %}
+                            <div class="logo-aurelia">
+                                <span class="brand-badge-w">W</span>
+                                <span class="brand-badge-aurelia">aurelīa</span>
+                            </div>
+                            {% elif brand.logo_text == "Libas" %}
+                            <div class="logo-libas">
+                                <span>Libas</span>
+                            </div>
+                            {% elif brand.logo_text == "DAALi" %}
+                            <div class="logo-daali">
+                                <span>DAALi</span>
+                            </div>
+                            {% else %}
+                            <div class="logo-custom">
+                                <span>{{ brand.logo_text|default:brand.name }}</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
             </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                <div class="feature-info">
-                    <h4>Buyer Protection</h4>
-                    <p>Money-back guarantee if items are not as described.</p>
-                </div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fa-solid fa-headset"></i></div>
-                <div class="feature-info">
-                    <h4>24/7 Customer Support</h4>
-                    <p>Dedicated customer care team ready to assist anytime.</p>
-                </div>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"><i class="fa-solid fa-lock"></i></div>
-                <div class="feature-info">
-                    <h4>100% Safe Payment</h4>
-                    <p>Encrypted payment processing via Visa, Mastercard & PayPal.</p>
-                </div>
-            </div>
+
+            <button type="button" class="spotlight-nav-btn next-btn" id="spotlightNextBtnWomen" aria-label="Next Women Brands">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
     </div>
 </section>
 
-<!-- Featured Categories -->
-<section class="categories-section">
+<!-- Men's Brand Spotlight Section -->
+<section class="brand-spotlight-section">
     <div class="container">
-        <div class="section-header">
-            <span class="subtitle">Explore Categories</span>
-            <h2>Top Shopping Categories</h2>
-        </div>
-        <div class="grid grid-cols-4">
-            <a href="{% url 'product_list' %}" class="category-card">
-                <div class="category-icon"><i class="fa-solid fa-laptop"></i></div>
-                <h3>Electronics & Gadgets</h3>
-                <p>1,240+ Products</p>
-                <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
-            </a>
-            <a href="{% url 'product_list' %}" class="category-card">
-                <div class="category-icon"><i class="fa-solid fa-shirt"></i></div>
-                <h3>Fashion & Apparel</h3>
-                <p>3,850+ Products</p>
-                <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
-            </a>
-            <a href="{% url 'product_list' %}" class="category-card">
-                <div class="category-icon"><i class="fa-solid fa-couch"></i></div>
-                <h3>Home & Living</h3>
-                <p>940+ Products</p>
-                <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
-            </a>
-            <a href="{% url 'product_list' %}" class="category-card">
-                <div class="category-icon"><i class="fa-solid fa-basketball"></i></div>
-                <h3>Sports & Outdoors</h3>
-                <p>620+ Products</p>
-                <span class="category-link">Shop Category <i class="fa-solid fa-arrow-right"></i></span>
-            </a>
+        <h2 class="spotlight-title">Men's Brand Spotlight</h2>
+
+        <div class="spotlight-carousel-wrapper">
+            <button type="button" class="spotlight-nav-btn prev-btn" id="spotlightPrevBtnMen" aria-label="Previous Men Brands">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="spotlight-track" id="spotlightTrackMen">
+                {% for brand in men_brand_spotlights %}
+                <a href="{{ brand.get_destination_url }}" class="spotlight-card">
+                    <div class="spotlight-image-wrapper">
+                        <img src="{{ brand.get_image_url }}" alt="{{ brand.name }} Men Brand Spotlight" class="spotlight-img">
+                        <div class="spotlight-brand-logo">
+                            <div class="logo-custom">
+                                <span>{{ brand.logo_text|default:brand.name }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+
+            <button type="button" class="spotlight-nav-btn next-btn" id="spotlightNextBtnMen" aria-label="Next Men Brands">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
     </div>
 </section>
 
-<!-- Featured / Popular Products Grid Section -->
-<section class="featured-products-section">
+<!-- Shop By Category Showcase Section -->
+<section class="brand-spotlight-section">
     <div class="container">
-        <div class="section-header-flex">
-            <div>
-                <span class="subtitle">Curated Selection</span>
-                <h2>Trending Marketplace Products</h2>
-            </div>
-            <a href="{% url 'product_list' %}" class="btn btn-outline-primary">View All Products <i
-                    class="fa-solid fa-arrow-right"></i></a>
-        </div>
+        <h2 class="spotlight-title">Shop By Category</h2>
 
-        <div class="grid grid-cols-4">
-            <!-- Sample Product 1 -->
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=500&q=80"
-                        alt="Headphones" class="product-img">
-                    <span class="product-badge badge-sale">SALE</span>
-                    <button class="wishlist-toggle-btn" title="Add to Wishlist"><i
-                            class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="product-details">
-                    <div class="product-category">Electronics</div>
-                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Premium Noise-Canceling Wireless
-                            Headphones</a></h3>
-                    <div class="product-rating">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star-half-stroke"></i>
-                        <span>(4.8)</span>
-                    </div>
-                    <div class="product-footer">
-                        <div class="product-price">
-                            <span class="current-price">$199.99</span>
-                            <span class="old-price">$249.99</span>
-                        </div>
-                        <a href="{% url 'cart' %}" class="btn btn-primary btn-sm"><i
-                                class="fa-solid fa-cart-shopping"></i> Add</a>
-                    </div>
-                </div>
+        <div class="spotlight-carousel-wrapper">
+            <button type="button" class="spotlight-nav-btn prev-btn" id="categoryPrevBtn" aria-label="Previous Categories">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <div class="spotlight-track" id="categoryTrack">
+                {% for item in featured_categories %}
+                    {% if item.is_promo_card %}
+                        <!-- Solid Promo Sale Card (Pink Card) -->
+                        <a href="{{ item.get_destination_url }}" class="spotlight-card promo-spotlight-card">
+                            <div class="spotlight-image-wrapper promo-wrapper" style="--card-bg: {{ item.promo_bg_color|default:'#e91e63' }}; background: linear-gradient(135deg, var(--card-bg) 0%, #c2185b 100%);">
+                                <div class="promo-card-content">
+                                    {% if item.brand_sub_title %}
+                                        <span class="promo-brand-text">{{ item.brand_sub_title }}</span>
+                                    {% endif %}
+                                    <h3 class="promo-title">{{ item.title }}</h3>
+                                </div>
+                            </div>
+                        </a>
+                    {% else %}
+                        <!-- Image Category Card -->
+                        <a href="{{ item.get_destination_url }}" class="spotlight-card">
+                            <div class="spotlight-image-wrapper">
+                                <img src="{{ item.get_image_url }}" alt="{{ item.title }}" class="spotlight-img">
+                                <div class="spotlight-brand-logo">
+                                    <div class="logo-custom">
+                                        <span>{{ item.title }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    {% endif %}
+                {% endfor %}
             </div>
 
-            <!-- Sample Product 2 -->
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=500&q=80"
-                        alt="Smartwatch" class="product-img">
-                    <span class="product-badge badge-new">NEW</span>
-                    <button class="wishlist-toggle-btn" title="Add to Wishlist"><i
-                            class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="product-details">
-                    <div class="product-category">Wearables</div>
-                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Ultra Fitness Smartwatch with Heart
-                            Rate Monitor</a></h3>
-                    <div class="product-rating">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <span>(5.0)</span>
-                    </div>
-                    <div class="product-footer">
-                        <div class="product-price">
-                            <span class="current-price">$149.00</span>
-                        </div>
-                        <a href="{% url 'cart' %}" class="btn btn-primary btn-sm"><i
-                                class="fa-solid fa-cart-shopping"></i> Add</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sample Product 3 -->
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=500&q=80"
-                        alt="Sneakers" class="product-img">
-                    <button class="wishlist-toggle-btn" title="Add to Wishlist"><i
-                            class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="product-details">
-                    <div class="product-category">Footwear</div>
-                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Performance Breathable Running
-                            Sneakers</a></h3>
-                    <div class="product-rating">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-regular fa-star"></i>
-                        <span>(4.2)</span>
-                    </div>
-                    <div class="product-footer">
-                        <div class="product-price">
-                            <span class="current-price">$89.95</span>
-                        </div>
-                        <a href="{% url 'cart' %}" class="btn btn-primary btn-sm"><i
-                                class="fa-solid fa-cart-shopping"></i> Add</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sample Product 4 -->
-            <div class="product-card">
-                <div class="product-img-box">
-                    <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=500&q=80"
-                        alt="Gaming Headset" class="product-img">
-                    <span class="product-badge badge-hot">HOT</span>
-                    <button class="wishlist-toggle-btn" title="Add to Wishlist"><i
-                            class="fa-regular fa-heart"></i></button>
-                </div>
-                <div class="product-details">
-                    <div class="product-category">Gaming</div>
-                    <h3 class="product-title"><a href="{% url 'product_detail' %}">Surround Sound Pro Gaming Headset
-                            with RGB</a></h3>
-                    <div class="product-rating">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star-half-stroke"></i>
-                        <span>(4.7)</span>
-                    </div>
-                    <div class="product-footer">
-                        <div class="product-price">
-                            <span class="current-price">$119.00</span>
-                            <span class="old-price">$149.00</span>
-                        </div>
-                        <a href="{% url 'cart' %}" class="btn btn-primary btn-sm"><i
-                                class="fa-solid fa-cart-shopping"></i> Add</a>
-                    </div>
-                </div>
-            </div>
+            <button type="button" class="spotlight-nav-btn next-btn" id="categoryNextBtn" aria-label="Next Categories">
+                <i class="fa-solid fa-chevron-right"></i>
+            </button>
         </div>
     </div>
 </section>
 
-<!-- Call To Action Seller Banner -->
-<section class="cta-seller-section">
-    <div class="container">
-        <div class="cta-seller-box">
-            <div class="cta-seller-content">
-                <span class="badge badge-seller">BECOME A VERIFIED SELLER</span>
-                <h2>Grow Your Business on Islington Marketplace</h2>
-                <p>Reach thousands of active shoppers daily. List your inventory, manage orders seamlessly, and get paid
-                    directly to your bank account.</p>
-                <div class="cta-buttons">
-                    <a href="{% url 'register' %}" class="btn btn-seller btn-lg"><i class="fa-solid fa-store"></i> Open
-                        Your Seller Store</a>
-                    <a href="{% url 'contact' %}" class="btn btn-outline-secondary btn-lg">Learn How It Works</a>
-                </div>
-            </div>
+<!-- Shop Drop Grid Section -->
+<section class="shop-drop-section">
+    <div class="shop-drop-container">
+        <h2 class="shop-drop-header-title">Shop Drop</h2>
+
+        <div class="shop-drop-grid">
+            {% for item in shop_drops %}
+                {% if item.is_promo_card %}
+                    <a href="{{ item.get_destination_url }}" class="shop-drop-card">
+                        <div class="shop-drop-img-box promo-box" style="--card-bg: {{ item.promo_bg_color|default:'#e91e63' }}; background: var(--card-bg);">
+                            <span class="shop-drop-promo-sale">SALE</span>
+                        </div>
+                        <div class="shop-drop-info">
+                            <h3 class="shop-drop-title">{{ item.promo_brand_text }}</h3>
+                            <span class="shop-drop-offer">{{ item.promo_caption }}</span>
+                        </div>
+                    </a>
+                {% else %}
+                    <a href="{{ item.get_destination_url }}" class="shop-drop-card">
+                        <div class="shop-drop-img-box">
+                            <img src="{{ item.get_image_url }}" alt="{{ item.title }}" class="shop-drop-img">
+                        </div>
+                        <div class="shop-drop-info">
+                            <h3 class="shop-drop-title">{{ item.title }}</h3>
+                            <span class="shop-drop-offer">{{ item.offer_tag }}</span>
+                        </div>
+                    </a>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
 </section>
@@ -373,6 +306,27 @@
         }
 
         startAutoPlay();
+
+        // Helper for spotlight track scroll navigation
+        function setupSpotlightNav(trackId, prevBtnId, nextBtnId) {
+            const track = document.getElementById(trackId);
+            const prevBtn = document.getElementById(prevBtnId);
+            const nextBtn = document.getElementById(nextBtnId);
+
+            if (track && prevBtn && nextBtn) {
+                nextBtn.addEventListener('click', function () {
+                    track.scrollBy({ left: 360, behavior: 'smooth' });
+                });
+                prevBtn.addEventListener('click', function () {
+                    track.scrollBy({ left: -360, behavior: 'smooth' });
+                });
+            }
+        }
+
+        // Initialize Carousels & Horizontal Tracks
+        setupSpotlightNav('spotlightTrackWomen', 'spotlightPrevBtnWomen', 'spotlightNextBtnWomen');
+        setupSpotlightNav('spotlightTrackMen', 'spotlightPrevBtnMen', 'spotlightNextBtnMen');
+        setupSpotlightNav('categoryTrack', 'categoryPrevBtn', 'categoryNextBtn');
     });
 </script>
 {% endblock %}

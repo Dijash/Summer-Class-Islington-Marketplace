@@ -112,6 +112,29 @@
 
 .input-with-icon .form-control {
   padding-left: 2.6rem;
+  padding-right: 2.8rem;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.25rem 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+  z-index: 5;
+}
+
+.password-toggle-btn:hover {
+  color: #0f172a;
 }
 
 .label-row {
@@ -206,35 +229,51 @@
 
 .profile-avatar-large {
   position: relative;
-  width: 100px;
-  height: 100px;
+  width: 105px;
+  height: 105px;
   border-radius: 50%;
-  background: var(--bg-surface);
-  border: 4px solid var(--bg-surface);
-  box-shadow: var(--shadow-md);
+  background: var(--bg-surface, #ffffff);
+  border: 4px solid var(--bg-surface, #ffffff);
+  box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.12));
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.5rem;
-  color: var(--primary);
+  color: var(--primary, #0f172a);
   flex-shrink: 0;
+  overflow: visible;
+}
+
+.profile-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .avatar-edit-btn {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 30px;
-  height: 30px;
+  bottom: 2px;
+  right: 2px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: var(--primary);
-  color: #ffffff;
-  border: 2px solid #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.75rem;
+  font-size: 0.78rem;
   cursor: pointer;
+  border: 2px solid #ffffff;
+  background: #0f172a;
+  color: #ffffff;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  z-index: 10;
+}
+
+.avatar-edit-btn:hover {
+  background: #e91e63;
+  transform: scale(1.1);
 }
 
 .profile-user-info {
@@ -269,3 +308,30 @@
     align-items: flex-start;
   }
 }
+
+.profile-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-outline-danger {
+  background: transparent;
+  color: #ef4444;
+  border: 1.5px solid #ef4444;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.btn-outline-danger:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+

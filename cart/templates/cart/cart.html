@@ -1,5 +1,245 @@
 {% extends 'layouts/base.html' %}
-{% block title %}Cart - Marketplace{% endblock %}
+{% load static %}
+
+{% block title %}Shopping Cart - MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/cart/style.css' %}">
+<style>
+.cart-qty-control {
+    display: inline-flex;
+    align-items: center;
+    border: 1.5px solid #0f172a;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #ffffff;
+}
+.cart-qty-btn {
+    background: #f8fafc;
+    border: none;
+    width: 32px;
+    height: 32px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cart-qty-btn:hover {
+    background: #e2e8f0;
+}
+.cart-qty-input {
+    width: 44px;
+    height: 32px;
+    border: none;
+    border-left: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+.empty-cart-box {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: #ffffff;
+    border: 1.5px solid #0f172a;
+    border-radius: 12px;
+}
+.empty-cart-box i {
+    font-size: 3.5rem;
+    color: #0f172a;
+    margin-bottom: 1rem;
+}
+</style>
+{% endblock %}
+
 {% block content %}
-<h1>Shopping Cart</h1>
+<div class="container main-content">
+    <div class="cart-page-header">
+        <h1 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;"><i class="fa-solid fa-cart-shopping"></i> Shopping Cart</h1>
+        <p style="color: #64748b; margin-top: 0.25rem;">Review your selected items before proceeding to checkout.</p>
+    </div>
+
+    {% if cart_items %}
+        <div class="cart-layout-grid" id="cartLayoutGrid">
+            <!-- Items Table Section -->
+            <div>
+                <div class="card cart-table-card">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartTableBody">
+                            {% for item in cart_items %}
+                                <tr class="cart-row" id="cartRow-{{ item.id }}">
+                                    <td>
+                                        <div class="cart-product-cell">
+                                            <img src="{{ item.product.primary_image }}" alt="{{ item.product.title }}" class="cart-item-img">
+                                            <div class="cart-item-info">
+                                                <span class="seller-name">{{ item.product.brand_name }}</span>
+                                                <h3><a href="{% url 'product_detail' item.product.slug %}">{{ item.product.title }}</a></h3>
+                                                {% if item.size or item.color %}
+                                                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+                                                        {% if item.size %}Size: <strong>{{ item.size }}</strong>{% endif %}
+                                                        {% if item.color %} • Color: <strong>{{ item.color }}</strong>{% endif %}
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="cart-price">₹{{ item.product.price|floatformat:0 }}</td>
+                                    <td>
+                                        <div class="cart-qty-control">
+                                            <button type="button" class="cart-qty-btn" onclick="updateCartQty('{{ item.id }}', 'decrease')">-</button>
+                                            <input type="text" class="cart-qty-input" id="cartQtyInput-{{ item.id }}" value="{{ item.quantity }}" readonly>
+                                            <button type="button" class="cart-qty-btn" onclick="updateCartQty('{{ item.id }}', 'increase')">+</button>
+                                        </div>
+                                    </td>
+                                    <td class="cart-subtotal" id="itemSubtotal-{{ item.id }}">₹{{ item.get_subtotal|floatformat:0 }}</td>
+                                    <td>
+                                        <button type="button" class="btn-remove-item" onclick="removeCartItem('{{ item.id }}')" title="Remove Item">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                    <a href="{% url 'product_list' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Continue Shopping</a>
+                </div>
+            </div>
+
+            <!-- Order Summary Section -->
+            <div>
+                <div class="card summary-card">
+                    <h2>Order Summary</h2>
+                    <div class="summary-lines">
+                        <div class="summary-line">
+                            <span>Subtotal</span>
+                            <span id="summarySubtotal">₹{{ subtotal|floatformat:0 }}</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Estimated Shipping</span>
+                            <span id="summaryShipping">{% if shipping == 0 %}<strong class="text-success">FREE</strong>{% else %}₹{{ shipping }}{% endif %}</span>
+                        </div>
+                        <div class="summary-line">
+                            <span>Estimated Tax (5%)</span>
+                            <span id="summaryTax">₹{{ tax|floatformat:0 }}</span>
+                        </div>
+                        <div class="summary-divider"></div>
+                        <div class="summary-line total-line">
+                            <span>Grand Total</span>
+                            <span class="total-price" id="summaryGrandTotal">₹{{ grand_total|floatformat:0 }}</span>
+                        </div>
+                    </div>
+
+                    <a href="{% url 'checkout' %}" class="btn btn-primary btn-full btn-lg btn-checkout">
+                        Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+
+                    <div class="trust-guarantee-box">
+                        <div class="trust-item">
+                            <i class="fa-solid fa-shield-halved"></i> 100% Secure Encrypted Checkout
+                        </div>
+                        <div class="trust-item">
+                            <i class="fa-solid fa-truck-fast"></i> Free Shipping on orders over ₹1,000
+                        </div>
+                        <div class="trust-item">
+                            <i class="fa-solid fa-rotate-left"></i> 30-Day Hassle-Free Returns
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-cart-box">
+            <i class="fa-solid fa-cart-flatbed"></i>
+            <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: #0f172a;">Your Shopping Cart is Empty</h2>
+            <p style="color: #64748b; margin: 0.5rem 0 1.5rem 0;">Looks like you haven't added any products to your cart yet.</p>
+            <a href="{% url 'product_list' %}" class="btn btn-primary" style="padding: 12px 28px; border-radius: 8px;">Explore Products</a>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function updateCartQty(itemId, action) {
+    fetch(`/cart/update/${itemId}/?action=${action}`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            if (data.item_qty <= 0) {
+                const row = document.getElementById(`cartRow-${itemId}`);
+                if (row) row.remove();
+            } else {
+                const qtyInput = document.getElementById(`cartQtyInput-${itemId}`);
+                const itemSubtotal = document.getElementById(`itemSubtotal-${itemId}`);
+                if (qtyInput) qtyInput.value = data.item_qty;
+                if (itemSubtotal) itemSubtotal.innerText = `₹${Math.round(data.item_subtotal).toLocaleString()}`;
+            }
+            updateSummaryTotals(data);
+            refreshMiniCart();
+        }
+    });
+}
+
+function removeCartItem(itemId) {
+    fetch(`/cart/remove/${itemId}/`, {
+        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            if (typeof showToast === 'function') {
+                showToast(data.message, 'remove');
+            }
+            const row = document.getElementById(`cartRow-${itemId}`);
+            if (row) {
+                row.style.transition = 'all 0.3s ease';
+                row.style.opacity = '0';
+                setTimeout(() => {
+                    row.remove();
+                    updateSummaryTotals(data);
+                    refreshMiniCart();
+                }, 300);
+            }
+        }
+    });
+}
+
+function updateSummaryTotals(data) {
+    const subtotalEl = document.getElementById('summarySubtotal');
+    const shippingEl = document.getElementById('summaryShipping');
+    const taxEl = document.getElementById('summaryTax');
+    const grandTotalEl = document.getElementById('summaryGrandTotal');
+    const tbody = document.getElementById('cartTableBody');
+
+    if (tbody && tbody.children.length === 0) {
+        window.location.reload();
+        return;
+    }
+
+    if (subtotalEl) subtotalEl.innerText = `₹${Math.round(data.subtotal).toLocaleString()}`;
+    if (shippingEl) shippingEl.innerHTML = data.shipping === 0 ? '<strong class="text-success">FREE</strong>' : `₹${data.shipping}`;
+    if (taxEl) taxEl.innerText = `₹${Math.round(data.tax).toLocaleString()}`;
+    if (grandTotalEl) grandTotalEl.innerText = `₹${Math.round(data.grand_total).toLocaleString()}`;
+}
+
+function refreshMiniCart() {
+    if (typeof loadMiniCart === 'function') {
+        loadMiniCart();
+    }
+}
+</script>
 {% endblock %}

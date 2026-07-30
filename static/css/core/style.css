@@ -1323,3 +1323,540 @@ textarea.form-control {
     grid-column: span 1;
   }
 }
+
+/* ==========================================================================
+   BRAND SPOTLIGHT SECTION STYLING (EXACT DESIGN MATCH)
+   ========================================================================== */
+.brand-spotlight-section {
+  width: 100%;
+  padding: 0 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 3.5rem;
+  position: relative;
+}
+
+.brand-spotlight-section .container {
+  max-width: 1645px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.spotlight-title {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 2.15rem;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: 2rem;
+  letter-spacing: -0.3px;
+}
+
+.spotlight-carousel-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.spotlight-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: calc((100% - 6rem) / 5);
+  gap: 1.5rem;
+  width: 100%;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  padding: 0.5rem 0;
+}
+
+.spotlight-track::-webkit-scrollbar {
+  display: none;
+}
+
+.spotlight-card {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.spotlight-card:hover {
+  transform: translateY(-4px);
+}
+
+.spotlight-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1.12;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+  background-color: #f1f5f9;
+}
+
+.spotlight-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.5s ease;
+}
+
+.spotlight-card:hover .spotlight-img {
+  transform: scale(1.05);
+}
+
+/* Gradient Overlay at the bottom of the card for logo contrast */
+.spotlight-image-wrapper::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.68) 0%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+/* Brand Logo Overlays matching reference image styling */
+.spotlight-brand-logo {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  width: 90%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* DAALI Logo */
+.logo-daali span {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* Libas Logo */
+.logo-libas span {
+  font-family: 'Great Vibes', 'Playfair Display', cursive, serif;
+  font-size: 2.8rem;
+  font-weight: 400;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* rang manch Logo */
+.logo-rangmanch span {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.7rem;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 1px;
+  text-transform: lowercase;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+/* LAKME | MAYBELLINE Logo */
+.logo-lakme {
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(4px);
+  padding: 0.45rem 0.85rem;
+  border-radius: 6px;
+  gap: 0.5rem;
+}
+.logo-lakme .brand-sub1 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: #000000;
+  letter-spacing: 1px;
+}
+.logo-lakme .brand-pipe {
+  color: #cbd5e1;
+  font-weight: 300;
+}
+.logo-lakme .brand-sub2 {
+  font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: 0.7rem;
+  color: #000000;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  text-align: left;
+}
+
+/* W | aurelia Logo */
+.logo-aurelia {
+  gap: 0.35rem;
+}
+.brand-badge-w {
+  background-color: #dc2626;
+  color: #ffffff;
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  font-size: 1.3rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 4px;
+}
+.brand-badge-aurelia {
+  background-color: #fbbf24;
+  color: #451a03;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+/* Caption underneath each card */
+.spotlight-caption {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.9rem;
+  text-align: center;
+}
+
+/* Navigation Arrow Controls */
+.spotlight-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  color: #0f172a;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s ease;
+}
+
+.spotlight-nav-btn:hover {
+  background-color: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.spotlight-nav-btn.prev-btn {
+  left: -22px;
+}
+
+.spotlight-nav-btn.next-btn {
+  right: -22px;
+}
+
+/* Custom generic brand overlay style */
+.logo-custom span {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+}
+
+@media (max-width: 1200px) {
+  .spotlight-track {
+    grid-auto-columns: calc((100% - 4.5rem) / 4);
+  }
+}
+
+@media (max-width: 992px) {
+  .spotlight-track {
+    grid-auto-columns: calc((100% - 3rem) / 3);
+  }
+  .brand-spotlight-section {
+    padding: 0 1.25rem;
+  }
+  .spotlight-nav-btn.prev-btn {
+    left: 0;
+  }
+  .spotlight-nav-btn.next-btn {
+    right: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .spotlight-track {
+    grid-auto-columns: calc((100% - 1rem) / 2);
+    gap: 1rem;
+  }
+  .brand-spotlight-section {
+    padding: 0 0.75rem;
+  }
+}
+
+/* Custom Promo Sale Card inside Spotlight Track */
+.spotlight-image-wrapper.promo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+.spotlight-image-wrapper.promo-wrapper::after {
+  display: none !important;
+}
+
+.promo-card-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+}
+
+.promo-brand-text {
+  font-family: 'Great Vibes', cursive, 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  color: #ffffff;
+  margin-bottom: 0.15rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.promo-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+/* ==========================================================================
+   Shop Drop Grid Section Styles
+   ========================================================================== */
+.shop-drop-section {
+  width: 100%;
+  max-width: 1645px;
+  margin: 4rem auto 4.5rem;
+  padding: 0 2rem;
+}
+
+.shop-drop-header-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  margin-bottom: 2.5rem;
+  letter-spacing: -0.4px;
+}
+
+.shop-drop-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 2rem 1.75rem;
+  width: 100%;
+}
+
+.shop-drop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.shop-drop-img-box {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
+}
+
+.shop-drop-card:hover .shop-drop-img-box {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.shop-drop-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.shop-drop-card:hover .shop-drop-img {
+  transform: scale(1.06);
+}
+
+/* Promo Card Box (Hot Pink SALE Box) */
+.shop-drop-img-box.promo-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+}
+
+.shop-drop-promo-sale {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #ffffff;
+  text-transform: uppercase;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Text info placed below the image box */
+.shop-drop-info {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.shop-drop-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #0f172a;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.25;
+  margin: 0 0 0.2rem 0;
+  transition: color 0.2s ease;
+}
+
+.shop-drop-card:hover .shop-drop-title {
+  color: #e91e63;
+}
+
+.shop-drop-offer {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  line-height: 1.2;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1200px) {
+  .shop-drop-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .shop-drop-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  .shop-drop-section {
+    padding: 0 1.25rem;
+  }
+  .shop-drop-header-title {
+    font-size: 1.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .shop-drop-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  .shop-drop-section {
+    padding: 0 0.75rem;
+  }
+  .shop-drop-promo-sale {
+    font-size: 2rem;
+  }
+}
+
+/* Toast Notification Popup - Top Right */
+.toast-container {
+  position: fixed;
+  top: 90px;
+  right: 24px;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .toast-container {
+    top: 80px;
+    right: 16px;
+    left: 16px;
+  }
+}
+
+.toast-item {
+  pointer-events: auto;
+  min-width: 300px;
+  max-width: 420px;
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-left: 5px solid #e91e63;
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0;
+  transform: translateY(-20px) scale(0.95);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.toast-item.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.toast-icon {
+  font-size: 1.25rem;
+  color: #e91e63;
+  flex-shrink: 0;
+}
+
+.toast-item.toast-remove {
+  border-left-color: #f43f5e;
+}
+
+.toast-item.toast-remove .toast-icon {
+  color: #f43f5e;
+}

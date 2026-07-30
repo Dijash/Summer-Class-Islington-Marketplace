@@ -21,9 +21,9 @@
             <!-- Primary Navigation Links Section Div -->
             <div class="nav-links-section">
                 <ul class="nav-primary-links">
-                    <li><a href="{% url 'product_list' %}" class="nav-item-link highlight-sale-link">SALE</a></li>
-                    <li><a href="{% url 'product_list' %}" class="nav-item-link">MENS</a></li>
-                    <li><a href="{% url 'product_list' %}" class="nav-item-link">WOMENS</a></li>
+                    <li><a href="{% url 'product_list' %}?sale=true" class="nav-item-link highlight-sale-link">SALE</a></li>
+                    <li><a href="{% url 'product_list' %}?category=menswear" class="nav-item-link">MENS</a></li>
+                    <li><a href="{% url 'product_list' %}?category=womenswear" class="nav-item-link">WOMENS</a></li>
                     <li><a href="{% url 'contact' %}" class="nav-item-link">CONTACT</a></li>
                 </ul>
             </div>
@@ -45,7 +45,7 @@
                     </div>
 
                     <!-- Wishlist Icon (Outline by default, fills solid red on hover) -->
-                    <a href="{% url 'product_list' %}" aria-label="Wishlist" class="icon-btn wishlist-btn" title="Wishlist">
+                    <a href="{% url 'wishlist' %}" aria-label="Wishlist" class="icon-btn wishlist-btn" title="Wishlist">
                         <i class="fa-regular fa-heart wishlist-icon"></i>
                     </a>
 
@@ -68,7 +68,7 @@
                                     <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=120&q=80" alt="Headphones" class="mini-cart-thumb">
                                     <div class="mini-cart-details">
                                         <a href="{% url 'product_detail' %}" class="mini-item-title">Noise-Canceling Headphones</a>
-                                        <div class="mini-item-price">1 × <strong>$199.99</strong></div>
+                                        <div class="mini-item-price">1 × <strong>₹199.99</strong></div>
                                     </div>
                                     <button type="button" class="mini-item-remove" title="Remove">&times;</button>
                                 </div>
@@ -78,7 +78,7 @@
                                     <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=120&q=80" alt="Smartwatch" class="mini-cart-thumb">
                                     <div class="mini-cart-details">
                                         <a href="{% url 'product_detail' %}" class="mini-item-title">Ultra Fitness Smartwatch</a>
-                                        <div class="mini-item-price">1 × <strong>$149.00</strong></div>
+                                        <div class="mini-item-price">1 × <strong>₹149.00</strong></div>
                                     </div>
                                     <button type="button" class="mini-item-remove" title="Remove">&times;</button>
                                 </div>
@@ -87,7 +87,7 @@
                             <div class="mini-cart-footer">
                                 <div class="mini-cart-subtotal">
                                     <span>Subtotal</span>
-                                    <strong>$348.99</strong>
+                                    <strong>₹348.99</strong>
                                 </div>
                                 <div class="mini-cart-actions">
                                     <a href="{% url 'cart' %}" class="btn btn-outline-secondary btn-sm btn-full">View Full Cart</a>
@@ -98,13 +98,28 @@
                     </div>
 
                     {% if user.is_authenticated %}
-                        <a href="{% url 'profile' %}" aria-label="Account Profile" class="icon-btn profile-btn" title="Profile">
-                            <i class="fa-regular fa-user"></i>
-                        </a>
+                        <div class="user-dropdown-container">
+                            <button type="button" class="icon-btn profile-btn" id="userDropdownToggle" title="Account Profile" aria-label="Account Profile">
+                                <i class="fa-regular fa-user"></i>
+                            </button>
+                            <div class="user-dropdown-menu" id="userDropdownMenu">
+                                <div class="dropdown-user-info">
+                                    <span class="dropdown-user-name">{{ user.username|default:"John Doe" }}</span>
+                                    <span class="dropdown-user-email">{{ user.email|default:"john.doe@example.com" }}</span>
+                                </div>
+                                <hr class="dropdown-divider">
+                                <a href="{% url 'profile' %}" class="dropdown-item"><i class="fa-regular fa-user"></i> My Profile</a>
+                                <a href="{% url 'customer_orders' %}" class="dropdown-item"><i class="fa-solid fa-box"></i> My Orders</a>
+                                <a href="{% url 'wishlist' %}" class="dropdown-item"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                                <hr class="dropdown-divider">
+                                <a href="{% url 'logout' %}" class="dropdown-item text-danger"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
+                            </div>
+                        </div>
                     {% else %}
-                        <a href="{% url 'login' %}" aria-label="Sign In" class="icon-btn profile-btn" title="Log In / Register">
-                            <i class="fa-regular fa-user"></i>
-                        </a>
+                        <div class="nav-auth-buttons">
+                            <a href="{% url 'login' %}" class="nav-auth-btn btn-login">Log In</a>
+                            <a href="{% url 'register' %}" class="nav-auth-btn btn-signup">Sign Up</a>
+                        </div>
                     {% endif %}
                 </div>
             </div>
@@ -115,15 +130,14 @@
     <div class="nav-secondary-container">
         <div class="nav-secondary-wrapper">
             <ul class="nav-secondary-links">
-                <li><a href="{% url 'product_list' %}" class="sub-nav-link">NEW ARRIVALS</a></li>
-                <li><a href="{% url 'product_list' %}" class="sub-nav-link">CLOTHING</a></li>
-                <li><a href="{% url 'product_list' %}" class="sub-nav-link">DESIGNERS</a></li>
-                <li><a href="{% url 'product_list' %}" class="sub-nav-link">DRESSES</a></li>
-                <li><a href="{% url 'product_list' %}" class="sub-nav-link">SHOES</a></li>
-                <li><a href="{% url 'product_list' %}" class="sub-nav-link">ACCESSORIES</a></li>
-                <li><a href="{% url 'product_list' %}" class="sub-nav-link">BEAUTY</a></li>
-                <li><a href="{% url 'product_list' %}" class="sub-nav-link highlight-sale">SALE</a></li>
-                <li><a href="{% url 'seller_dashboard' %}" class="sub-nav-link">SELLERS</a></li>
+                <li><a href="{% url 'product_list' %}?sort=newest" class="sub-nav-link">NEW ARRIVALS</a></li>
+                <li><a href="{% url 'product_list' %}?category=clothing" class="sub-nav-link">CLOTHING</a></li>
+                <li><a href="{% url 'product_list' %}?category=designers" class="sub-nav-link">DESIGNERS</a></li>
+                <li><a href="{% url 'product_list' %}?category=dresses" class="sub-nav-link">DRESSES</a></li>
+                <li><a href="{% url 'product_list' %}?category=shoes" class="sub-nav-link">SHOES</a></li>
+                <li><a href="{% url 'product_list' %}?category=accessories" class="sub-nav-link">ACCESSORIES</a></li>
+                <li><a href="{% url 'product_list' %}?category=beauty" class="sub-nav-link">BEAUTY</a></li>
+                <li><a href="{% url 'product_list' %}?sale=true" class="sub-nav-link highlight-sale">SALE</a></li>
             </ul>
         </div>
     </div>
@@ -154,9 +168,9 @@
         <div class="mobile-menu-section">
             <h4 class="mobile-section-title">NAVIGATION</h4>
             <ul class="mobile-nav-list">
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item highlight-sale"><i class="fa-solid fa-fire text-danger"></i> SALE & OFFERS</a></li>
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-person"></i> MENS COLLECTION</a></li>
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-person-dress"></i> WOMENS COLLECTION</a></li>
+                <li><a href="{% url 'product_list' %}?sale=true" class="mobile-nav-item highlight-sale"><i class="fa-solid fa-fire text-danger"></i> SALE & OFFERS</a></li>
+                <li><a href="{% url 'product_list' %}?category=menswear" class="mobile-nav-item"><i class="fa-solid fa-person"></i> MENS COLLECTION</a></li>
+                <li><a href="{% url 'product_list' %}?category=womenswear" class="mobile-nav-item"><i class="fa-solid fa-person-dress"></i> WOMENS COLLECTION</a></li>
                 <li><a href="{% url 'contact' %}" class="mobile-nav-item"><i class="fa-solid fa-headset"></i> CONTACT US</a></li>
             </ul>
         </div>
@@ -164,14 +178,13 @@
         <div class="mobile-menu-section">
             <h4 class="mobile-section-title">SHOP CATEGORIES</h4>
             <ul class="mobile-nav-list">
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-bolt"></i> NEW ARRIVALS</a></li>
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-shirt"></i> CLOTHING</a></li>
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-gem"></i> DESIGNERS</a></li>
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-vest flex"></i> DRESSES</a></li>
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-shoe-prints"></i> SHOES</a></li>
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-glasses"></i> ACCESSORIES</a></li>
-                <li><a href="{% url 'product_list' %}" class="mobile-nav-item"><i class="fa-solid fa-wand-magic-sparkles"></i> BEAUTY</a></li>
-                <li><a href="{% url 'seller_dashboard' %}" class="mobile-nav-item"><i class="fa-solid fa-store"></i> SELLERS DASHBOARD</a></li>
+                <li><a href="{% url 'product_list' %}?sort=newest" class="mobile-nav-item"><i class="fa-solid fa-bolt"></i> NEW ARRIVALS</a></li>
+                <li><a href="{% url 'product_list' %}?category=clothing" class="mobile-nav-item"><i class="fa-solid fa-shirt"></i> CLOTHING</a></li>
+                <li><a href="{% url 'product_list' %}?category=designers" class="mobile-nav-item"><i class="fa-solid fa-gem"></i> DESIGNERS</a></li>
+                <li><a href="{% url 'product_list' %}?category=dresses" class="mobile-nav-item"><i class="fa-solid fa-vest flex"></i> DRESSES</a></li>
+                <li><a href="{% url 'product_list' %}?category=shoes" class="mobile-nav-item"><i class="fa-solid fa-shoe-prints"></i> SHOES</a></li>
+                <li><a href="{% url 'product_list' %}?category=accessories" class="mobile-nav-item"><i class="fa-solid fa-glasses"></i> ACCESSORIES</a></li>
+                <li><a href="{% url 'product_list' %}?category=beauty" class="mobile-nav-item"><i class="fa-solid fa-wand-magic-sparkles"></i> BEAUTY</a></li>
             </ul>
         </div>
 
@@ -179,7 +192,10 @@
             {% if user.is_authenticated %}
                 <a href="{% url 'profile' %}" class="btn btn-outline-secondary btn-full"><i class="fa-regular fa-user"></i> My Account Profile</a>
             {% else %}
-                <a href="{% url 'login' %}" class="btn btn-primary btn-full"><i class="fa-solid fa-right-to-bracket"></i> Sign In / Register</a>
+                <div class="mobile-auth-btn-row">
+                    <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-half"><i class="fa-solid fa-right-to-bracket"></i> Log In</a>
+                    <a href="{% url 'register' %}" class="btn btn-primary btn-half"><i class="fa-solid fa-user-plus"></i> Sign Up</a>
+                </div>
             {% endif %}
         </div>
     </div>
@@ -195,12 +211,32 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cartToggleBtn && miniCartDropdown) {
         cartToggleBtn.addEventListener('click', function(e) {
             e.stopPropagation();
+            if (userDropdownMenu) userDropdownMenu.classList.remove('active');
             miniCartDropdown.classList.toggle('active');
         });
 
         document.addEventListener('click', function(e) {
             if (cartContainer && !cartContainer.contains(e.target)) {
                 miniCartDropdown.classList.remove('active');
+            }
+        });
+    }
+
+    // User Profile Dropdown Toggle
+    const userToggleBtn = document.getElementById('userDropdownToggle');
+    const userDropdownMenu = document.getElementById('userDropdownMenu');
+    const userDropdownContainer = document.querySelector('.user-dropdown-container');
+
+    if (userToggleBtn && userDropdownMenu) {
+        userToggleBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (miniCartDropdown) miniCartDropdown.classList.remove('active');
+            userDropdownMenu.classList.toggle('active');
+        });
+
+        document.addEventListener('click', function(e) {
+            if (userDropdownContainer && !userDropdownContainer.contains(e.target)) {
+                userDropdownMenu.classList.remove('active');
             }
         });
     }

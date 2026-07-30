@@ -1,7 +1,7 @@
 {% extends 'layouts/base.html' %}
 {% load static %}
 
-{% block title %}Premium Noise-Canceling Wireless Headphones - MarketPlace{% endblock %}
+{% block title %}{{ product.brand_name }} - {{ product.title }} | MarketPlace{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/product/style.css' %}">
@@ -13,172 +13,211 @@
     <nav class="breadcrumb">
         <a href="{% url 'home' %}">Home</a>
         <i class="fa-solid fa-chevron-right"></i>
-        <a href="{% url 'product_list' %}">Products</a>
+        <a href="{% url 'product_list' %}">{{ product.category.name }}</a>
         <i class="fa-solid fa-chevron-right"></i>
-        <a href="{% url 'product_list' %}">Electronics</a>
+        <span>{{ product.brand_name }}</span>
         <i class="fa-solid fa-chevron-right"></i>
-        <span>Premium Noise-Canceling Headphones</span>
+        <span>{{ product.title }}</span>
     </nav>
 
-    <!-- Top Main Details Grid -->
-    <div class="product-main-grid">
-        <!-- Gallery Column -->
-        <div class="product-gallery">
-            <div class="main-image-wrapper">
-                <span class="badge badge-danger product-badge">-20% OFF</span>
-                <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=800&q=80" id="main-product-image" alt="Wireless Headphones Main">
-            </div>
-            <div class="thumbnail-strip">
-                <button class="thumb-btn active" onclick="document.getElementById('main-product-image').src=this.querySelector('img').src">
-                    <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=200&q=80" alt="Thumb 1">
-                </button>
-                <button class="thumb-btn" onclick="document.getElementById('main-product-image').src=this.querySelector('img').src">
-                    <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=200&q=80" alt="Thumb 2">
-                </button>
-                <button class="thumb-btn" onclick="document.getElementById('main-product-image').src=this.querySelector('img').src">
-                    <img src="https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&w=200&q=80" alt="Thumb 3">
-                </button>
-            </div>
-        </div>
-
-        <!-- Info Column -->
-        <div class="product-info-col">
-            <div class="product-header-info">
-                <span class="badge badge-success stock-badge"><i class="fa-solid fa-circle-check"></i> In Stock (24 available)</span>
-                <h1 class="detail-title">Premium Noise-Canceling Wireless Headphones</h1>
-                <div class="detail-meta">
-                    <div class="stars">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star-half-stroke"></i>
-                    </div>
-                    <span class="rating-text">4.8 (128 reviews)</span>
-                    <span class="meta-separator">•</span>
-                    <span class="sku-text">SKU: HD-900-BLK</span>
-                </div>
-            </div>
-
-            <!-- Price Breakdown -->
-            <div class="detail-price-card">
-                <div class="price-main">
-                    <span class="detail-price">$199.99</span>
-                    <span class="detail-price-old">$249.99</span>
-                    <span class="price-discount-tag">Save $50.00</span>
-                </div>
-                <p class="tax-shipping-note"><i class="fa-solid fa-truck"></i> Free Shipping on this item within the US.</p>
-            </div>
-
-            <!-- Short Summary -->
-            <p class="product-summary">Experience studio-quality sound with industry-leading Active Noise Cancellation (ANC), 40-hour battery life, ergonomic memory foam earcups, and dual Bluetooth 5.3 connectivity.</p>
-
-            <!-- Product Specs Key List -->
-            <ul class="quick-specs-list">
-                <li><i class="fa-solid fa-check"></i> Active Noise Cancellation (ANC) mode</li>
-                <li><i class="fa-solid fa-check"></i> Up to 40 hours continuous playtime</li>
-                <li><i class="fa-solid fa-check"></i> Built-in HD microphone for crystal clear calls</li>
-                <li><i class="fa-solid fa-check"></i> Fast charging (10 mins charge = 5 hrs play)</li>
-            </ul>
-
-            <!-- Purchase Controls Form -->
-            <form action="{% url 'cart' %}" method="GET" class="purchase-form">
-                <div class="quantity-row">
-                    <label class="form-label">Quantity:</label>
-                    <div class="quantity-control">
-                        <button type="button" class="qty-btn" onclick="if(this.nextElementSibling.value > 1) this.nextElementSibling.value--;">-</button>
-                        <input type="number" name="quantity" value="1" min="1" max="24" class="qty-input">
-                        <button type="button" class="qty-btn" onclick="this.previousElementSibling.value++;">+</button>
-                    </div>
-                </div>
-
-                <div class="action-buttons-group">
-                    <button type="submit" class="btn btn-primary btn-lg btn-add-cart"><i class="fa-solid fa-cart-shopping"></i> Add to Cart</button>
-                    <a href="{% url 'checkout' %}" class="btn btn-secondary btn-lg"><i class="fa-solid fa-bolt"></i> Buy Now</a>
-                    <button type="button" class="btn btn-outline-secondary btn-icon-only" title="Save to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                </div>
-            </form>
-
-            <!-- Seller Store Info Box -->
-            <div class="card seller-store-card">
-                <div class="seller-store-info">
-                    <div class="seller-avatar"><i class="fa-solid fa-store"></i></div>
-                    <div>
-                        <h4>AudioTech Official Store</h4>
-                        <p class="seller-badges"><span class="badge badge-primary">Verified Seller</span> • 99.2% Positive Feedback</p>
-                    </div>
-                </div>
-                <a href="{% url 'product_list' %}" class="btn btn-sm btn-outline-primary">Visit Store</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Product Tabs (Description & Reviews) -->
-    <div class="product-tabs-wrapper">
-        <div class="tabs-header">
-            <button class="tab-btn active" onclick="switchTab(event, 'tab-description')">Description & Specs</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-reviews')">Customer Reviews (128)</button>
-            <button class="tab-btn" onclick="switchTab(event, 'tab-shipping')">Shipping & Returns</button>
-        </div>
-
-        <div class="tabs-content">
-            <!-- Tab 1: Description -->
-            <div id="tab-description" class="tab-pane active">
-                <h3>Product Overview</h3>
-                <p>Designed for audiophiles and daily commuters alike, the AudioTech Premium Wireless Headphones deliver immersive acoustic performance. Engineered with custom 40mm neodymium drivers, these headphones reproduce deep, punchy bass, pristine mids, and crisp highs across the entire frequency spectrum.</p>
-                
-                <h4 style="margin-top: 1.5rem;">Technical Specifications</h4>
-                <table class="specs-table">
-                    <tr><td>Brand</td><td>AudioTech</td></tr>
-                    <tr><td>Connectivity</td><td>Bluetooth 5.3 / 3.5mm Aux Cable</td></tr>
-                    <tr><td>Battery Life</td><td>40 Hours (ANC On) / 50 Hours (ANC Off)</td></tr>
-                    <tr><td>Charging Interface</td><td>USB Type-C Fast Charging</td></tr>
-                    <tr><td>Weight</td><td>250 grams</td></tr>
-                    <tr><td>Warranty</td><td>2-Year Manufacturer Warranty</td></tr>
-                </table>
-            </div>
-
-            <!-- Tab 2: Reviews -->
-            <div id="tab-reviews" class="tab-pane" style="display:none;">
-                <div class="reviews-summary-grid">
-                    <div class="review-score-box">
-                        <span class="score-num">4.8</span>
-                        <div class="stars"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star-half-stroke"></i></div>
-                        <p>Based on 128 verified reviews</p>
-                    </div>
-                </div>
-
-                <div class="review-item card">
-                    <div class="review-user">
-                        <div class="user-avatar-sm"><i class="fa-solid fa-user"></i></div>
-                        <div>
-                            <h5>David K. <span class="badge badge-success">Verified Purchase</span></h5>
-                            <span class="review-date">July 18, 2025</span>
+    <!-- Main Detail Grid -->
+    <div class="jockey-detail-layout">
+        
+        <!-- Left Column: Multi-Angle Gallery Grid -->
+        <div class="jockey-gallery-col">
+            <div class="jockey-gallery-grid" id="multiAngleGalleryGrid">
+                {% if default_color and default_color.images.all %}
+                    {% for img in default_color.images.all %}
+                        <div class="jockey-gallery-item {% if forloop.first %}has-finer-details{% endif %}">
+                            <img src="{{ img.image_url }}" alt="{{ img.angle_label }}" class="jockey-gallery-img">
+                            {% if forloop.first %}
+                                <button type="button" class="finer-details-btn">
+                                    <i class="fa-solid fa-microscope"></i> Finer Details
+                                </button>
+                            {% endif %}
                         </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="jockey-gallery-item">
+                        <img src="{{ product.primary_image }}" alt="{{ product.title }}" class="jockey-gallery-img">
                     </div>
-                    <div class="stars" style="margin: 0.5rem 0;"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
-                    <h4>Incredible sound quality and noise cancellation!</h4>
-                    <p>I fly frequently for work and these headphones completely block out engine noise. Extremely comfortable for 8+ hour flights!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column: Product Information & Purchase Controls -->
+        <div class="jockey-info-col">
+            <!-- Brand & Title -->
+            <div class="jockey-brand-header">
+                <h1 class="jockey-brand-name">{{ product.brand_name }}</h1>
+                <p class="jockey-product-title">{{ product.title }}</p>
+            </div>
+
+            <!-- Price & Tax -->
+            <div class="jockey-price-box">
+                <div class="jockey-mrp-row">
+                    <span class="jockey-price-value">MRP: ₹{{ product.price|floatformat:0 }}</span>
+                    {% if product.mrp > product.price %}
+                        <span class="jockey-mrp-old">₹{{ product.mrp|floatformat:0 }}</span>
+                        <span class="jockey-discount-badge">{{ product.discount_percentage }}% OFF</span>
+                    {% endif %}
+                </div>
+                <span class="jockey-tax-note">Inclusive of all taxes</span>
+            </div>
+
+            <!-- Rating & Reviews Bar -->
+            <div class="jockey-rating-row">
+                <div class="jockey-rating-badge">
+                    <span>{{ product.rating }} ★</span>
+                </div>
+                <span class="jockey-rating-counts"><b>{{ product.ratings_count }}</b> Ratings & <b>{{ product.reviews_count }}</b> Review</span>
+            </div>
+
+            <!-- Perks Bar -->
+            <div class="jockey-perks-card">
+                <div class="perks-left">
+                    <span class="perks-badge-icon">CLIq Perks</span>
+                    <span class="perks-text">Login to view your benefits</span>
+                </div>
+                <i class="fa-solid fa-chevron-right perks-arrow"></i>
+            </div>
+
+            <!-- Colour Variants Selector -->
+            <div class="jockey-section-group">
+                <div class="jockey-section-title">
+                    Colour : <span id="selectedColorName">{{ default_color.color_name|default:"Standard" }}</span>
+                </div>
+                <div class="jockey-color-swatches">
+                    {% for c in colors %}
+                        <button type="button" 
+                                class="color-swatch-btn {% if c.id == default_color.id %}active{% endif %}"
+                                data-color-id="{{ c.id }}"
+                                data-color-name="{{ c.color_name }}"
+                                onclick="switchColorVariant(this)">
+                            <img src="{{ c.swatch_image_url|default:c.images.first.image_url }}" alt="{{ c.color_name }}">
+                        </button>
+                    {% endfor %}
                 </div>
             </div>
 
-            <!-- Tab 3: Shipping -->
-            <div id="tab-shipping" class="tab-pane" style="display:none;">
-                <h3>Shipping & Delivery Policy</h3>
-                <p>All orders placed before 2:00 PM EST ship same day via FedEx or UPS Ground. Standard delivery typically takes 2–4 business days depending on location.</p>
-                <h4 style="margin-top: 1rem;">Returns & Refund Guarantee</h4>
-                <p>We offer a 30-day hassle-free return policy. If you are not completely satisfied with your purchase, return it in original condition for a full refund.</p>
+            <!-- Hidden Container for JavaScript Color Image Datasets -->
+            <div id="colorImageData" style="display: none;">
+                {% for c in colors %}
+                    <div id="color-images-{{ c.id }}">
+                        {% for img in c.images.all %}
+                            <div class="gallery-data-item" data-url="{{ img.image_url }}" data-label="{{ img.angle_label }}"></div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Size Selector -->
+            <div class="jockey-section-group">
+                <div class="jockey-size-header">
+                    <span class="jockey-section-title">Select Size</span>
+                    <a href="#size-guide" class="jockey-size-guide-link">Size Guide</a>
+                </div>
+                <div class="jockey-size-options">
+                    {% for s in sizes %}
+                        <button type="button" class="jockey-size-btn {% if not s.is_available %}out-of-stock{% endif %}" onclick="selectSize(this)">
+                            {{ s.size_label }}
+                        </button>
+                    {% empty %}
+                        <button type="button" class="jockey-size-btn active">S</button>
+                        <button type="button" class="jockey-size-btn">M</button>
+                        <button type="button" class="jockey-size-btn">L</button>
+                        <button type="button" class="jockey-size-btn">XL</button>
+                    {% endfor %}
+                </div>
+                <p class="jockey-size-note">{{ product.size_guidelines }}</p>
+            </div>
+
+            <!-- Available Offers -->
+            <div class="jockey-offers-section">
+                <h4 class="jockey-offers-heading">Available Offers</h4>
+                <div class="jockey-offer-item">
+                    <i class="fa-solid fa-tag offer-icon"></i>
+                    <span>{{ product.offers_text }} <a href="#" class="offer-more">more</a></span>
+                </div>
+            </div>
+
+            <!-- Ship To & Action CTAs -->
+            <div class="jockey-actions-section">
+                <span class="jockey-ship-label">Ship To</span>
+                <div class="jockey-cta-row">
+                    <button type="button" class="jockey-icon-btn" title="Share Product"><i class="fa-solid fa-share-nodes"></i></button>
+                    <button type="button" class="jockey-icon-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                    <a href="{% url 'checkout' %}" class="jockey-buy-now-btn">Buy Now</a>
+                    <button type="button" class="jockey-add-bag-btn"><i class="fa-solid fa-bag-shopping"></i> Add To Bag</button>
+                </div>
+            </div>
+
+            <!-- Shipping & Return Guarantees -->
+            <div class="jockey-guarantees-list">
+                <div class="guarantee-item">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <span>Delivery by <b>3rd Aug</b></span>
+                </div>
+                <div class="guarantee-item">
+                    <i class="fa-solid fa-money-bill-wave"></i>
+                    <span>Cash on Delivery | <b class="text-success">Available</b></span>
+                </div>
+                <div class="guarantee-item">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>7 Days Return and Replacement available | <a href="#" class="guarantee-link">Know More</a></span>
+                </div>
+            </div>
+
+            <!-- Seller Store Card -->
+            <div class="jockey-seller-box">
+                <span>Sold By <b>{{ product.seller_name }}</b></span>
+                <i class="fa-solid fa-chevron-right"></i>
             </div>
         </div>
+
     </div>
 </div>
 
 <script>
-function switchTab(evt, tabId) {
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(p => p.style.display = 'none');
-    evt.currentTarget.classList.add('active');
-    document.getElementById(tabId).style.display = 'block';
+function switchColorVariant(btn) {
+    // 1. Highlight clicked color swatch
+    document.querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // 2. Update color name text
+    const colorName = btn.getAttribute('data-color-name');
+    document.getElementById('selectedColorName').innerText = colorName;
+
+    // 3. Update multi-angle gallery grid
+    const colorId = btn.getAttribute('data-color-id');
+    const imageContainer = document.getElementById('color-images-' + colorId);
+    const galleryGrid = document.getElementById('multiAngleGalleryGrid');
+
+    if (imageContainer && galleryGrid) {
+        const imageItems = imageContainer.querySelectorAll('.gallery-data-item');
+        if (imageItems.length > 0) {
+            let newHtml = '';
+            imageItems.forEach((item, index) => {
+                const url = item.getAttribute('data-url');
+                const label = item.getAttribute('data-label');
+                const isFirst = (index === 0);
+                
+                newHtml += `
+                    <div class="jockey-gallery-item ${isFirst ? 'has-finer-details' : ''}">
+                        <img src="${url}" alt="${label}" class="jockey-gallery-img">
+                        ${isFirst ? '<button type="button" class="finer-details-btn"><i class="fa-solid fa-microscope"></i> Finer Details</button>' : ''}
+                    </div>
+                `;
+            });
+            galleryGrid.innerHTML = newHtml;
+        }
+    }
+}
+
+function selectSize(btn) {
+    if (btn.classList.contains('out-of-stock')) return;
+    document.querySelectorAll('.jockey-size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
 }
 </script>
 {% endblock %}
