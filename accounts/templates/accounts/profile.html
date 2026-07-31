@@ -15,15 +15,15 @@
         <div class="profile-meta-row">
             <div class="profile-avatar-large" id="avatarContainer">
                 <i class="fa-solid fa-user" id="avatarDefaultIcon"></i>
-                <img id="avatarImage" src="" alt="Profile Photo" style="display: none;">
-                <input type="file" id="avatarFileInput" accept="image/*" style="display: none;">
+                <img id="avatarImage" src="" alt="Profile Photo">
+                <input type="file" id="avatarFileInput" accept="image/*">
                 
                 <button type="button" class="avatar-edit-btn" id="avatarEditBtn" title="Update Profile Photo">
                     <i class="fa-solid fa-camera"></i>
                 </button>
             </div>
             <div class="profile-user-info">
-                <h2>
+                <h2 id="headerUserName">
                     {% if user.is_authenticated %}
                         {{ user.get_full_name|default:user.username }}
                     {% else %}
@@ -31,7 +31,7 @@
                     {% endif %}
                     <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Verified Account</span>
                 </h2>
-                <p class="user-email">
+                <p class="user-email" id="headerUserEmail">
                     <i class="fa-regular fa-envelope"></i> 
                     {% if user.is_authenticated %}
                         {{ user.email|default:user.username }}
@@ -54,35 +54,39 @@
             <div class="card-header">
                 <h3 class="card-title"><i class="fa-regular fa-user"></i> Personal Information</h3>
             </div>
-            <form onsubmit="event.preventDefault(); if(typeof showToast === 'function') showToast('Profile updated successfully!'); else alert('Profile updated successfully!');">
+            <form id="personalInfoForm" method="POST" action="{% url 'profile' %}" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_profile">
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label class="form-label">First Name</label>
-                        <input type="text" class="form-control" value="{% if user.is_authenticated %}{{ user.first_name|default:'John' }}{% else %}John{% endif %}" required>
+                        <input type="text" name="first_name" id="firstNameInput" class="form-control" value="{% if user.is_authenticated %}{{ user.first_name|default:'John' }}{% else %}John{% endif %}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Last Name</label>
-                        <input type="text" class="form-control" value="{% if user.is_authenticated %}{{ user.last_name|default:'Doe' }}{% else %}Doe{% endif %}" required>
+                        <input type="text" name="last_name" id="lastNameInput" class="form-control" value="{% if user.is_authenticated %}{{ user.last_name|default:'Doe' }}{% else %}Doe{% endif %}" required>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2">
                     <div class="form-group">
-                        <label class="form-label">Email Address</label>
-                        <input type="email" class="form-control" value="{% if user.is_authenticated %}{{ user.email|default:'john.doe@example.com' }}{% else %}john.doe@example.com{% endif %}" required>
+                        <label class="form-label">Email Address <span class="email-readonly-label"><i class="fa-solid fa-lock"></i> Read-only</span></label>
+                        <input type="email" name="email" id="emailInput" class="form-control form-control-readonly" value="{% if user.is_authenticated %}{{ user.email|default:'john.doe@example.com' }}{% else %}john.doe@example.com{% endif %}" readonly title="Email address cannot be changed">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Phone Number</label>
-                        <input type="tel" class="form-control" value="+1 (555) 234-5678">
+                        <input type="tel" name="phone" id="phoneInput" class="form-control" value="{{ phone|default:'+1 (555) 234-5678' }}">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Default Shipping Address</label>
-                    <input type="text" class="form-control" value="123 Market Street, Apt 4B, San Francisco, CA 94107">
+                    <input type="text" name="address" id="addressInput" class="form-control" value="{{ address|default:'123 Market Street, Apt 4B, San Francisco, CA 94107' }}">
                 </div>
 
-                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-floppy-disk"></i> Save Profile Changes</button>
+                <button type="submit" id="saveProfileBtn" class="btn btn-primary">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+                </button>
             </form>
         </div>
 
@@ -90,12 +94,14 @@
             <div class="card-header">
                 <h3 class="card-title"><i class="fa-solid fa-lock"></i> Security & Password</h3>
             </div>
-            <form onsubmit="event.preventDefault(); alert('Password updated successfully!');">
+            <form id="passwordForm" method="POST" action="{% url 'profile' %}" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_password">
                 <div class="form-group">
                     <label class="form-label">Current Password</label>
                     <div class="input-with-icon">
                         <i class="fa-solid fa-lock input-icon"></i>
-                        <input type="password" class="form-control" placeholder="••••••••" required>
+                        <input type="password" name="current_password" id="currentPassInput" class="form-control" placeholder="••••••••" required>
                         <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
                             <i class="fa-regular fa-eye"></i>
                         </button>
@@ -105,7 +111,7 @@
                     <label class="form-label">New Password</label>
                     <div class="input-with-icon">
                         <i class="fa-solid fa-key input-icon"></i>
-                        <input type="password" class="form-control" placeholder="At least 8 characters" required>
+                        <input type="password" name="new_password" id="newPassInput" class="form-control" placeholder="At least 6 characters" required>
                         <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
                             <i class="fa-regular fa-eye"></i>
                         </button>
@@ -115,14 +121,16 @@
                     <label class="form-label">Confirm New Password</label>
                     <div class="input-with-icon">
                         <i class="fa-solid fa-shield-halved input-icon"></i>
-                        <input type="password" class="form-control" placeholder="Repeat new password" required>
+                        <input type="password" name="confirm_password" id="confirmPassInput" class="form-control" placeholder="Repeat new password" required>
                         <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
                             <i class="fa-regular fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-outline-primary"><i class="fa-solid fa-key"></i> Update Password</button>
+                <button type="submit" id="updatePasswordBtn" class="btn btn-outline-primary">
+                    <i class="fa-solid fa-key"></i> Update Password
+                </button>
             </form>
         </div>
     </div>
@@ -173,6 +181,212 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
                 reader.readAsDataURL(file);
             }
+        });
+    }
+
+    function highlightFieldError(inputEl, message) {
+        if (!inputEl) return;
+        inputEl.style.borderColor = '#ef4444';
+        inputEl.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.2)';
+        inputEl.focus();
+        if (typeof showToast === 'function') {
+            showToast(message, 'remove');
+        }
+    }
+
+    function clearFieldError(inputEl) {
+        if (!inputEl) return;
+        inputEl.style.borderColor = '';
+        inputEl.style.boxShadow = '';
+    }
+
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('input', function() {
+            clearFieldError(this);
+        });
+    });
+
+    // Personal Info Form Submission with animated loading state and validation
+    const personalInfoForm = document.getElementById('personalInfoForm');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const headerUserName = document.getElementById('headerUserName');
+    const headerUserEmail = document.getElementById('headerUserEmail');
+
+    if (personalInfoForm) {
+        personalInfoForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const firstNameInput = document.getElementById('firstNameInput');
+            const lastNameInput = document.getElementById('lastNameInput');
+
+            // Reset field errors
+            clearFieldError(firstNameInput);
+            clearFieldError(lastNameInput);
+
+            // Validation checks
+            const firstName = firstNameInput.value.trim();
+            const lastName = lastNameInput.value.trim();
+
+            if (!firstName || firstName.length < 2) {
+                highlightFieldError(firstNameInput, 'First name must be at least 2 characters.');
+                return;
+            }
+
+            if (!lastName || lastName.length < 2) {
+                highlightFieldError(lastNameInput, 'Last name must be at least 2 characters.');
+                return;
+            }
+            
+            // Set loading animation on button
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Updating...`;
+            
+            const formData = new FormData(personalInfoForm);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+            const targetUrl = personalInfoForm.getAttribute('action') || window.location.href;
+            
+            fetch(targetUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(async res => {
+                const rawText = await res.text();
+                try {
+                    return JSON.parse(rawText);
+                } catch (e) {
+                    console.error('Server non-json response:', rawText);
+                    return { success: false, message: 'Unexpected response from server.' };
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    saveProfileBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Details Updated!`;
+
+                    if (headerUserName && data.full_name) {
+                        headerUserName.childNodes[0].nodeValue = data.full_name + ' ';
+                    }
+                    if (headerUserEmail && data.email) {
+                        headerUserEmail.innerHTML = `<i class="fa-regular fa-envelope"></i> ${data.email} • Member`;
+                    }
+
+                    if (typeof showToast === 'function') {
+                        showToast(data.message || 'Profile details updated successfully!', 'success');
+                    }
+                } else {
+                    saveProfileBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Error`;
+                    if (data.message && data.message.includes('email')) {
+                        highlightFieldError(emailInput, data.message);
+                    } else if (typeof showToast === 'function') {
+                        showToast(data.message || 'Failed to update profile.', 'remove');
+                    }
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                if (typeof showToast === 'function') {
+                    showToast('An error occurred while updating profile.', 'remove');
+                }
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    saveProfileBtn.disabled = false;
+                    saveProfileBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Save Profile Changes`;
+                }, 1800);
+            });
+        });
+    }
+
+    // Security & Password Form Submission with animated loading state and validation
+    const passwordForm = document.getElementById('passwordForm');
+    const updatePasswordBtn = document.getElementById('updatePasswordBtn');
+
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const currentPassInput = document.getElementById('currentPassInput');
+            const newPassInput = document.getElementById('newPassInput');
+            const confirmPassInput = document.getElementById('confirmPassInput');
+
+            clearFieldError(currentPassInput);
+            clearFieldError(newPassInput);
+            clearFieldError(confirmPassInput);
+
+            const currentPass = currentPassInput.value.trim();
+            const newPass = newPassInput.value.trim();
+            const confirmPass = confirmPassInput.value.trim();
+
+            if (!currentPass) {
+                highlightFieldError(currentPassInput, 'Please enter your current password.');
+                return;
+            }
+
+            if (!newPass || newPass.length < 6) {
+                highlightFieldError(newPassInput, 'New password must be at least 6 characters long.');
+                return;
+            }
+
+            if (newPass !== confirmPass) {
+                highlightFieldError(confirmPassInput, 'New password and confirmation do not match.');
+                return;
+            }
+
+            updatePasswordBtn.disabled = true;
+            updatePasswordBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Updating Password...`;
+
+            const formData = new FormData(passwordForm);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+            const passTargetUrl = passwordForm.getAttribute('action') || window.location.href;
+
+            fetch(passTargetUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(async res => {
+                const rawText = await res.text();
+                try {
+                    return JSON.parse(rawText);
+                } catch (e) {
+                    console.error('Server non-json response:', rawText);
+                    return { success: false, message: 'Unexpected response from server.' };
+                }
+            })
+            .then(data => {
+                if (data.success) {
+                    updatePasswordBtn.innerHTML = `<i class="fa-solid fa-circle-check"></i> Password Updated!`;
+                    passwordForm.reset();
+                    if (typeof showToast === 'function') {
+                        showToast(data.message || 'Password updated successfully!', 'success');
+                    }
+                } else {
+                    updatePasswordBtn.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Error`;
+                    if (data.message && data.message.includes('Current password')) {
+                        highlightFieldError(currentPassInput, data.message);
+                    } else if (typeof showToast === 'function') {
+                        showToast(data.message || 'Failed to update password.', 'remove');
+                    }
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                if (typeof showToast === 'function') {
+                    showToast('An error occurred while updating password.', 'remove');
+                }
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    updatePasswordBtn.disabled = false;
+                    updatePasswordBtn.innerHTML = `<i class="fa-solid fa-key"></i> Update Password`;
+                }, 1800);
+            });
         });
     }
 });

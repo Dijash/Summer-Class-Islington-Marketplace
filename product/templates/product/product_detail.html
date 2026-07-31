@@ -101,7 +101,7 @@
             </div>
 
             <!-- Hidden Container for JavaScript Color Image Datasets -->
-            <div id="colorImageData" style="display: none;">
+            <div id="colorImageData">
                 {% for c in colors %}
                     <div id="color-images-{{ c.id }}">
                         {% for img in c.images.all %}

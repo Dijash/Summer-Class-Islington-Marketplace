@@ -646,6 +646,10 @@ textarea.form-control {
   transform: scale(1);
 }
 
+.hero-slide-bg.hero-fallback-bg {
+  background-image: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80');
+}
+
 .hero-slide-overlay {
   position: absolute;
   top: 0;
@@ -1615,6 +1619,7 @@ textarea.form-control {
   justify-content: center;
   text-align: center;
   padding: 1.5rem;
+  background: linear-gradient(135deg, var(--card-bg, #e91e63) 0%, #c2185b 100%);
 }
 
 .spotlight-image-wrapper.promo-wrapper::after {
@@ -1718,7 +1723,7 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%);
+  background: var(--card-bg, #e91e63);
 }
 
 .shop-drop-promo-sale {

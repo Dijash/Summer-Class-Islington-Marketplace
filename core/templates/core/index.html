@@ -41,9 +41,7 @@
                 {% empty %}
                 <!-- Fallback static slide matching exact reference image -->
                 <div class="hero-slide active" data-slide-index="0">
-                    <div class="hero-slide-bg"
-                        style="background-image: url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80');">
-                    </div>
+                    <div class="hero-slide-bg hero-fallback-bg"></div>
                     <div class="hero-slide-overlay"></div>
 
                     <div class="hero-slide-content">
@@ -178,7 +176,7 @@
                     {% if item.is_promo_card %}
                         <!-- Solid Promo Sale Card (Pink Card) -->
                         <a href="{{ item.get_destination_url }}" class="spotlight-card promo-spotlight-card">
-                            <div class="spotlight-image-wrapper promo-wrapper" style="--card-bg: {{ item.promo_bg_color|default:'#e91e63' }}; background: linear-gradient(135deg, var(--card-bg) 0%, #c2185b 100%);">
+                            <div class="spotlight-image-wrapper promo-wrapper" style="--card-bg: {{ item.promo_bg_color|default:'#e91e63' }};">
                                 <div class="promo-card-content">
                                     {% if item.brand_sub_title %}
                                         <span class="promo-brand-text">{{ item.brand_sub_title }}</span>
@@ -219,7 +217,7 @@
             {% for item in shop_drops %}
                 {% if item.is_promo_card %}
                     <a href="{{ item.get_destination_url }}" class="shop-drop-card">
-                        <div class="shop-drop-img-box promo-box" style="--card-bg: {{ item.promo_bg_color|default:'#e91e63' }}; background: var(--card-bg);">
+                        <div class="shop-drop-img-box promo-box" style="--card-bg: {{ item.promo_bg_color|default:'#e91e63' }};">
                             <span class="shop-drop-promo-sale">SALE</span>
                         </div>
                         <div class="shop-drop-info">

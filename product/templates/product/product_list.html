@@ -82,7 +82,7 @@
                         <span class="accordion-title"><i class="fa-solid fa-layer-group group-icon"></i> Category</span>
                         <i class="fa-solid fa-minus accordion-icon"></i>
                     </div>
-                    <div class="accordion-content" style="display: block;">
+                    <div class="accordion-content">
                         <ul class="user-friendly-cat-list">
                             <li>
                                 <a href="{% url 'product_list' %}" class="cat-pill-link {% if not selected_category %}active{% endif %}">
@@ -104,7 +104,7 @@
                                     </div>
 
                                     {% if pcat.subcategories.all %}
-                                        <ul class="subcat-tree-list"{% if selected_category and selected_category.id == pcat.id or selected_category and selected_category.parent_id == pcat.id %} style="display: block;"{% else %} style="display: none;"{% endif %}>
+                                        <ul class="subcat-tree-list">
                                             {% for sub in pcat.subcategories.all %}
                                                 <li>
                                                     <a href="#" onclick="toggleFilterParam('category', '{{ sub.slug }}'); return false;" class="subcat-pill-link {% if selected_category and selected_category.id == sub.id %}active{% endif %}">
@@ -128,7 +128,7 @@
                         <span class="accordion-title"><i class="fa-solid fa-indian-rupee-sign group-icon"></i> Price Range</span>
                         <i class="fa-solid fa-minus accordion-icon"></i>
                     </div>
-                    <div class="accordion-content" style="display: block;">
+                    <div class="accordion-content">
                         <form method="GET" action="{% url 'product_list' %}" id="priceSliderForm">
                             {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category.slug }}">{% endif %}
                             {% if request.GET.brand %}<input type="hidden" name="brand" value="{{ request.GET.brand }}">{% endif %}
@@ -187,7 +187,7 @@
                         <span class="accordion-title"><i class="fa-solid fa-tags group-icon"></i> Brand</span>
                         <i class="fa-solid fa-minus accordion-icon"></i>
                     </div>
-                    <div class="accordion-content" style="display: block;">
+                    <div class="accordion-content">
                         <div class="brand-search-box">
                             <i class="fa-solid fa-magnifying-glass search-icon"></i>
                             <input type="text" placeholder="Search brand..." onkeyup="filterBrandItems(this)">
@@ -214,33 +214,33 @@
                         <span class="accordion-title"><i class="fa-solid fa-palette group-icon"></i> Colour</span>
                         <i class="fa-solid fa-minus accordion-icon"></i>
                     </div>
-                    <div class="accordion-content" style="display: block;">
+                    <div class="accordion-content">
                         <div class="visual-color-swatches-grid">
-                            <button type="button" class="visual-color-chip {% if selected_color == 'Black' %}active{% endif %}" style="--chip-bg: #111111;" onclick="toggleFilterParam('color', 'Black')" title="Classic Black">
+                            <button type="button" class="visual-color-chip chip-bg-black {% if selected_color == 'Black' %}active{% endif %}" onclick="toggleFilterParam('color', 'Black')" title="Classic Black">
                                 <span class="chip-dot"></span>
                                 <span class="chip-label">Black</span>
                             </button>
-                            <button type="button" class="visual-color-chip {% if selected_color == 'Navy' %}active{% endif %}" style="--chip-bg: #1B263B;" onclick="toggleFilterParam('color', 'Navy')" title="Midnight Navy">
+                            <button type="button" class="visual-color-chip chip-bg-navy {% if selected_color == 'Navy' %}active{% endif %}" onclick="toggleFilterParam('color', 'Navy')" title="Midnight Navy">
                                 <span class="chip-dot"></span>
                                 <span class="chip-label">Navy</span>
                             </button>
-                            <button type="button" class="visual-color-chip {% if selected_color == 'Orchid' %}active{% endif %}" style="--chip-bg: #D4829C;" onclick="toggleFilterParam('color', 'Orchid')" title="Orchid Smoke">
+                            <button type="button" class="visual-color-chip chip-bg-orchid {% if selected_color == 'Orchid' %}active{% endif %}" onclick="toggleFilterParam('color', 'Orchid')" title="Orchid Smoke">
                                 <span class="chip-dot"></span>
                                 <span class="chip-label">Orchid</span>
                             </button>
-                            <button type="button" class="visual-color-chip {% if selected_color == 'Pink' %}active{% endif %}" style="--chip-bg: #F4ACB7;" onclick="toggleFilterParam('color', 'Pink')" title="Blush Pink">
+                            <button type="button" class="visual-color-chip chip-bg-pink {% if selected_color == 'Pink' %}active{% endif %}" onclick="toggleFilterParam('color', 'Pink')" title="Blush Pink">
                                 <span class="chip-dot"></span>
                                 <span class="chip-label">Pink</span>
                             </button>
-                            <button type="button" class="visual-color-chip {% if selected_color == 'Green' %}active{% endif %}" style="--chip-bg: #2D6A4F;" onclick="toggleFilterParam('color', 'Green')" title="Emerald Green">
+                            <button type="button" class="visual-color-chip chip-bg-green {% if selected_color == 'Green' %}active{% endif %}" onclick="toggleFilterParam('color', 'Green')" title="Emerald Green">
                                 <span class="chip-dot"></span>
                                 <span class="chip-label">Green</span>
                             </button>
-                            <button type="button" class="visual-color-chip {% if selected_color == 'Nude' %}active{% endif %}" style="--chip-bg: #DDB8A2;" onclick="toggleFilterParam('color', 'Nude')" title="Cream Nude">
+                            <button type="button" class="visual-color-chip chip-bg-nude {% if selected_color == 'Nude' %}active{% endif %}" onclick="toggleFilterParam('color', 'Nude')" title="Cream Nude">
                                 <span class="chip-dot"></span>
                                 <span class="chip-label">Nude</span>
                             </button>
-                            <button type="button" class="visual-color-chip {% if selected_color == 'Grey' %}active{% endif %}" style="--chip-bg: #94A3B8;" onclick="toggleFilterParam('color', 'Grey')" title="Heather Grey">
+                            <button type="button" class="visual-color-chip chip-bg-grey {% if selected_color == 'Grey' %}active{% endif %}" onclick="toggleFilterParam('color', 'Grey')" title="Heather Grey">
                                 <span class="chip-dot"></span>
                                 <span class="chip-label">Grey</span>
                             </button>
@@ -254,7 +254,7 @@
                         <span class="accordion-title"><i class="fa-solid fa-ruler-combined group-icon"></i> Size</span>
                         <i class="fa-solid fa-minus accordion-icon"></i>
                     </div>
-                    <div class="accordion-content" style="display: block;">
+                    <div class="accordion-content">
                         <div class="visual-size-pills-grid">
                             <button type="button" class="size-pill-btn {% if selected_size == 'XS' %}active{% endif %}" onclick="toggleFilterParam('size', 'XS')">XS</button>
                             <button type="button" class="size-pill-btn {% if selected_size == 'S' %}active{% endif %}" onclick="toggleFilterParam('size', 'S')">S</button>
@@ -274,7 +274,7 @@
                         <span class="accordion-title"><i class="fa-solid fa-star group-icon"></i> Customer Rating</span>
                         <i class="fa-solid fa-minus accordion-icon"></i>
                     </div>
-                    <div class="accordion-content" style="display: block;">
+                    <div class="accordion-content">
                         <div class="rating-slider-container">
                             <div class="rating-display-row">
                                 <span>Minimum: <strong id="ratingValText">{{ selected_rating|default:"4.0" }} ★</strong> & Up</span>
@@ -347,10 +347,10 @@
                         </div>
                     </div>
                 {% empty %}
-                    <div class="no-products-box" style="grid-column: 1 / -1; padding: 3rem; text-align: center;">
+                    <div class="no-products-box">
                         <h3>No products found matching active filters</h3>
-                        <p style="color: #64748b; margin-top: 0.5rem;">Try resetting your filters or adjusting your parameters.</p>
-                        <a href="{% url 'product_list' %}" class="btn btn-primary" style="margin-top: 1rem;">Clear All Filters</a>
+                        <p>Try resetting your filters or adjusting your parameters.</p>
+                        <a href="{% url 'product_list' %}" class="btn btn-primary">Clear All Filters</a>
                     </div>
                 {% endfor %}
             </div>

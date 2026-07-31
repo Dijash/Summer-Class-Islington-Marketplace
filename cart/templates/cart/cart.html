@@ -5,60 +5,13 @@
 
 {% block extra_head %}
 <link rel="stylesheet" href="{% static 'css/cart/style.css' %}">
-<style>
-.cart-qty-control {
-    display: inline-flex;
-    align-items: center;
-    border: 1.5px solid #0f172a;
-    border-radius: 8px;
-    overflow: hidden;
-    background: #ffffff;
-}
-.cart-qty-btn {
-    background: #f8fafc;
-    border: none;
-    width: 32px;
-    height: 32px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background 0.15s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.cart-qty-btn:hover {
-    background: #e2e8f0;
-}
-.cart-qty-input {
-    width: 44px;
-    height: 32px;
-    border: none;
-    border-left: 1px solid #e2e8f0;
-    border-right: 1px solid #e2e8f0;
-    text-align: center;
-    font-weight: 700;
-    font-size: 0.9rem;
-}
-.empty-cart-box {
-    text-align: center;
-    padding: 4rem 2rem;
-    background: #ffffff;
-    border: 1.5px solid #0f172a;
-    border-radius: 12px;
-}
-.empty-cart-box i {
-    font-size: 3.5rem;
-    color: #0f172a;
-    margin-bottom: 1rem;
-}
-</style>
 {% endblock %}
 
 {% block content %}
 <div class="container main-content">
     <div class="cart-page-header">
-        <h1 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;"><i class="fa-solid fa-cart-shopping"></i> Shopping Cart</h1>
-        <p style="color: #64748b; margin-top: 0.25rem;">Review your selected items before proceeding to checkout.</p>
+        <h1><i class="fa-solid fa-cart-shopping"></i> Shopping Cart</h1>
+        <p>Review your selected items before proceeding to checkout.</p>
     </div>
 
     {% if cart_items %}
@@ -86,7 +39,7 @@
                                                 <span class="seller-name">{{ item.product.brand_name }}</span>
                                                 <h3><a href="{% url 'product_detail' item.product.slug %}">{{ item.product.title }}</a></h3>
                                                 {% if item.size or item.color %}
-                                                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">
+                                                    <div class="cart-variant-info">
                                                         {% if item.size %}Size: <strong>{{ item.size }}</strong>{% endif %}
                                                         {% if item.color %} • Color: <strong>{{ item.color }}</strong>{% endif %}
                                                     </div>
@@ -114,7 +67,7 @@
                     </table>
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <div class="cart-action-row">
                     <a href="{% url 'product_list' %}" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Continue Shopping</a>
                 </div>
             </div>
@@ -164,9 +117,9 @@
     {% else %}
         <div class="empty-cart-box">
             <i class="fa-solid fa-cart-flatbed"></i>
-            <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: #0f172a;">Your Shopping Cart is Empty</h2>
-            <p style="color: #64748b; margin: 0.5rem 0 1.5rem 0;">Looks like you haven't added any products to your cart yet.</p>
-            <a href="{% url 'product_list' %}" class="btn btn-primary" style="padding: 12px 28px; border-radius: 8px;">Explore Products</a>
+            <h2>Your Shopping Cart is Empty</h2>
+            <p>Looks like you haven't added any products to your cart yet.</p>
+            <a href="{% url 'product_list' %}" class="btn btn-primary">Explore Products</a>
         </div>
     {% endif %}
 </div>

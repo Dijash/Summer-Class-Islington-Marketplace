@@ -7,6 +7,8 @@
 <link rel="stylesheet" href="{% static 'css/accounts/style.css' %}">
 {% endblock %}
 
+{% block body_class %}auth-page-body{% endblock %}
+
 {% block content %}
 <div class="auth-page-container">
     <div class="card auth-card register-card">
@@ -16,7 +18,7 @@
             <p>Join thousands of buyers and sellers on MarketPlace.</p>
         </div>
 
-        <form action="{% url 'register' %}" method="POST" class="auth-form">
+        <form action="{% url 'register' %}" method="POST" class="auth-form" id="registerForm" novalidate>
             {% csrf_token %}
             <!-- Account Type Selector -->
             <div class="account-type-selector">
@@ -35,11 +37,11 @@
             <div class="grid grid-cols-2">
                 <div class="form-group">
                     <label class="form-label">First Name</label>
-                    <input type="text" name="first_name" class="form-control" placeholder="John" required>
+                    <input type="text" name="first_name" id="regFirstName" class="form-control" placeholder="John" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Last Name</label>
-                    <input type="text" name="last_name" class="form-control" placeholder="Doe" required>
+                    <input type="text" name="last_name" id="regLastName" class="form-control" placeholder="Doe" required>
                 </div>
             </div>
 
@@ -47,7 +49,7 @@
                 <label class="form-label">Email Address</label>
                 <div class="input-with-icon">
                     <i class="fa-regular fa-envelope input-icon"></i>
-                    <input type="email" name="email" class="form-control" placeholder="john.doe@example.com" required>
+                    <input type="email" name="email" id="regEmail" class="form-control" placeholder="john.doe@example.com" required>
                 </div>
             </div>
 
@@ -56,33 +58,45 @@
                     <label class="form-label">Password</label>
                     <div class="input-with-icon">
                         <i class="fa-solid fa-lock input-icon"></i>
-                        <input type="password" name="password" class="form-control" placeholder="At least 8 chars" required>
-                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
+                        <input type="password" name="password" id="regPassword" class="form-control" placeholder="At least 6 chars" required>
+                        <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Toggle password visibility">
                             <i class="fa-regular fa-eye"></i>
                         </button>
+                    </div>
+                    <!-- Password Strength Meter -->
+                    <div class="password-strength-container">
+                        <div class="strength-bar-track">
+                            <div class="strength-bar-fill" id="strengthBarFill"></div>
+                        </div>
+                        <div class="strength-text">
+                            <span>Strength:</span>
+                            <span id="strengthTextLabel">None</span>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Confirm Password</label>
                     <div class="input-with-icon">
                         <i class="fa-solid fa-shield-halved input-icon"></i>
-                        <input type="password" class="form-control" placeholder="Repeat password" required>
-                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
+                        <input type="password" id="regConfirmPassword" class="form-control" placeholder="Repeat password" required>
+                        <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Toggle password visibility">
                             <i class="fa-regular fa-eye"></i>
                         </button>
                     </div>
+                    <!-- Password Match Verification Indicator -->
+                    <div class="password-match-status" id="matchStatusText"></div>
                 </div>
             </div>
 
             <div class="form-group checkbox-group">
                 <label class="custom-checkbox">
-                    <input type="checkbox" required checked>
+                    <input type="checkbox" id="regTermsCheckbox" required>
                     <span class="checkmark"></span>
                     I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
                 </label>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg btn-full">
+            <button type="submit" id="signupBtn" class="btn btn-primary btn-lg btn-full btn-disabled-style" disabled>
                 <i class="fa-solid fa-user-check"></i> Register Account
             </button>
         </form>
@@ -92,4 +106,120 @@
         </div>
     </div>
 </div>
+
+<script>
+function toggleAuthPassword(btn) {
+    const container = btn.closest('.input-with-icon');
+    const input = container.querySelector('input');
+    const icon = btn.querySelector('i');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+        btn.classList.add('toggled');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+        btn.classList.remove('toggled');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const firstName = document.getElementById('regFirstName');
+    const lastName = document.getElementById('regLastName');
+    const email = document.getElementById('regEmail');
+    const password = document.getElementById('regPassword');
+    const confirmPassword = document.getElementById('regConfirmPassword');
+    const terms = document.getElementById('regTermsCheckbox');
+    const signupBtn = document.getElementById('signupBtn');
+    
+    const strengthBarFill = id => document.getElementById('strengthBarFill');
+    const strengthTextLabel = document.getElementById('strengthTextLabel');
+    const matchStatusText = document.getElementById('matchStatusText');
+
+    // Account type cards selection animation
+    const typeOptions = document.querySelectorAll('.type-option');
+    typeOptions.forEach(opt => {
+        opt.addEventListener('click', function() {
+            typeOptions.forEach(o => o.classList.remove('active'));
+            this.classList.add('active');
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+        });
+    });
+
+    // Password strength check
+    function evaluatePasswordStrength(val) {
+        if (!val) {
+            return { score: 0, label: 'None', percent: '0%', class: '' };
+        }
+        let score = 0;
+        if (val.length >= 6) score++;
+        if (val.length >= 8) score++;
+        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+        if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) score++;
+
+        if (score <= 1) return { score: 1, label: 'Weak', percent: '25%', class: 'strength-weak' };
+        if (score === 2) return { score: 2, label: 'Fair', percent: '50%', class: 'strength-fair' };
+        if (score === 3) return { score: 3, label: 'Good', percent: '75%', class: 'strength-good' };
+        return { score: 4, label: 'Strong', percent: '100%', class: 'strength-strong' };
+    }
+
+    function validateFormState() {
+        const fnVal = firstName.value.trim();
+        const lnVal = lastName.value.trim();
+        const emailVal = email.value.trim();
+        const passVal = password.value;
+        const confirmVal = confirmPassword.value;
+        const termsChecked = terms.checked;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // 1. Password Strength Update
+        const strength = evaluatePasswordStrength(passVal);
+        const barFill = document.getElementById('strengthBarFill');
+        barFill.style.width = strength.percent;
+        barFill.className = 'strength-bar-fill ' + strength.class;
+        strengthTextLabel.textContent = strength.label;
+
+        // 2. Password Match Check
+        let passMatchValid = false;
+        if (!confirmVal) {
+            matchStatusText.innerHTML = '';
+            passMatchValid = false;
+        } else if (passVal === confirmVal && passVal.length >= 6) {
+            matchStatusText.className = 'password-match-status match-success';
+            matchStatusText.innerHTML = `<i class="fa-solid fa-circle-check"></i> Passwords match`;
+            passMatchValid = true;
+        } else {
+            matchStatusText.className = 'password-match-status match-error';
+            matchStatusText.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Passwords do not match`;
+            passMatchValid = false;
+        }
+
+        // 3. Smart Signup Button Enabling / Disabling
+        const isFnValid = fnVal.length >= 2;
+        const isLnValid = lnVal.length >= 2;
+        const isEmailValid = emailRegex.test(emailVal);
+        const isPassValid = passVal.length >= 6;
+
+        if (isFnValid && isLnValid && isEmailValid && isPassValid && passMatchValid && termsChecked) {
+            signupBtn.disabled = false;
+            signupBtn.classList.remove('btn-disabled-style');
+            signupBtn.classList.add('btn-enabled-style');
+        } else {
+            signupBtn.disabled = true;
+            signupBtn.classList.remove('btn-enabled-style');
+            signupBtn.classList.add('btn-disabled-style');
+        }
+    }
+
+    // Attach real-time validation listeners
+    [firstName, lastName, email, password, confirmPassword].forEach(el => {
+        el.addEventListener('input', validateFormState);
+    });
+    terms.addEventListener('change', validateFormState);
+});
+</script>
 {% endblock %}

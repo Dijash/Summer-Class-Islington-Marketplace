@@ -12,7 +12,7 @@
     <!-- Welcome Header Banner -->
     <div class="dash-welcome-banner">
         <div class="welcome-text">
-            <h1>Hello, John Doe! <i class="fa-regular fa-hand text-muted ms-1"></i></h1>
+            <h1 id="dashGreeting">Hello, {% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% else %}John Doe{% endif %}! <i class="fa-regular fa-hand text-muted ms-1"></i></h1>
             <p>Welcome to your customer portal. Track active shipments, review order history, and manage your account.</p>
         </div>
         <div class="dash-quick-action">
@@ -39,15 +39,15 @@
         <div class="dash-stat-card">
             <div class="stat-icon-box bg-danger-light"><i class="fa-solid fa-heart"></i></div>
             <div class="stat-info">
-                <span class="stat-value">8</span>
+                <span class="stat-value">{{ wishlist_count }}</span>
                 <span class="stat-name">Saved Items</span>
             </div>
         </div>
         <div class="dash-stat-card">
-            <div class="stat-icon-box bg-success-light"><i class="fa-solid fa-wallet"></i></div>
+            <div class="stat-icon-box bg-success-light"><i class="fa-solid fa-cart-shopping"></i></div>
             <div class="stat-info">
-                <span class="stat-value">₹1,420.50</span>
-                <span class="stat-name">Total Spent</span>
+                <span class="stat-value">{{ cart_count }}</span>
+                <span class="stat-name">Cart Items</span>
             </div>
         </div>
     </div>
@@ -111,14 +111,14 @@
                 <div class="widget-user">
                     <div class="avatar-md"><i class="fa-solid fa-user"></i></div>
                     <div>
-                        <h3>John Doe</h3>
-                        <p>john.doe@example.com</p>
+                        <h3 id="dashUserName">{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% else %}John Doe{% endif %}</h3>
+                        <p id="dashUserEmail">{% if user.is_authenticated %}{{ user.email|default:user.username }}{% else %}john.doe@example.com{% endif %}</p>
                     </div>
                 </div>
                 <div class="widget-divider"></div>
                 <div class="widget-address">
                     <h4><i class="fa-solid fa-location-dot"></i> Default Address</h4>
-                    <p>123 Market Street, Apt 4B<br>San Francisco, CA 94107</p>
+                    <p id="dashUserAddress">{{ address }}</p>
                 </div>
                 <a href="{% url 'profile' %}" class="btn btn-outline-primary btn-full"><i class="fa-solid fa-user-pen"></i> Edit Profile Settings</a>
             </div>

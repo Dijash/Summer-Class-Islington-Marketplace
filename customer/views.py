@@ -69,7 +69,31 @@ def remove_from_wishlist(request, product_id):
     return redirect('wishlist')
 
 def dashboard(request):
-    return render(request, 'customer/dashboard.html')
+    from cart.models import Cart
+    
+    wishlist_count = 0
+    cart_count = 0
+    if request.user.is_authenticated:
+        wishlist_count = Wishlist.objects.filter(user=request.user).count()
+        cart = Cart.objects.filter(user=request.user).first()
+        if cart:
+            cart_count = cart.get_total_count()
+    else:
+        session_key = get_session_key(request)
+        wishlist_count = Wishlist.objects.filter(session_key=session_key).count()
+        cart = Cart.objects.filter(session_key=session_key).first()
+        if cart:
+            cart_count = cart.get_total_count()
+
+    phone = request.session.get('user_phone', '+1 (555) 234-5678')
+    address = request.session.get('user_address', '123 Market Street, Apt 4B, San Francisco, CA 94107')
+
+    return render(request, 'customer/dashboard.html', {
+        'wishlist_count': wishlist_count,
+        'cart_count': cart_count,
+        'phone': phone,
+        'address': address
+    })
 
 def orders(request):
     return render(request, 'customer/orders.html')
