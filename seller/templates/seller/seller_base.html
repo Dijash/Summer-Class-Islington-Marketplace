@@ -1,0 +1,123 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Seller Dashboard{% endblock %}</title>
+    <!-- Modern Font Pairings -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Toastify CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    
+    <!-- Assuming core styles are still required, but prioritizing seller styles -->
+    <link rel="stylesheet" href="{% static 'css/core/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/seller/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Mobile Navbar (Visible only on small screens) -->
+<header class="mobile-seller-header">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <div class="sidebar-logo" style="width: 32px; height: 32px; font-size: 1rem;">
+            <i class="fa-solid fa-store"></i>
+        </div>
+        <span class="sidebar-brand-bottom" style="color: #0f172a;">PORTAL</span>
+    </div>
+    <button class="mobile-menu-btn" onclick="toggleSellerSidebar()" aria-label="Toggle Menu">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+</header>
+
+<div class="seller-layout">
+    <!-- Mobile Overlay -->
+    <div class="sidebar-overlay" onclick="toggleSellerSidebar()"></div>
+
+    <!-- Seller Sidebar -->
+    <aside class="seller-sidebar" id="sellerSidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <i class="fa-solid fa-store"></i>
+            </div>
+            <div class="sidebar-brand">
+                <span class="sidebar-brand-top">Seller</span>
+                <span class="sidebar-brand-bottom">Dashboard</span>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'seller_dashboard' %}" class="sidebar-link {% if request.resolver_match.url_name == 'seller_dashboard' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'seller_analytics' %}" class="sidebar-link {% if request.resolver_match.url_name == 'seller_analytics' %}active{% endif %}">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Analytics</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'seller_add_product' %}" class="sidebar-link {% if request.resolver_match.url_name == 'seller_add_product' %}active{% endif %}">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>Add Product</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'seller_my_products' %}" class="sidebar-link {% if request.resolver_match.url_name == 'seller_my_products' %}active{% endif %}">
+                        <i class="fa-solid fa-box-open"></i>
+                        <span>Inventory</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'seller_orders' %}" class="sidebar-link {% if request.resolver_match.url_name == 'seller_orders' %}active{% endif %}">
+                        <i class="fa-solid fa-receipt"></i>
+                        <span>Orders</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'seller_requests' %}" class="sidebar-link {% if request.resolver_match.url_name == 'seller_requests' %}active{% endif %}">
+                        <i class="fa-solid fa-clock-rotate-left"></i>
+                        <span>Requests</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'home' %}" class="sidebar-link">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Storefront</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Seller Main Content -->
+    <main class="seller-main">
+        {% block seller_content %}{% endblock %}
+    </main>
+</div>
+
+<script>
+    // Handle mobile sidebar toggle
+    function toggleSellerSidebar() {
+        const sidebar = document.getElementById('sellerSidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+        sidebar.classList.toggle('open');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="{% static 'js/core/main.js' %}"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

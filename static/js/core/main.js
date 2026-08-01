@@ -1,30 +1,38 @@
 function showToast(message, type = 'success') {
-    let container = document.getElementById('toastContainer');
-    if (!container) {
-        container = document.createElement('div');
-        container.id = 'toastContainer';
-        container.className = 'toast-container';
-        document.body.appendChild(container);
-    }
+    const isRemove = type === 'remove';
+    const icon = document.createElement('i');
+    icon.className = isRemove ? 'fa-solid fa-heart-crack' : 'fa-solid fa-heart';
+    icon.style.cssText = isRemove
+        ? 'color:#f43f5e;font-size:1.15rem;margin-right:10px;flex-shrink:0;'
+        : 'color:#e91e63;font-size:1.15rem;margin-right:10px;flex-shrink:0;';
 
-    const toast = document.createElement('div');
-    toast.className = `toast-item ${type === 'remove' ? 'toast-remove' : ''}`;
-    
-    const iconClass = type === 'remove' ? 'fa-solid fa-heart-crack' : 'fa-solid fa-heart';
-    toast.innerHTML = `<i class="${iconClass} toast-icon"></i><span>${message}</span>`;
-    
-    container.appendChild(toast);
+    const span = document.createElement('span');
+    span.textContent = message;
 
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 10);
+    const node = document.createElement('div');
+    node.style.cssText = 'display:flex;align-items:center;';
+    node.appendChild(icon);
+    node.appendChild(span);
 
-    setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => {
-            toast.remove();
-        }, 300);
-    }, 3000);
+    Toastify({
+        node: node,
+        duration: 3000,
+        gravity: 'top',
+        position: 'right',
+        stopOnFocus: true,
+        style: {
+            background: isRemove ? 'linear-gradient(135deg, #1a1a2e, #16213e)' : 'linear-gradient(135deg, #0f172a, #1e293b)',
+            borderLeft: isRemove ? '5px solid #f43f5e' : '5px solid #e91e63',
+            borderRadius: '10px',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+            fontSize: '0.9rem',
+            fontWeight: '600',
+            boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
+            padding: '14px 20px',
+            color: '#ffffff',
+        },
+        offset: { y: 80 },
+    }).showToast();
 }
 
 function togglePasswordVisibility(btn) {

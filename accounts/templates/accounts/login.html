@@ -1,131 +1,107 @@
-{% extends 'layouts/base.html' %}
+{% extends 'accounts/auth_base.html' %}
 {% load static %}
 
-{% block title %}Log In - MarketPlace{% endblock %}
+{% block auth_title %}Log In - MarketPlace{% endblock %}
 
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/accounts/style.css' %}">
-{% endblock %}
+{% block auth_form %}
+<header class="auth-header slide-up-anim" style="--delay: 0.1s;">
+    <h1>Welcome back!</h1>
+    <p>Log in to access your account, track orders,<br>and view saved items.</p>
+</header>
 
-{% block body_class %}auth-page-body{% endblock %}
+<form action="{% url 'login' %}" method="POST" class="auth-form slide-up-anim" id="loginForm" style="--delay: 0.2s;" novalidate>
+    {% csrf_token %}
 
-{% block content %}
-<div class="auth-page-container auth-page-tall">
-    <div class="card auth-card">
-        <div class="auth-header">
-            <div class="auth-icon-circle"><i class="fa-solid fa-arrow-right-to-bracket"></i></div>
-            <h1>Welcome Back</h1>
-            <p>Log in to access your MarketPlace account, orders, and saved items.</p>
-        </div>
-
-        <form action="{% url 'login' %}" method="POST" class="auth-form" id="loginForm" novalidate>
-            {% csrf_token %}
-            <div class="form-group">
-                <label class="form-label" for="loginEmail">Email Address</label>
-                <div class="input-with-icon">
-                    <i class="fa-regular fa-envelope input-icon"></i>
-                    <input type="email" name="email" id="loginEmail" class="form-control" placeholder="name@example.com" required autocomplete="email">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <div class="label-row">
-                    <label class="form-label" for="loginPassword">Password</label>
-                    <a href="#" class="forgot-link">Forgot password?</a>
-                </div>
-                <div class="input-with-icon">
-                    <i class="fa-solid fa-lock input-icon"></i>
-                    <input type="password" name="password" id="loginPassword" class="form-control" placeholder="••••••••" required autocomplete="current-password">
-                    <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
-                        <i class="fa-regular fa-eye"></i>
-                    </button>
-                </div>
-            </div>
-
-            <div class="form-group checkbox-group">
-                <label class="custom-checkbox">
-                    <input type="checkbox" id="loginRemember" checked>
-                    <span class="checkmark"></span>
-                    Remember me for 30 days
-                </label>
-            </div>
-
-            <button type="submit" id="loginSubmitBtn" class="btn btn-primary btn-lg btn-full btn-disabled-style" disabled>
-                <i class="fa-solid fa-right-to-bracket"></i> Log In to Account
-            </button>
-        </form>
-
-        <div class="auth-divider">
-            <span>Or continue with</span>
-        </div>
-
-        <div class="social-login-buttons">
-            <button type="button" class="btn btn-outline-secondary social-btn"><i class="fa-brands fa-google text-danger"></i> Google</button>
-            <button type="button" class="btn btn-outline-secondary social-btn"><i class="fa-brands fa-apple"></i> Apple</button>
-        </div>
-
-        <div class="auth-footer">
-            <p>Don't have an account yet? <a href="{% url 'register' %}" class="signup-highlight-link">Sign up for free</a></p>
+    {% if error %}
+    <div class="auth-error-msg">
+        <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+    </div>
+    {% endif %}
+    
+    <!-- Username / Email Field -->
+    <div class="form-group">
+        <div class="input-with-icon" id="emailInputWrapper">
+            <input type="email" name="email" id="loginEmail" class="form-control" placeholder="Username" required autocomplete="email">
         </div>
     </div>
+
+    <!-- Password Field -->
+    <div class="form-group">
+        <div class="input-with-icon" id="passwordInputWrapper">
+            <input type="password" name="password" id="loginPassword" class="form-control" placeholder="Password" required autocomplete="current-password">
+            <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Show password" title="Toggle Password Visibility">
+                <i class="fa-regular fa-eye-slash"></i>
+            </button>
+        </div>
+        <!-- Forgot Password Link -->
+        <div class="forgot-password-row">
+            <a href="#" class="forgot-link">Forgot Password?</a>
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+    <button type="submit" id="loginSubmitBtn" class="btn btn-auth" disabled>
+        <span class="btn-text">Login</span>
+    </button>
+</form>
+
+<div class="auth-divider slide-up-anim" style="--delay: 0.3s;">
+    <span>or continue with</span>
 </div>
 
+<!-- Social Logins (Circular) -->
+<div class="social-login-buttons slide-up-anim" style="--delay: 0.4s;">
+    <button type="button" class="social-circle-btn" aria-label="Login with Google">
+        <i class="fa-brands fa-google google-icon"></i>
+    </button>
+    <button type="button" class="social-circle-btn" aria-label="Login with Apple">
+        <i class="fa-brands fa-apple"></i>
+    </button>
+    <button type="button" class="social-circle-btn" aria-label="Login with Facebook">
+        <i class="fa-brands fa-facebook-f"></i>
+    </button>
+</div>
+
+<footer class="auth-footer slide-up-anim" style="--delay: 0.5s;">
+    <p>Not a member? <a href="{% url 'register' %}" class="signup-highlight-link">Register now</a></p>
+</footer>
+{% endblock %}
+
+{% block auth_scripts %}
 <script>
 function toggleAuthPassword(btn) {
     const container = btn.closest('.input-with-icon');
     const input = container.querySelector('input');
     const icon = btn.querySelector('i');
     
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-        btn.classList.add('toggled');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-        btn.classList.remove('toggled');
-    }
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    
+    icon.className = isPassword ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+    btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+    btn.classList.toggle('toggled', isPassword);
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', () => {
     const emailInput = document.getElementById('loginEmail');
     const passwordInput = document.getElementById('loginPassword');
     const loginSubmitBtn = document.getElementById('loginSubmitBtn');
-    const loginForm = document.getElementById('loginForm');
-
+    
     function validateLoginForm() {
         const emailVal = emailInput.value.trim();
         const passVal = passwordInput.value.trim();
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-        if (emailRegex.test(emailVal) && passVal.length >= 1) {
+        
+        if (emailVal.length > 0 && passVal.length > 0) {
             loginSubmitBtn.disabled = false;
-            loginSubmitBtn.classList.remove('btn-disabled-style');
-            loginSubmitBtn.classList.add('btn-enabled-style');
         } else {
             loginSubmitBtn.disabled = true;
-            loginSubmitBtn.classList.remove('btn-enabled-style');
-            loginSubmitBtn.classList.add('btn-disabled-style');
         }
     }
 
-    [emailInput, passwordInput].forEach(input => {
-        input.addEventListener('input', validateLoginForm);
-        input.addEventListener('keyup', validateLoginForm);
-        input.addEventListener('change', validateLoginForm);
+    ['input', 'change'].forEach(evt => {
+        emailInput.addEventListener(evt, validateLoginForm);
+        passwordInput.addEventListener(evt, validateLoginForm);
     });
-
-    if (loginForm) {
-        loginForm.addEventListener('submit', function() {
-            loginSubmitBtn.disabled = true;
-            loginSubmitBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Logging in...`;
-        });
-    }
-
-    // Trigger initial validation check if browser auto-filled fields
-    setTimeout(validateLoginForm, 200);
 });
 </script>
 {% endblock %}

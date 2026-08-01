@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from product.models import Product
 from .models import Cart, CartItem
 
+
 def get_or_create_cart(request):
     if not hasattr(request, 'session') or request.session is None:
         session_key = None
@@ -28,29 +29,50 @@ def get_or_create_cart(request):
 
     return cart, session_key
 
-def cart_view(request):
-    cart, _ = get_or_create_cart(request)
+
+def _calc_totals(cart):
     cart_items = cart.items.select_related('product').all() if cart else []
-    
-    subtotal = sum(item.get_subtotal() for item in cart_items)
+    subtotal = float(sum(i.get_subtotal() for i in cart_items))
     shipping = 0 if subtotal > 1000 or subtotal == 0 else 99
     tax = round(subtotal * 0.05, 2)
     grand_total = subtotal + shipping + tax
-
-    return render(request, 'cart/cart.html', {
-        'cart': cart,
-        'cart_items': cart_items,
+    total_count = sum(i.quantity for i in cart_items)
+    return {
         'subtotal': subtotal,
         'shipping': shipping,
         'tax': tax,
         'grand_total': grand_total,
-        'item_count': sum(item.quantity for item in cart_items)
+        'count': total_count,
+    }
+
+
+def cart_view(request):
+    cart, _ = get_or_create_cart(request)
+    cart_items = cart.items.select_related('product').all() if cart else []
+    totals = _calc_totals(cart)
+
+    return render(request, 'cart/cart.html', {
+        'cart': cart,
+        'cart_items': cart_items,
+        'subtotal': totals['subtotal'],
+        'shipping': totals['shipping'],
+        'tax': totals['tax'],
+        'grand_total': totals['grand_total'],
+        'item_count': totals['count'],
     })
 
+
 def add_to_cart(request, product_id):
+    if not request.user.is_authenticated:
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax'):
+            return JsonResponse({'success': False, 'login_required': True, 'message': 'Please log in to add items to your cart'}, status=403)
+        return redirect('login')
+
     product = get_object_or_404(Product, pk=product_id)
     cart, _ = get_or_create_cart(request)
-    
+    if not cart:
+        return JsonResponse({'success': False, 'message': 'Unable to create cart'}, status=400)
+
     quantity = int(request.POST.get('quantity') or request.GET.get('quantity') or 1)
     size = request.POST.get('size') or request.GET.get('size') or ''
     color = request.POST.get('color') or request.GET.get('color') or ''
@@ -66,21 +88,22 @@ def add_to_cart(request, product_id):
         cart_item.quantity += quantity
         cart_item.save()
 
-    total_count = cart.get_total_count()
-    total_price = cart.get_total_price()
+    totals = _calc_totals(cart)
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest' or request.GET.get('ajax'):
         return JsonResponse({
             'success': True,
             'message': f"Added '{product.title}' to cart!",
-            'count': total_count,
-            'total_price': float(total_price)
+            'count': totals['count'],
+            'total_price': totals['subtotal'],
         })
 
     return redirect('cart')
 
+
 def update_cart_item(request, item_id):
     cart_item = get_object_or_404(CartItem, pk=item_id)
+    cart = cart_item.cart
     action = request.POST.get('action') or request.GET.get('action')
     quantity = request.POST.get('quantity') or request.GET.get('quantity')
 
@@ -103,46 +126,37 @@ def update_cart_item(request, item_id):
             cart_item.delete()
             cart_item = None
 
-    cart = cart_item.cart if cart_item else get_or_create_cart(request)[0]
-    cart_items = cart.items.all() if cart else []
-    subtotal = float(sum(i.get_subtotal() for i in cart_items))
-    shipping = 0 if subtotal > 1000 or subtotal == 0 else 99
-    tax = round(subtotal * 0.05, 2)
-    grand_total = subtotal + shipping + tax
-    total_count = sum(i.quantity for i in cart_items)
+    totals = _calc_totals(cart)
 
     return JsonResponse({
         'success': True,
         'item_qty': cart_item.quantity if cart_item else 0,
         'item_subtotal': float(cart_item.get_subtotal()) if cart_item else 0,
-        'subtotal': subtotal,
-        'shipping': shipping,
-        'tax': tax,
-        'grand_total': grand_total,
-        'count': total_count
+        'subtotal': totals['subtotal'],
+        'shipping': totals['shipping'],
+        'tax': totals['tax'],
+        'grand_total': totals['grand_total'],
+        'count': totals['count'],
     })
+
 
 def remove_from_cart(request, item_id):
     cart_item = get_object_or_404(CartItem, pk=item_id)
     cart = cart_item.cart
     cart_item.delete()
 
-    cart_items = cart.items.all()
-    subtotal = float(sum(i.get_subtotal() for i in cart_items))
-    shipping = 0 if subtotal > 1000 or subtotal == 0 else 99
-    tax = round(subtotal * 0.05, 2)
-    grand_total = subtotal + shipping + tax
-    total_count = sum(i.quantity for i in cart_items)
+    totals = _calc_totals(cart)
 
     return JsonResponse({
         'success': True,
         'message': 'Item removed from cart',
-        'subtotal': subtotal,
-        'shipping': shipping,
-        'tax': tax,
-        'grand_total': grand_total,
-        'count': total_count
+        'subtotal': totals['subtotal'],
+        'shipping': totals['shipping'],
+        'tax': totals['tax'],
+        'grand_total': totals['grand_total'],
+        'count': totals['count'],
     })
+
 
 def cart_summary_api(request):
     cart, _ = get_or_create_cart(request)
@@ -155,15 +169,29 @@ def cart_summary_api(request):
                 'slug': i.product.slug,
                 'price': float(i.product.price),
                 'quantity': i.quantity,
+                'size': i.size or '',
+                'color': i.color or '',
                 'image': i.product.primary_image,
-                'subtotal': float(i.get_subtotal())
+                'subtotal': float(i.get_subtotal()),
             })
     return JsonResponse({
         'count': cart.get_total_count() if cart else 0,
         'subtotal': float(cart.get_total_price()) if cart else 0,
-        'items': items
+        'items': items,
     })
 
-def checkout_view(request):
-    return render(request, 'cart/checkout.html')
 
+def checkout_view(request):
+    cart, _ = get_or_create_cart(request)
+    cart_items = cart.items.select_related('product').all() if cart else []
+    totals = _calc_totals(cart)
+
+    return render(request, 'cart/checkout.html', {
+        'cart': cart,
+        'cart_items': cart_items,
+        'subtotal': totals['subtotal'],
+        'shipping': totals['shipping'],
+        'tax': totals['tax'],
+        'grand_total': totals['grand_total'],
+        'item_count': totals['count'],
+    })

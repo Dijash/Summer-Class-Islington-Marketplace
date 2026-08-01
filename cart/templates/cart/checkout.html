@@ -151,44 +151,45 @@
             <div class="card checkout-summary-card">
                 <h3>Order Review</h3>
                 <div class="checkout-items-mini">
-                    <div class="mini-item">
-                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=100&q=80" alt="Headphones">
-                        <div class="mini-item-details">
-                            <h4>Noise-Canceling Headphones</h4>
-                            <p>Qty: 1 • ₹199.99</p>
+                    {% for item in cart_items %}
+                        <div class="mini-item">
+                            <img src="{{ item.product.primary_image }}" alt="{{ item.product.title }}">
+                            <div class="mini-item-details">
+                                <h4>{{ item.product.title }}</h4>
+                                <p>Qty: {{ item.quantity }}{% if item.size %} · {{ item.size }}{% endif %}{% if item.color %} · {{ item.color }}{% endif %} · ₹{{ item.get_subtotal|floatformat:0 }}</p>
+                            </div>
                         </div>
-                    </div>
-                    <div class="mini-item">
-                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=100&q=80" alt="Smartwatch">
-                        <div class="mini-item-details">
-                            <h4>Ultra Smartwatch</h4>
-                            <p>Qty: 1 • ₹149.00</p>
-                        </div>
-                    </div>
+                    {% empty %}
+                        <p style="color: var(--text-muted); text-align: center; padding: 1rem 0;">No items in cart</p>
+                    {% endfor %}
                 </div>
 
                 <div class="summary-lines">
                     <div class="summary-line">
-                        <span>Subtotal</span>
-                        <span>₹348.99</span>
+                        <span>Subtotal ({{ item_count }} item{{ item_count|pluralize }})</span>
+                        <span>₹{{ subtotal|floatformat:0 }}</span>
                     </div>
                     <div class="summary-line">
                         <span>Shipping</span>
-                        <span class="text-success">FREE</span>
+                        {% if shipping == 0 %}
+                            <span class="text-success">FREE</span>
+                        {% else %}
+                            <span>₹{{ shipping }}</span>
+                        {% endif %}
                     </div>
                     <div class="summary-line">
-                        <span>Tax</span>
-                        <span>₹27.92</span>
+                        <span>Tax (5%)</span>
+                        <span>₹{{ tax|floatformat:0 }}</span>
                     </div>
                     <div class="summary-divider"></div>
                     <div class="summary-line total-line">
                         <span>Total Due</span>
-                        <span class="total-price">₹361.91</span>
+                        <span class="total-price">₹{{ grand_total|floatformat:0 }}</span>
                     </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg btn-full btn-place-order">
-                    <i class="fa-solid fa-check"></i> Place Order (₹361.91)
+                    <i class="fa-solid fa-check"></i> Place Order (₹{{ grand_total|floatformat:0 }})
                 </button>
             </div>
         </div>

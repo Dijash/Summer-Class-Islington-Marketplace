@@ -1,0 +1,62 @@
+{% extends 'seller/seller_base.html' %}
+{% load static %}
+
+{% block title %}Inventory - Seller Portal{% endblock %}
+
+{% block seller_content %}
+<div class="seller-page-header">
+    <div>
+        <h1>Inventory</h1>
+        <p>Products that have been approved and are live on the marketplace.</p>
+    </div>
+</div>
+
+{% if products %}
+<div class="card seller-table-card">
+    <div class="table-responsive">
+        <table class="seller-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>MRP</th>
+                    <th>Price</th>
+                    <th>Added On</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in products %}
+                <tr>
+                    <td>
+                        <div class="product-cell">
+                            {% if p.image %}
+                                <img src="{{ p.image.url }}" alt="{{ p.title }}" class="product-cell-img">
+                            {% elif p.product %}
+                                <img src="{{ p.product.primary_image }}" alt="{{ p.title }}" class="product-cell-img">
+                            {% else %}
+                                <div class="product-cell-img product-cell-placeholder"><i class="fa-solid fa-image"></i></div>
+                            {% endif %}
+                            <div>
+                                <strong>{{ p.title }}</strong>
+                                <small>{{ p.brand_name }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ p.category.name }}</td>
+                    <td>₹{{ p.mrp|floatformat:0 }}</td>
+                    <td><strong>₹{{ p.price|floatformat:0 }}</strong></td>
+                    <td style="color: var(--seller-text-muted);">{{ p.created_at|date:"M j, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card empty-state">
+    <i class="fa-solid fa-box-open"></i>
+    <h3>No approved products yet</h3>
+    <p>Products you add will appear here once approved by admin.</p>
+</div>
+{% endif %}
+{% endblock %}

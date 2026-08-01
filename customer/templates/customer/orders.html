@@ -16,102 +16,96 @@
 
     <!-- Filter Tabs -->
     <div class="orders-filter-tabs">
-        <button class="order-tab active">All Orders (12)</button>
-        <button class="order-tab">In Transit (2)</button>
-        <button class="order-tab">Delivered (9)</button>
-        <button class="order-tab">Cancelled (1)</button>
+        <a href="{% url 'customer_orders' %}" class="order-tab {% if not active_filter %}active{% endif %}">
+            All Orders ({{ status_counts.all|default:0 }})
+        </a>
+        <a href="{% url 'customer_orders' %}?status=in_transit" class="order-tab {% if active_filter == 'in_transit' %}active{% endif %}">
+            In Transit ({{ status_counts.in_transit|default:0 }})
+        </a>
+        <a href="{% url 'customer_orders' %}?status=delivered" class="order-tab {% if active_filter == 'delivered' %}active{% endif %}">
+            Delivered ({{ status_counts.delivered|default:0 }})
+        </a>
+        <a href="{% url 'customer_orders' %}?status=cancelled" class="order-tab {% if active_filter == 'cancelled' %}active{% endif %}">
+            Cancelled ({{ status_counts.cancelled|default:0 }})
+        </a>
     </div>
 
     <!-- Orders Cards List -->
     <div class="orders-list">
-        <!-- Order Card 1 -->
-        <div class="card order-card">
-            <div class="order-card-header">
-                <div class="order-id-group">
-                    <span class="order-number">Order #ORD-9482</span>
-                    <span class="order-date"><i class="fa-regular fa-calendar"></i> Placed on July 28, 2025</span>
+        {% for order in orders %}
+            <div class="card order-card">
+                <div class="order-card-header">
+                    <div class="order-id-group">
+                        <span class="order-number">Order #{{ order.order_number }}</span>
+                        <span class="order-date"><i class="fa-regular fa-calendar"></i> Placed on {{ order.created_at|date:"F j, Y" }}</span>
+                    </div>
+                    <div class="order-status-group">
+                        <span class="badge {{ order.status_badge_class }}">
+                            <i class="fa-solid {{ order.status_icon }}"></i> {{ order.get_status_display }}
+                        </span>
+                    </div>
                 </div>
-                <div class="order-status-group">
-                    <span class="badge badge-warning"><i class="fa-solid fa-truck"></i> In Transit</span>
-                </div>
-            </div>
 
-            <div class="order-card-body">
-                <div class="order-items-strip">
-                    <div class="order-item-thumb">
-                        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=150&q=80" alt="Headphones">
-                        <div>
-                            <h4>Noise-Canceling Headphones</h4>
-                            <p>Qty: 1 • ₹199.99</p>
+                <div class="order-card-body">
+                    <div class="order-items-strip">
+                        {% for item in order.items.all %}
+                            <div class="order-item-thumb">
+                                {% if item.product_image %}
+                                    <img src="{{ item.product_image }}" alt="{{ item.product_title }}">
+                                {% elif item.product %}
+                                    <img src="{{ item.product.primary_image }}" alt="{{ item.product_title }}">
+                                {% else %}
+                                    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=150&q=80" alt="{{ item.product_title }}">
+                                {% endif %}
+                                <div>
+                                    <h4>{{ item.product_title }}</h4>
+                                    <p>Qty: {{ item.quantity }} • ₹{{ item.price|floatformat:0 }}</p>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="order-item-thumb">
+                                <p>No items in this order.</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="order-meta-info">
+                        <div class="meta-item">
+                            <span>Total Paid</span>
+                            <strong class="text-primary">₹{{ order.total_amount|floatformat:0 }}</strong>
                         </div>
-                    </div>
-                    <div class="order-item-thumb">
-                        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150&q=80" alt="Smartwatch">
-                        <div>
-                            <h4>Ultra Smartwatch</h4>
-                            <p>Qty: 1 • ₹149.00</p>
-                        </div>
+                        {% if order.tracking_number %}
+                            <div class="meta-item">
+                                <span>Tracking Number</span>
+                                <strong>{{ order.tracking_number }}</strong>
+                            </div>
+                        {% elif order.status == 'delivered' %}
+                            <div class="meta-item">
+                                <span>Delivered On</span>
+                                <strong>{{ order.updated_at|date:"F j, Y" }}</strong>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
 
-                <div class="order-meta-info">
-                    <div class="meta-item">
-                        <span>Total Paid</span>
-                        <strong class="text-primary">₹361.91</strong>
-                    </div>
-                    <div class="meta-item">
-                        <span>Tracking Number</span>
-                        <strong>FX-998234110-US</strong>
-                    </div>
-                </div>
-            </div>
-
-            <div class="order-card-footer">
-                <button type="button" class="btn btn-primary btn-sm"><i class="fa-solid fa-location-crosshairs"></i> Track Live Package</button>
-                <button type="button" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-file-invoice"></i> Download Invoice PDF</button>
-            </div>
-        </div>
-
-        <!-- Order Card 2 -->
-        <div class="card order-card">
-            <div class="order-card-header">
-                <div class="order-id-group">
-                    <span class="order-number">Order #ORD-8391</span>
-                    <span class="order-date"><i class="fa-regular fa-calendar"></i> Placed on July 14, 2025</span>
-                </div>
-                <div class="order-status-group">
-                    <span class="badge badge-success"><i class="fa-solid fa-check"></i> Delivered</span>
+                <div class="order-card-footer">
+                    {% if order.status == 'in_transit' or order.status == 'shipped' %}
+                        <button type="button" class="btn btn-primary btn-sm"><i class="fa-solid fa-location-crosshairs"></i> Track Live Package</button>
+                    {% endif %}
+                    {% if order.status == 'delivered' %}
+                        <button type="button" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-rotate-left"></i> Buy Again</button>
+                    {% endif %}
+                    <button type="button" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-file-invoice"></i> Download Invoice PDF</button>
                 </div>
             </div>
-
-            <div class="order-card-body">
-                <div class="order-items-strip">
-                    <div class="order-item-thumb">
-                        <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=150&q=80" alt="Sneakers">
-                        <div>
-                            <h4>Performance Running Sneakers</h4>
-                            <p>Qty: 1 • ₹89.95</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="order-meta-info">
-                    <div class="meta-item">
-                        <span>Total Paid</span>
-                        <strong class="text-primary">₹89.95</strong>
-                    </div>
-                    <div class="meta-item">
-                        <span>Delivered On</span>
-                        <strong>July 17, 2025</strong>
-                    </div>
-                </div>
+        {% empty %}
+            <div class="no-orders-box">
+                <i class="fa-solid fa-box-open"></i>
+                <h3>No orders found</h3>
+                <p>{% if active_filter %}No {{ active_filter|title }} orders found. <a href="{% url 'customer_orders' %}">View all orders</a>{% else %}You haven't placed any orders yet. Start shopping to see your orders here!{% endif %}</p>
+                <a href="{% url 'product_list' %}" class="btn btn-primary">Browse Products</a>
             </div>
-
-            <div class="order-card-footer">
-                <button type="button" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-rotate-left"></i> Buy Again</button>
-                <button type="button" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-star"></i> Write Product Review</button>
-            </div>
-        </div>
+        {% endfor %}
     </div>
 </div>
 {% endblock %}

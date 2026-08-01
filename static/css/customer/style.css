@@ -219,6 +219,8 @@
   color: var(--text-muted);
   cursor: pointer;
   transition: all var(--transition-fast);
+  text-decoration: none;
+  display: inline-block;
 }
 
 .order-tab.active, .order-tab:hover {
@@ -337,4 +339,47 @@
     border-top: 1px solid var(--border-light);
     width: 100%;
   }
+}
+
+/* Empty State */
+.no-orders-box {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+}
+
+.no-orders-box i {
+  font-size: 3rem;
+  color: #cbd5e1;
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.no-orders-box h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.5rem;
+}
+
+.no-orders-box p {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.no-orders-box p a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.no-orders-box p a:hover {
+  text-decoration: underline;
+}
+
+.no-orders-box .btn {
+  margin-top: 0.5rem;
 }

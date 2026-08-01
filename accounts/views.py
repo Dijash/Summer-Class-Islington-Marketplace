@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import login as auth_login, logout as auth_logout, get_user_model, update_session_auth_hash
+from django.contrib.auth import login as auth_login, logout as auth_logout, authenticate, get_user_model, update_session_auth_hash
 from django.http import JsonResponse
 
 User = get_user_model()
@@ -9,13 +9,19 @@ def login_view(request):
         email = request.POST.get('email', '').strip()
         password = request.POST.get('password', '').strip()
 
-        user = User.objects.filter(email__iexact=email).first()
-        if not user:
-            user = User.objects.filter(username__iexact=email).first()
-        if not user:
-            user = User.objects.first()
-        if not user:
-            user = User.objects.create_user(username='admin', email='admin@gmail.com', password='password123')
+        if not email or not password:
+            return render(request, 'accounts/login.html', {'error': 'Please enter both email and password.'})
+
+        user = authenticate(request, username=email, password=password)
+        if user is None:
+            try:
+                user_obj = User.objects.get(email__iexact=email)
+                user = authenticate(request, username=user_obj.username, password=password)
+            except User.DoesNotExist:
+                user = None
+
+        if user is None:
+            return render(request, 'accounts/login.html', {'error': 'Invalid email or password.'})
 
         auth_login(request, user)
         return redirect('home')
@@ -29,16 +35,26 @@ def register_view(request):
         last_name = request.POST.get('last_name', '').strip()
         password = request.POST.get('password', '').strip()
 
-        username = email.split('@')[0] if email else 'user'
-        user = User.objects.filter(email__iexact=email).first() if email else None
-        if not user:
-            user = User.objects.create_user(
-                username=username,
-                email=email or 'user@example.com',
-                password=password or 'password123',
-                first_name=first_name,
-                last_name=last_name
-            )
+        if not email or not password:
+            return render(request, 'accounts/register.html', {'error': 'Please fill in all required fields.'})
+
+        if User.objects.filter(email__iexact=email).exists():
+            return render(request, 'accounts/register.html', {'error': 'An account with this email already exists.'})
+
+        username = email.split('@')[0]
+        base_username = username
+        counter = 1
+        while User.objects.filter(username__iexact=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=first_name,
+            last_name=last_name
+        )
         auth_login(request, user)
         return redirect('home')
 
@@ -49,6 +65,7 @@ def logout_view(request):
     return redirect('home')
 
 import re
+from .models import Profile
 
 def profile_view(request):
     if request.method == 'POST':
@@ -60,7 +77,6 @@ def profile_view(request):
             phone = request.POST.get('phone', '').strip()
             address = request.POST.get('address', '').strip()
 
-            # Form Validation
             if not first_name or len(first_name) < 2:
                 return JsonResponse({'success': False, 'message': 'First name must be at least 2 characters.'})
 
@@ -71,14 +87,15 @@ def profile_view(request):
                 user = request.user
                 user.first_name = first_name
                 user.last_name = last_name
-                # Email address is read-only and cannot be changed
                 try:
                     user.save()
                 except Exception as e:
                     return JsonResponse({'success': False, 'message': f'Database error: {str(e)}'})
 
-            request.session['user_phone'] = phone
-            request.session['user_address'] = address
+                profile, _ = Profile.objects.get_or_create(user=user)
+                profile.phone = phone
+                profile.address = address
+                profile.save()
 
             full_name = f"{first_name} {last_name}".strip() or (request.user.username if request.user.is_authenticated else "John Doe")
             user_email = request.user.email if request.user.is_authenticated else "john.doe@example.com"
@@ -117,10 +134,40 @@ def profile_view(request):
                 'message': 'Password updated successfully!'
             })
 
-    phone = request.session.get('user_phone', '+1 (555) 234-5678')
-    address = request.session.get('user_address', '123 Market Street, Apt 4B, San Francisco, CA 94107')
+        elif action == 'update_avatar':
+            if not request.user.is_authenticated:
+                return JsonResponse({'success': False, 'message': 'You must be logged in.'})
+
+            avatar_file = request.FILES.get('avatar')
+            if not avatar_file:
+                return JsonResponse({'success': False, 'message': 'No image file provided.'})
+
+            if not avatar_file.content_type.startswith('image/'):
+                return JsonResponse({'success': False, 'message': 'Please select a valid image file.'})
+
+            if avatar_file.size > 5 * 1024 * 1024:
+                return JsonResponse({'success': False, 'message': 'Image must be under 5MB.'})
+
+            profile, _ = Profile.objects.get_or_create(user=request.user)
+            if profile.avatar:
+                profile.avatar.delete(save=False)
+            profile.avatar = avatar_file
+            profile.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': 'Profile photo updated successfully!',
+                'avatar_url': profile.avatar.url
+            })
+
+    profile = None
+    wishlist_count = 0
+    if request.user.is_authenticated:
+        profile, _ = Profile.objects.get_or_create(user=request.user)
+        from customer.models import Wishlist
+        wishlist_count = Wishlist.objects.filter(user=request.user).count()
 
     return render(request, 'accounts/profile.html', {
-        'phone': phone,
-        'address': address
+        'profile': profile,
+        'wishlist_count': wishlist_count,
     })

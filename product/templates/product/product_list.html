@@ -23,15 +23,23 @@
     </nav>
 
     <div class="product-catalog-layout">
+        <!-- Mobile Sidebar Overlay -->
+        <div class="mobile-sidebar-overlay" onclick="toggleMobileSidebar()"></div>
+
         <!-- Sidebar Filters -->
         <aside class="catalog-sidebar">
             <div class="filter-card">
                 <!-- Header -->
                 <div class="filter-main-header">
                     <h3><i class="fa-solid fa-sliders text-pink"></i> Filters</h3>
-                    {% if selected_category or category_display_name or request.GET.brand or min_price or max_price or selected_color or selected_size or selected_rating or request.GET.sale or request.GET.sort %}
-                        <a href="{% url 'product_list' %}" class="reset-filter"><i class="fa-solid fa-rotate-left"></i> Clear All</a>
-                    {% endif %}
+                    <div class="filter-header-actions">
+                        {% if selected_category or category_display_name or request.GET.brand or min_price or max_price or selected_color or selected_size or selected_rating or request.GET.sale or request.GET.sort %}
+                            <a href="{% url 'product_list' %}" class="reset-filter"><i class="fa-solid fa-rotate-left"></i> Clear All</a>
+                        {% endif %}
+                        <button type="button" class="mobile-filter-close" onclick="toggleMobileSidebar()">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Active Filter Tags -->
@@ -302,6 +310,11 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Mobile Sticky Footer Action -->
+            <div class="mobile-filter-footer">
+                <button type="button" class="btn-apply-mobile" onclick="toggleMobileSidebar()">Show Results</button>
+            </div>
         </aside>
 
         <!-- Main Product Catalog Area -->
@@ -312,25 +325,29 @@
                     <h2>{% if category_display_name %}{{ category_display_name }}{% elif selected_category %}{{ selected_category.name }}{% else %}Catalog Products{% endif %}</h2>
                     <p class="results-count">Showing <strong>{{ page_obj.start_index }}–{{ page_obj.end_index }}</strong> of <strong>{{ page_obj.paginator.count }}</strong> products</p>
                 </div>
+                <button type="button" class="mobile-filter-toggle" onclick="toggleMobileSidebar()">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Filter</span>
+                </button>
             </div>
 
             <!-- Products Grid -->
             <div class="grid grid-cols-3 catalog-grid">
                 {% for p in page_obj %}
-                    <div class="product-card">
+                    <div class="product-card" onclick="window.location='{% url 'product_detail' p.slug %}'">
                         <div class="product-thumb">
                             {% if p.discount_percentage > 0 %}
                                 <span class="badge badge-danger product-badge">-{{ p.discount_percentage }}%</span>
                             {% endif %}
                             <img src="{{ p.primary_image }}" alt="{{ p.title }}">
                             <div class="product-actions">
-                                <button type="button" class="action-btn" onclick="toggleWishlist('{{ p.id }}', this)" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
-                                <a href="{% url 'product_detail' p.slug %}" class="action-btn" title="Quick View"><i class="fa-regular fa-eye"></i></a>
+                                <button type="button" class="action-btn" onclick="event.stopPropagation(); toggleWishlist('{{ p.id }}', this)" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                                <a href="{% url 'product_detail' p.slug %}" class="action-btn" title="Quick View" onclick="event.stopPropagation()"><i class="fa-regular fa-eye"></i></a>
                             </div>
                         </div>
                         <div class="product-details">
                             <span class="product-category">{{ p.brand_name }} • {{ p.category.name }}</span>
-                            <h3 class="product-title"><a href="{% url 'product_detail' p.slug %}">{{ p.title }}</a></h3>
+                            <h3 class="product-title">{{ p.title }}</h3>
                             <div class="product-rating">
                                 <div class="stars"><i class="fa-solid fa-star"></i></div>
                                 <span class="rating-count"><strong>{{ p.rating }}</strong> ({{ p.reviews_count }} reviews)</span>
@@ -342,7 +359,7 @@
                                         <span class="price-old">₹{{ p.mrp|floatformat:0 }}</span>
                                     {% endif %}
                                 </div>
-                                <a href="{% url 'product_detail' p.slug %}" class="btn-cart-add"><i class="fa-solid fa-bag-shopping"></i></a>
+                                <button type="button" class="btn-cart-add" onclick="event.stopPropagation(); addToCart({{ p.id }}, this)" title="Add to Cart"><i class="fa-solid fa-bag-shopping"></i></button>
                             </div>
                         </div>
                     </div>
@@ -376,6 +393,16 @@
 </div>
 
 <script>
+function toggleMobileSidebar() {
+    const sidebar = document.querySelector('.catalog-sidebar');
+    const overlay = document.querySelector('.mobile-sidebar-overlay');
+    const body = document.body;
+    
+    sidebar.classList.toggle('mobile-open');
+    overlay.classList.toggle('active');
+    body.classList.toggle('sidebar-open');
+}
+
 function toggleAccordion(header) {
     const accordionGroup = header.closest('.accordion-group');
     const content = accordionGroup.querySelector('.accordion-content');
@@ -574,6 +601,58 @@ function toggleWishlist(productId, btn) {
                 showToast('Removed from Wishlist', 'remove');
             }
         }
+    });
+}
+
+function addToCart(productId, btn) {
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+    btn.disabled = true;
+
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            btn.classList.add('added');
+            if (typeof showToast === 'function') {
+                showToast(data.message || 'Added to cart!', 'success');
+            }
+            if (typeof window.loadMiniCart === 'function') {
+                window.loadMiniCart();
+            }
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('added');
+                btn.disabled = false;
+            }, 1500);
+        } else {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            if (data.login_required) {
+                if (typeof showToast === 'function') showToast('Please log in to add items to cart', 'remove');
+            } else {
+                if (typeof showToast === 'function') showToast(data.message || 'Failed to add to cart', 'remove');
+            }
+        }
+    })
+    .catch(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        if (typeof showToast === 'function') showToast('Error adding to cart', 'remove');
     });
 }
 </script>

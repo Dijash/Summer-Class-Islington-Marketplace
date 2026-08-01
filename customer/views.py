@@ -1,7 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
+from django.db.models import Count, Q
 from product.models import Product
-from .models import Wishlist
+from .models import Wishlist, Order
 
 def get_session_key(request):
     if not hasattr(request, 'session') or request.session is None:
@@ -96,4 +97,24 @@ def dashboard(request):
     })
 
 def orders(request):
-    return render(request, 'customer/orders.html')
+    if not request.user.is_authenticated:
+        return render(request, 'customer/orders.html', {'orders': [], 'status_counts': {}})
+
+    status_filter = request.GET.get('status', '').strip()
+
+    orders_qs = Order.objects.filter(user=request.user).prefetch_related('items', 'items__product')
+
+    if status_filter and status_filter in ['pending', 'processing', 'shipped', 'in_transit', 'delivered', 'cancelled', 'returned']:
+        orders_qs = orders_qs.filter(status=status_filter)
+
+    orders_list = orders_qs[:50]
+
+    status_counts = Order.objects.filter(user=request.user).values('status').annotate(count=Count('id'))
+    counts = {item['status']: item['count'] for item in status_counts}
+    counts['all'] = sum(counts.values())
+
+    return render(request, 'customer/orders.html', {
+        'orders': orders_list,
+        'status_counts': counts,
+        'active_filter': status_filter,
+    })

@@ -45,7 +45,7 @@
         <div class="contact-form-col">
             <div class="card contact-form-card">
                 <h2>Send Us a Message</h2>
-                <form onsubmit="event.preventDefault(); alert('Thank you! Your message has been sent successfully.');">
+                <form onsubmit="event.preventDefault(); showToast('Thank you! Your message has been sent successfully.', 'success'); this.reset();">
                     <div class="grid grid-cols-2">
                         <div class="form-group">
                             <label class="form-label">Full Name</label>

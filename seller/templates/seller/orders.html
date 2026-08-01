@@ -1,0 +1,79 @@
+{% extends 'seller/seller_base.html' %}
+{% load static %}
+
+{% block title %}Orders - Seller Portal{% endblock %}
+
+{% block seller_content %}
+<div class="seller-page-header">
+    <div>
+        <h1>Orders</h1>
+        <p>All customer orders containing your products. Revenue from delivered orders: <strong>₹{{ delivered_revenue|floatformat:0 }}</strong></p>
+    </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="orders-filter-tabs">
+    <a href="{% url 'seller_orders' %}" class="order-tab {% if not active_filter %}active{% endif %}">
+        All ({{ status_counts.all|default:0 }})
+    </a>
+    <a href="{% url 'seller_orders' %}?status=pending" class="order-tab {% if active_filter == 'pending' %}active{% endif %}">
+        Pending ({{ status_counts.pending|default:0 }})
+    </a>
+    <a href="{% url 'seller_orders' %}?status=processing" class="order-tab {% if active_filter == 'processing' %}active{% endif %}">
+        Processing ({{ status_counts.processing|default:0 }})
+    </a>
+    <a href="{% url 'seller_orders' %}?status=shipped" class="order-tab {% if active_filter == 'shipped' %}active{% endif %}">
+        Shipped ({{ status_counts.shipped|default:0 }})
+    </a>
+    <a href="{% url 'seller_orders' %}?status=delivered" class="order-tab {% if active_filter == 'delivered' %}active{% endif %}">
+        Delivered ({{ status_counts.delivered|default:0 }})
+    </a>
+    <a href="{% url 'seller_orders' %}?status=cancelled" class="order-tab {% if active_filter == 'cancelled' %}active{% endif %}">
+        Cancelled ({{ status_counts.cancelled|default:0 }})
+    </a>
+</div>
+
+{% if orders %}
+<div class="card seller-table-card">
+    <div class="table-responsive">
+        <table class="seller-table">
+            <thead>
+                <tr>
+                    <th>Order</th>
+                    <th>Customer</th>
+                    <th>Items</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td><strong>{{ order.order_number }}</strong></td>
+                    <td>
+                        {{ order.user.get_full_name|default:order.user.username }}<br>
+                        <small style="color: var(--seller-text-muted);">{{ order.user.email }}</small>
+                    </td>
+                    <td>{{ order.items.count }} item{{ order.items.count|pluralize }}</td>
+                    <td><strong>₹{{ order.total_amount|floatformat:0 }}</strong></td>
+                    <td>
+                        <span class="badge {% if order.status == 'delivered' %}badge-success{% elif order.status == 'pending' or order.status == 'in_transit' %}badge-warning{% elif order.status == 'cancelled' %}badge-danger{% else %}badge-info{% endif %}">
+                            <i class="fa-solid {{ order.status_icon }}"></i> {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="color: var(--seller-text-muted);">{{ order.created_at|date:"M j, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card empty-state">
+    <i class="fa-solid fa-receipt"></i>
+    <h3>No orders found</h3>
+    <p>{% if active_filter %}No {{ active_filter }} orders. <a href="{% url 'seller_orders' %}" style="color: var(--seller-sidebar-active);">View all</a>{% else %}Orders will appear here once customers start purchasing your products.{% endif %}</p>
+</div>
+{% endif %}
+{% endblock %}

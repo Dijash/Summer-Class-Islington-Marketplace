@@ -81,19 +81,21 @@
 }
 
 html {
-  font-size: 16px;
-  scroll-behavior: smooth;
+    font-size: 16px;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
 }
 
 body {
-  font-family: var(--font-body);
-  background-color: var(--bg-body);
-  color: var(--text-main);
-  line-height: 1.6;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  -webkit-font-smoothing: antialiased;
+    font-family: var(--font-body);
+    background-color: var(--bg-body);
+    color: var(--text-main);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
 }
 
 h1,
@@ -280,6 +282,17 @@ img {
   border-color: var(--text-muted);
 }
 
+.btn-outline-dark {
+  background-color: transparent;
+  border-color: var(--text-main);
+  color: var(--text-main);
+}
+
+.btn-outline-dark:hover {
+  background-color: var(--text-main);
+  color: #ffffff;
+}
+
 .btn-danger {
   background-color: var(--danger);
   color: #ffffff;
@@ -440,63 +453,6 @@ textarea.form-control {
   font-size: 0.8rem;
   color: var(--text-muted);
   margin-top: 0.3rem;
-}
-
-/* Alert Notifications */
-.messages-container {
-  margin-top: 1rem;
-}
-
-.alert {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  border-radius: var(--radius-md);
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  position: relative;
-  box-shadow: var(--shadow-sm);
-}
-
-.alert-success {
-  background-color: var(--success-light);
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-}
-
-.alert-error,
-.alert-danger {
-  background-color: var(--danger-light);
-  color: #991b1b;
-  border: 1px solid #fecaca;
-}
-
-.alert-warning {
-  background-color: var(--warning-light);
-  color: #92400e;
-  border: 1px solid #fde68a;
-}
-
-.alert-info {
-  background-color: var(--info-light);
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
-}
-
-.alert-close {
-  margin-left: auto;
-  background: none;
-  border: none;
-  font-size: 1.25rem;
-  cursor: pointer;
-  color: inherit;
-  opacity: 0.7;
-}
-
-.alert-close:hover {
-  opacity: 1;
 }
 
 /* Grid Helpers */
@@ -1007,6 +963,7 @@ textarea.form-control {
   transition: all var(--transition-normal);
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 .product-card:hover {
@@ -1164,11 +1121,25 @@ textarea.form-control {
   font-size: 1.05rem;
   transition: all var(--transition-fast);
   text-decoration: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
 }
 
 .btn-cart-add:hover {
   background-color: var(--primary);
   color: #ffffff;
+}
+
+.btn-cart-add.added {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.btn-cart-add:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 /* Seller CTA Banner */
@@ -1360,6 +1331,7 @@ textarea.form-control {
   width: 100%;
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 .spotlight-track {
@@ -1806,62 +1778,3 @@ textarea.form-control {
 }
 
 /* Toast Notification Popup - Top Right */
-.toast-container {
-  position: fixed;
-  top: 90px;
-  right: 24px;
-  z-index: 100000;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  pointer-events: none;
-}
-
-@media (max-width: 768px) {
-  .toast-container {
-    top: 80px;
-    right: 16px;
-    left: 16px;
-  }
-}
-
-.toast-item {
-  pointer-events: auto;
-  min-width: 300px;
-  max-width: 420px;
-  background: #0f172a;
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-left: 5px solid #e91e63;
-  border-radius: 10px;
-  padding: 14px 18px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.12);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-  opacity: 0;
-  transform: translateY(-20px) scale(0.95);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.toast-item.show {
-  opacity: 1;
-  transform: translateY(0) scale(1);
-}
-
-.toast-icon {
-  font-size: 1.25rem;
-  color: #e91e63;
-  flex-shrink: 0;
-}
-
-.toast-item.toast-remove {
-  border-left-color: #f43f5e;
-}
-
-.toast-item.toast-remove .toast-icon {
-  color: #f43f5e;
-}

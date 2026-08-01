@@ -1,0 +1,227 @@
+{% extends 'seller/seller_base.html' %}
+{% load static %}
+
+{% block title %}Analytics - Seller Portal{% endblock %}
+
+{% block extra_head %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block seller_content %}
+<div class="seller-page-header">
+    <div>
+        <h1>Analytics</h1>
+        <p>Track your performance, revenue trends, and product insights.</p>
+    </div>
+</div>
+
+<!-- Summary Stats -->
+<div class="seller-stats-grid">
+    <div class="card seller-stat-card">
+        <div class="stat-icon-wrapper bg-success-light"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+        <div>
+            <span class="stat-value">₹{{ total_revenue|default:"0"|floatformat:0 }}</span>
+            <span class="stat-label">Total Revenue</span>
+        </div>
+    </div>
+    <div class="card seller-stat-card">
+        <div class="stat-icon-wrapper bg-primary-light"><i class="fa-solid fa-bag-shopping"></i></div>
+        <div>
+            <span class="stat-value">{{ total_items_sold|default:"0" }}</span>
+            <span class="stat-label">Items Sold</span>
+        </div>
+    </div>
+    <div class="card seller-stat-card">
+        <div class="stat-icon-wrapper bg-info-light"><i class="fa-solid fa-layer-group"></i></div>
+        <div>
+            <span class="stat-value">{{ total_products|default:"0" }}</span>
+            <span class="stat-label">Live Products</span>
+        </div>
+    </div>
+    <div class="card seller-stat-card">
+        <div class="stat-icon-wrapper bg-warning-light"><i class="fa-solid fa-clock"></i></div>
+        <div>
+            <span class="stat-value">{{ pending_count|default:"0" }}</span>
+            <span class="stat-label">Pending Review</span>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="seller-stats-grid" style="grid-template-columns: 2fr 1fr; margin-bottom: 2rem;">
+    <div class="card seller-chart-card">
+        <div class="card-header">
+            <h3 class="card-title">Revenue Trend</h3>
+        </div>
+        <div class="chart-container" style="padding: 1.5rem; height: 300px;">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card seller-chart-card">
+        <div class="card-header">
+            <h3 class="card-title">Request Status</h3>
+        </div>
+        <div class="chart-container" style="padding: 1.5rem; height: 300px; display: flex; justify-content: center;">
+            <canvas id="statusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Second Charts Row -->
+<div class="seller-stats-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 2rem;">
+    <div class="card seller-chart-card">
+        <div class="card-header">
+            <h3 class="card-title">Orders per Month</h3>
+        </div>
+        <div class="chart-container" style="padding: 1.5rem; height: 280px;">
+            <canvas id="ordersChart"></canvas>
+        </div>
+    </div>
+
+    <div class="card seller-chart-card">
+        <div class="card-header">
+            <h3 class="card-title">Top Categories</h3>
+        </div>
+        <div class="chart-container" style="padding: 1.5rem; height: 280px; display: flex; justify-content: center;">
+            <canvas id="categoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Submission Summary -->
+<div class="card" style="padding: 1.5rem;">
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-top: 0; margin-bottom: 1rem;">Submission Summary</h3>
+    <div class="seller-stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 0;">
+        <div style="text-align: center; padding: 1rem; background: var(--seller-success-bg); border-radius: var(--seller-radius-md);">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--seller-success-text);">{{ approved_count|default:"0" }}</div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--seller-success-text);">Approved</div>
+        </div>
+        <div style="text-align: center; padding: 1rem; background: var(--seller-warning-bg); border-radius: var(--seller-radius-md);">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--seller-warning-text);">{{ pending_count|default:"0" }}</div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--seller-warning-text);">Pending</div>
+        </div>
+        <div style="text-align: center; padding: 1rem; background: var(--seller-danger-bg); border-radius: var(--seller-radius-md);">
+            <div style="font-size: 2rem; font-weight: 800; color: var(--seller-danger-text);">{{ rejected_count|default:"0" }}</div>
+            <div style="font-size: 0.85rem; font-weight: 600; color: var(--seller-danger-text);">Rejected</div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const months = {{ months|safe }};
+    const revenueData = {{ revenue_data|safe }};
+    const ordersData = {{ orders_data|safe }};
+    const statusData = {{ status_data|safe }};
+    const categoryData = {{ category_data|safe }};
+
+    // Revenue Line Chart
+    const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(revenueCtx, {
+        type: 'line',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Revenue (₹)',
+                data: revenueData,
+                borderColor: '#2563eb',
+                backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                borderWidth: 2.5,
+                pointBackgroundColor: '#2563eb',
+                pointBorderColor: '#ffffff',
+                pointBorderWidth: 2,
+                pointRadius: 5,
+                pointHoverRadius: 7,
+                tension: 0.4,
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Inter' }, color: '#64748b', callback: v => '₹' + v } },
+                x: { grid: { display: false }, ticks: { font: { family: 'Inter' }, color: '#64748b' } }
+            }
+        }
+    });
+
+    // Status Doughnut
+    const statusCtx = document.getElementById('statusChart').getContext('2d');
+    new Chart(statusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Approved', 'Pending', 'Rejected'],
+            datasets: [{
+                data: [statusData.approved || 0, statusData.pending || 0, statusData.rejected || 0],
+                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                borderWidth: 0,
+                hoverOffset: 6,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '65%',
+            plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, padding: 16, usePointStyle: true } } }
+        }
+    });
+
+    // Orders Bar Chart
+    const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+    new Chart(ordersCtx, {
+        type: 'bar',
+        data: {
+            labels: months,
+            datasets: [{
+                label: 'Orders',
+                data: ordersData,
+                backgroundColor: 'rgba(37, 99, 235, 0.8)',
+                borderRadius: 6,
+                barThickness: 32,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Inter' }, color: '#64748b', stepSize: 1 } },
+                x: { grid: { display: false }, ticks: { font: { family: 'Inter' }, color: '#64748b' } }
+            }
+        }
+    });
+
+    // Category Horizontal Bar
+    if (categoryData.length > 0) {
+        const catCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(catCtx, {
+            type: 'bar',
+            data: {
+                labels: categoryData.map(c => c.category__name || 'Uncategorized'),
+                datasets: [{
+                    label: 'Products',
+                    data: categoryData.map(c => c.count),
+                    backgroundColor: ['#2563eb', '#7c3aed', '#db2777', '#ea580c', '#16a34a'],
+                    borderRadius: 6,
+                    barThickness: 28,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Inter' }, color: '#64748b', stepSize: 1 } },
+                    y: { grid: { display: false }, ticks: { font: { family: 'Inter', weight: 600 }, color: '#0f172a' } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

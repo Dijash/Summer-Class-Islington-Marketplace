@@ -1,224 +1,234 @@
-{% extends 'layouts/base.html' %}
+{% extends 'accounts/auth_base.html' %}
 {% load static %}
 
-{% block title %}Create an Account - MarketPlace{% endblock %}
+{% block auth_title %}Create an Account - MarketPlace{% endblock %}
 
-{% block extra_head %}
-<link rel="stylesheet" href="{% static 'css/accounts/style.css' %}">
+{% block auth_form %}
+<div class="auth-form-wrapper">
+    <header class="auth-header slide-up-anim" style="--delay: 0.1s;">
+        <h1>Create Account</h1>
+        <p>Join thousands of buyers and sellers on MarketPlace.</p>
+    </header>
+
+    <form action="{% url 'register' %}" method="POST" class="auth-form slide-up-anim" id="registerForm" style="--delay: 0.2s;" novalidate>
+        {% csrf_token %}
+
+        {% if error %}
+        <div class="auth-error-msg">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
+        
+        <!-- Account Type Selector (Segmented Control) -->
+        <div class="form-group">
+            <div class="account-type-selector" role="radiogroup" aria-label="Account Type">
+                <div class="selector-track">
+                    <label class="type-option active" data-type="buyer">
+                        <input type="radio" name="account_type" value="buyer" checked>
+                        <i class="fa-solid fa-bag-shopping"></i>
+                        <span>Customer</span>
+                    </label>
+                    <label class="type-option" data-type="seller">
+                        <input type="radio" name="account_type" value="seller">
+                        <i class="fa-solid fa-store"></i>
+                        <span>Seller</span>
+                    </label>
+                    <div class="selector-indicator"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Business Name (Seller Only) -->
+        <div class="form-group seller-field" id="businessNameField" style="display: none;">
+            <input type="text" name="business_name" id="regBusinessName" class="form-control" placeholder="Business Name" aria-label="Business Name">
+        </div>
+
+        <div class="grid grid-cols-2">
+            <div class="form-group">
+                <input type="text" name="first_name" id="regFirstName" class="form-control" placeholder="First Name" required aria-label="First Name">
+            </div>
+            <div class="form-group">
+                <input type="text" name="last_name" id="regLastName" class="form-control" placeholder="Last Name" required aria-label="Last Name">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="input-with-icon">
+                <input type="email" name="email" id="regEmail" class="form-control" placeholder="Email Address" required aria-label="Email Address">
+            </div>
+        </div>
+
+        <!-- Password Field -->
+        <div class="form-group">
+            <div class="input-with-icon">
+                <input type="password" name="password" id="regPassword" class="form-control" placeholder="Password (Min 6)" required>
+                <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Show password">
+                    <i class="fa-regular fa-eye-slash"></i>
+                </button>
+            </div>
+            <div class="password-strength-container" aria-live="polite">
+                <div class="strength-bar-track">
+                    <div class="strength-bar-fill" id="strengthBarFill"></div>
+                </div>
+                <div class="strength-text">
+                    <span id="strengthTextLabel">Strength: None</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Confirm Password Field -->
+        <div class="form-group">
+            <div class="input-with-icon">
+                <input type="password" id="regConfirmPassword" class="form-control" placeholder="Repeat Password" required>
+                <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Show password">
+                    <i class="fa-regular fa-eye-slash"></i>
+                </button>
+            </div>
+            <div class="password-match-status" id="matchStatusText" aria-live="polite"></div>
+        </div>
+
+        <div class="form-group checkbox-group">
+            <label class="custom-checkbox">
+                <input type="checkbox" id="regTermsCheckbox" required>
+                <span class="checkmark"></span>
+                <span class="checkbox-label-text">I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</span>
+            </label>
+        </div>
+
+        <button type="submit" id="signupBtn" class="btn btn-auth" disabled>
+            <span class="btn-text">Create Account</span>
+        </button>
+    </form>
+
+    <footer class="auth-footer slide-up-anim" style="--delay: 0.5s;">
+        <p>Already have an account? <a href="{% url 'login' %}" class="signup-highlight-link">Log in</a></p>
+    </footer>
+</div>
 {% endblock %}
 
-{% block body_class %}auth-page-body{% endblock %}
-
-{% block content %}
-<div class="auth-page-container">
-    <div class="card auth-card register-card">
-        <div class="auth-header">
-            <div class="auth-icon-circle"><i class="fa-solid fa-user-plus"></i></div>
-            <h1>Create Your Account</h1>
-            <p>Join thousands of buyers and sellers on MarketPlace.</p>
-        </div>
-
-        <form action="{% url 'register' %}" method="POST" class="auth-form" id="registerForm" novalidate>
-            {% csrf_token %}
-            <!-- Account Type Selector -->
-            <div class="account-type-selector">
-                <label class="type-option active">
-                    <input type="radio" name="account_type" value="buyer" checked>
-                    <i class="fa-solid fa-bag-shopping"></i>
-                    <span>Customer Account</span>
-                </label>
-                <label class="type-option">
-                    <input type="radio" name="account_type" value="seller">
-                    <i class="fa-solid fa-store"></i>
-                    <span>Seller Store Account</span>
-                </label>
-            </div>
-
-            <div class="grid grid-cols-2">
-                <div class="form-group">
-                    <label class="form-label">First Name</label>
-                    <input type="text" name="first_name" id="regFirstName" class="form-control" placeholder="John" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Last Name</label>
-                    <input type="text" name="last_name" id="regLastName" class="form-control" placeholder="Doe" required>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label">Email Address</label>
-                <div class="input-with-icon">
-                    <i class="fa-regular fa-envelope input-icon"></i>
-                    <input type="email" name="email" id="regEmail" class="form-control" placeholder="john.doe@example.com" required>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-2">
-                <div class="form-group">
-                    <label class="form-label">Password</label>
-                    <div class="input-with-icon">
-                        <i class="fa-solid fa-lock input-icon"></i>
-                        <input type="password" name="password" id="regPassword" class="form-control" placeholder="At least 6 chars" required>
-                        <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Toggle password visibility">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-                    </div>
-                    <!-- Password Strength Meter -->
-                    <div class="password-strength-container">
-                        <div class="strength-bar-track">
-                            <div class="strength-bar-fill" id="strengthBarFill"></div>
-                        </div>
-                        <div class="strength-text">
-                            <span>Strength:</span>
-                            <span id="strengthTextLabel">None</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Confirm Password</label>
-                    <div class="input-with-icon">
-                        <i class="fa-solid fa-shield-halved input-icon"></i>
-                        <input type="password" id="regConfirmPassword" class="form-control" placeholder="Repeat password" required>
-                        <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Toggle password visibility">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-                    </div>
-                    <!-- Password Match Verification Indicator -->
-                    <div class="password-match-status" id="matchStatusText"></div>
-                </div>
-            </div>
-
-            <div class="form-group checkbox-group">
-                <label class="custom-checkbox">
-                    <input type="checkbox" id="regTermsCheckbox" required>
-                    <span class="checkmark"></span>
-                    I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-                </label>
-            </div>
-
-            <button type="submit" id="signupBtn" class="btn btn-primary btn-lg btn-full btn-disabled-style" disabled>
-                <i class="fa-solid fa-user-check"></i> Register Account
-            </button>
-        </form>
-
-        <div class="auth-footer">
-            <p>Already have an account? <a href="{% url 'login' %}">Log in here</a></p>
-        </div>
-    </div>
-</div>
-
+{% block auth_scripts %}
 <script>
 function toggleAuthPassword(btn) {
     const container = btn.closest('.input-with-icon');
     const input = container.querySelector('input');
     const icon = btn.querySelector('i');
     
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.remove('fa-eye');
-        icon.classList.add('fa-eye-slash');
-        btn.classList.add('toggled');
-    } else {
-        input.type = 'password';
-        icon.classList.remove('fa-eye-slash');
-        icon.classList.add('fa-eye');
-        btn.classList.remove('toggled');
-    }
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    
+    icon.className = isPassword ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+    btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const firstName = document.getElementById('regFirstName');
-    const lastName = document.getElementById('regLastName');
-    const email = document.getElementById('regEmail');
-    const password = document.getElementById('regPassword');
-    const confirmPassword = document.getElementById('regConfirmPassword');
+document.addEventListener('DOMContentLoaded', () => {
+    const inputs = {
+        firstName: document.getElementById('regFirstName'),
+        lastName: document.getElementById('regLastName'),
+        email: document.getElementById('regEmail'),
+        password: document.getElementById('regPassword'),
+        confirm: document.getElementById('regConfirmPassword')
+    };
     const terms = document.getElementById('regTermsCheckbox');
     const signupBtn = document.getElementById('signupBtn');
+    const businessNameField = document.getElementById('businessNameField');
     
-    const strengthBarFill = id => document.getElementById('strengthBarFill');
-    const strengthTextLabel = document.getElementById('strengthTextLabel');
+    const strengthElements = {
+        label: document.getElementById('strengthTextLabel'),
+        bar: document.getElementById('strengthBarFill')
+    };
     const matchStatusText = document.getElementById('matchStatusText');
 
-    // Account type cards selection animation
+    // Handle Account Type Segmented Control
     const typeOptions = document.querySelectorAll('.type-option');
+    const selectorIndicator = document.querySelector('.selector-indicator');
+    
+    function updateSelector() {
+        const activeOption = document.querySelector('.type-option.active');
+        const type = activeOption.dataset.type;
+        
+        // Move indicator
+        if (type === 'seller') {
+            selectorIndicator.style.transform = 'translateX(100%)';
+        } else {
+            selectorIndicator.style.transform = 'translateX(0)';
+        }
+        
+        // Show/hide business name field
+        if (type === 'seller') {
+            businessNameField.style.display = 'block';
+        } else {
+            businessNameField.style.display = 'none';
+        }
+    }
+    
     typeOptions.forEach(opt => {
         opt.addEventListener('click', function() {
             typeOptions.forEach(o => o.classList.remove('active'));
             this.classList.add('active');
             const radio = this.querySelector('input[type="radio"]');
             if (radio) radio.checked = true;
+            updateSelector();
         });
     });
 
-    // Password strength check
     function evaluatePasswordStrength(val) {
-        if (!val) {
-            return { score: 0, label: 'None', percent: '0%', class: '' };
-        }
+        if (!val) return { score: 0, label: 'None', percent: '0%', color: 'transparent' };
+        
         let score = 0;
         if (val.length >= 6) score++;
         if (val.length >= 8) score++;
         if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
         if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) score++;
 
-        if (score <= 1) return { score: 1, label: 'Weak', percent: '25%', class: 'strength-weak' };
-        if (score === 2) return { score: 2, label: 'Fair', percent: '50%', class: 'strength-fair' };
-        if (score === 3) return { score: 3, label: 'Good', percent: '75%', class: 'strength-good' };
-        return { score: 4, label: 'Strong', percent: '100%', class: 'strength-strong' };
+        if (score <= 1) return { score: 1, label: 'Weak', percent: '25%', color: '#ef4444' };
+        if (score === 2) return { score: 2, label: 'Fair', percent: '50%', color: '#f59e0b' };
+        if (score === 3) return { score: 3, label: 'Good', percent: '75%', color: '#10b981' };
+        return { score: 4, label: 'Strong', percent: '100%', color: '#059669' };
     }
 
     function validateFormState() {
-        const fnVal = firstName.value.trim();
-        const lnVal = lastName.value.trim();
-        const emailVal = email.value.trim();
-        const passVal = password.value;
-        const confirmVal = confirmPassword.value;
-        const termsChecked = terms.checked;
+        const vals = {
+            fn: inputs.firstName.value.trim(),
+            ln: inputs.lastName.value.trim(),
+            email: inputs.email.value.trim(),
+            pass: inputs.password.value,
+            confirm: inputs.confirm.value
+        };
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-        // 1. Password Strength Update
-        const strength = evaluatePasswordStrength(passVal);
-        const barFill = document.getElementById('strengthBarFill');
-        barFill.style.width = strength.percent;
-        barFill.className = 'strength-bar-fill ' + strength.class;
-        strengthTextLabel.textContent = strength.label;
+        const strength = evaluatePasswordStrength(vals.pass);
+        strengthElements.bar.style.width = strength.percent;
+        strengthElements.bar.style.backgroundColor = strength.color;
+        strengthElements.label.textContent = `Strength: ${strength.label}`;
+        strengthElements.label.style.color = strength.score > 0 ? strength.color : 'var(--auth-text-muted)';
 
-        // 2. Password Match Check
         let passMatchValid = false;
-        if (!confirmVal) {
-            matchStatusText.innerHTML = '';
+        if (!vals.confirm) {
+            matchStatusText.textContent = '';
             passMatchValid = false;
-        } else if (passVal === confirmVal && passVal.length >= 6) {
+        } else if (vals.pass === vals.confirm && vals.pass.length >= 6) {
             matchStatusText.className = 'password-match-status match-success';
-            matchStatusText.innerHTML = `<i class="fa-solid fa-circle-check"></i> Passwords match`;
+            matchStatusText.textContent = 'Passwords match';
             passMatchValid = true;
         } else {
             matchStatusText.className = 'password-match-status match-error';
-            matchStatusText.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> Passwords do not match`;
+            matchStatusText.textContent = 'Passwords do not match';
             passMatchValid = false;
         }
 
-        // 3. Smart Signup Button Enabling / Disabling
-        const isFnValid = fnVal.length >= 2;
-        const isLnValid = lnVal.length >= 2;
-        const isEmailValid = emailRegex.test(emailVal);
-        const isPassValid = passVal.length >= 6;
+        const isFormValid = (
+            vals.fn.length >= 2 &&
+            vals.ln.length >= 2 &&
+            emailRegex.test(vals.email) &&
+            vals.pass.length >= 6 &&
+            passMatchValid &&
+            terms.checked
+        );
 
-        if (isFnValid && isLnValid && isEmailValid && isPassValid && passMatchValid && termsChecked) {
-            signupBtn.disabled = false;
-            signupBtn.classList.remove('btn-disabled-style');
-            signupBtn.classList.add('btn-enabled-style');
-        } else {
-            signupBtn.disabled = true;
-            signupBtn.classList.remove('btn-enabled-style');
-            signupBtn.classList.add('btn-disabled-style');
-        }
+        signupBtn.disabled = !isFormValid;
     }
 
-    // Attach real-time validation listeners
-    [firstName, lastName, email, password, confirmPassword].forEach(el => {
-        el.addEventListener('input', validateFormState);
-    });
+    Object.values(inputs).forEach(el => el.addEventListener('input', validateFormState));
     terms.addEventListener('change', validateFormState);
 });
 </script>

@@ -14,6 +14,9 @@
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
+    <!-- Toastify CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
     <!-- Global Core Styles -->
     <link rel="stylesheet" href="{% static 'css/core/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/includes/navbar/style.css' %}">
@@ -24,27 +27,17 @@
 <body class="{% block body_class %}{% endblock %}">
     {% include 'includes/navbar.html' %}
 
-    <!-- Django Messages Container -->
-    {% if messages %}
-        <div class="messages-container container">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' %}fa-triangle-exclamation{% else %}fa-circle-info{% endif %}"></i>
-                    <span>{{ message }}</span>
-                    <button type="button" class="alert-close" onclick="this.parentElement.remove()">&times;</button>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-
     <!-- Main Page Content -->
     <main class="main-content">
         {% block content %}{% endblock %}
     </main>
 
-    {% include 'includes/footer.html' %}
+    {% block footer %}{% include 'includes/footer.html' %}{% endblock %}
 
+    <!-- Toastify JS -->
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     <script src="{% static 'js/core/main.js' %}"></script>
+    <script src="{% static 'js/cart/main.js' %}"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

@@ -14,8 +14,13 @@
         <div class="profile-banner"></div>
         <div class="profile-meta-row">
             <div class="profile-avatar-large" id="avatarContainer">
-                <i class="fa-solid fa-user" id="avatarDefaultIcon"></i>
-                <img id="avatarImage" src="" alt="Profile Photo">
+                {% if profile and profile.avatar %}
+                    <img id="avatarImage" src="{{ profile.avatar.url }}" alt="Profile Photo" style="display:block;">
+                    <i class="fa-solid fa-user" id="avatarDefaultIcon" style="display:none;"></i>
+                {% else %}
+                    <i class="fa-solid fa-user" id="avatarDefaultIcon"></i>
+                    <img id="avatarImage" src="" alt="Profile Photo">
+                {% endif %}
                 <input type="file" id="avatarFileInput" accept="image/*">
                 
                 <button type="button" class="avatar-edit-btn" id="avatarEditBtn" title="Update Profile Photo">
@@ -24,25 +29,18 @@
             </div>
             <div class="profile-user-info">
                 <h2 id="headerUserName">
-                    {% if user.is_authenticated %}
-                        {{ user.get_full_name|default:user.username }}
-                    {% else %}
-                        John Doe
-                    {% endif %}
+                    {{ user.get_full_name|default:user.username }}
                     <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Verified Account</span>
                 </h2>
                 <p class="user-email" id="headerUserEmail">
                     <i class="fa-regular fa-envelope"></i> 
-                    {% if user.is_authenticated %}
-                        {{ user.email|default:user.username }}
-                    {% else %}
-                        john.doe@example.com
-                    {% endif %}
-                    • Member since {{ user.date_joined|date:"M Y"|default:"Jan 2024" }}
+                    {{ user.email|default:"No email" }}
+                    • Member since {{ user.date_joined|date:"M Y" }}
                 </p>
             </div>
             <div class="profile-header-actions">
-                <a href="{% url 'customer_orders' %}" class="btn btn-outline-primary"><i class="fa-solid fa-box"></i> My Orders (12)</a>
+                <a href="{% url 'customer_orders' %}" class="btn btn-outline-primary"><i class="fa-solid fa-box"></i> My Orders</a>
+                <a href="{% url 'wishlist' %}" class="btn btn-outline-primary"><i class="fa-regular fa-heart"></i> Wishlist ({{ wishlist_count }})</a>
                 <a href="{% url 'logout' %}" class="btn btn-outline-danger"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
             </div>
         </div>
@@ -60,28 +58,28 @@
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label class="form-label">First Name</label>
-                        <input type="text" name="first_name" id="firstNameInput" class="form-control" value="{% if user.is_authenticated %}{{ user.first_name|default:'John' }}{% else %}John{% endif %}" required>
+                        <input type="text" name="first_name" id="firstNameInput" class="form-control" value="{{ user.first_name }}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Last Name</label>
-                        <input type="text" name="last_name" id="lastNameInput" class="form-control" value="{% if user.is_authenticated %}{{ user.last_name|default:'Doe' }}{% else %}Doe{% endif %}" required>
+                        <input type="text" name="last_name" id="lastNameInput" class="form-control" value="{{ user.last_name }}" required>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2">
                     <div class="form-group">
                         <label class="form-label">Email Address <span class="email-readonly-label"><i class="fa-solid fa-lock"></i> Read-only</span></label>
-                        <input type="email" name="email" id="emailInput" class="form-control form-control-readonly" value="{% if user.is_authenticated %}{{ user.email|default:'john.doe@example.com' }}{% else %}john.doe@example.com{% endif %}" readonly title="Email address cannot be changed">
+                        <input type="email" name="email" id="emailInput" class="form-control form-control-readonly" value="{{ user.email }}" readonly title="Email address cannot be changed">
                     </div>
                     <div class="form-group">
                         <label class="form-label">Phone Number</label>
-                        <input type="tel" name="phone" id="phoneInput" class="form-control" value="{{ phone|default:'+1 (555) 234-5678' }}">
+                        <input type="tel" name="phone" id="phoneInput" class="form-control" value="{{ profile.phone|default:'' }}" placeholder="Enter phone number">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Default Shipping Address</label>
-                    <input type="text" name="address" id="addressInput" class="form-control" value="{{ address|default:'123 Market Street, Apt 4B, San Francisco, CA 94107' }}">
+                    <input type="text" name="address" id="addressInput" class="form-control" value="{{ profile.address|default:'' }}" placeholder="Enter your shipping address">
                 </div>
 
                 <button type="submit" id="saveProfileBtn" class="btn btn-primary">
@@ -90,46 +88,64 @@
             </form>
         </div>
 
-        <div class="card profile-form-card">
+        <div class="card profile-form-card security-card">
             <div class="card-header">
-                <h3 class="card-title"><i class="fa-solid fa-lock"></i> Security & Password</h3>
+                <h3 class="card-title"><i class="fa-solid fa-shield-halved"></i> Security & Password</h3>
             </div>
+
             <form id="passwordForm" method="POST" action="{% url 'profile' %}" novalidate>
                 {% csrf_token %}
                 <input type="hidden" name="action" value="update_password">
-                <div class="form-group">
-                    <label class="form-label">Current Password</label>
+
+                <div class="password-field-group">
+                    <label class="form-label">
+                        <i class="fa-solid fa-lock"></i> Current Password
+                    </label>
                     <div class="input-with-icon">
-                        <i class="fa-solid fa-lock input-icon"></i>
-                        <input type="password" name="current_password" id="currentPassInput" class="form-control" placeholder="••••••••" required>
-                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">New Password</label>
-                    <div class="input-with-icon">
-                        <i class="fa-solid fa-key input-icon"></i>
-                        <input type="password" name="new_password" id="newPassInput" class="form-control" placeholder="At least 6 characters" required>
-                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
-                            <i class="fa-regular fa-eye"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Confirm New Password</label>
-                    <div class="input-with-icon">
-                        <i class="fa-solid fa-shield-halved input-icon"></i>
-                        <input type="password" name="confirm_password" id="confirmPassInput" class="form-control" placeholder="Repeat new password" required>
+                        <i class="fa-solid fa-lock input-icon-left"></i>
+                        <input type="password" name="current_password" id="currentPassInput" class="form-control" placeholder="Enter your current password" required>
                         <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
                             <i class="fa-regular fa-eye"></i>
                         </button>
                     </div>
                 </div>
 
-                <button type="submit" id="updatePasswordBtn" class="btn btn-outline-primary">
-                    <i class="fa-solid fa-key"></i> Update Password
+                <div class="password-field-group">
+                    <label class="form-label">
+                        <i class="fa-solid fa-key"></i> New Password
+                    </label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-key input-icon-left"></i>
+                        <input type="password" name="new_password" id="newPassInput" class="form-control" placeholder="At least 8 characters" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="field-message" id="newPassMessage"></div>
+                    <div class="password-strength-container">
+                        <div class="strength-bar-track">
+                            <div class="strength-bar-fill" id="strengthBarFill"></div>
+                        </div>
+                        <span class="strength-text" id="strengthText"></span>
+                    </div>
+                </div>
+
+                <div class="password-field-group">
+                    <label class="form-label">
+                        <i class="fa-solid fa-shield-halved"></i> Confirm New Password
+                    </label>
+                    <div class="input-with-icon">
+                        <i class="fa-solid fa-shield-halved input-icon-left"></i>
+                        <input type="password" name="confirm_password" id="confirmPassInput" class="form-control" placeholder="Re-enter your new password" required>
+                        <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility(this)" aria-label="Toggle password visibility" title="Show/Hide Password">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="field-message" id="confirmPassMessage"></div>
+                </div>
+
+                <button type="submit" id="updatePasswordBtn" class="btn security-submit-btn">
+                    <i class="fa-solid fa-rotate"></i> Update Password
                 </button>
             </form>
         </div>
@@ -138,18 +154,94 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Password Strength Checker
+    const currentPassInput = document.getElementById('currentPassInput');
+    const newPassInput = document.getElementById('newPassInput');
+    const confirmPassInput = document.getElementById('confirmPassInput');
+    const strengthBarFill = document.getElementById('strengthBarFill');
+    const strengthText = document.getElementById('strengthText');
+    const newPassMessage = document.getElementById('newPassMessage');
+    const confirmPassMessage = document.getElementById('confirmPassMessage');
+
+    function checkPasswordStrength(password) {
+        let score = 0;
+        if (password.length === 0) return 0;
+        if (password.length >= 4) score++;
+        if (password.length >= 8) score++;
+        if (password.length >= 12) score++;
+        if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++;
+        if (/\d/.test(password)) score++;
+        if (/[^a-zA-Z0-9]/.test(password)) score++;
+        return Math.min(score, 5);
+    }
+
+    function updateStrengthUI(score) {
+        const levels = [
+            { width: '0%', color: 'transparent', text: '' },
+            { width: '20%', color: '#ef4444', text: 'Very Weak' },
+            { width: '40%', color: '#f97316', text: 'Weak' },
+            { width: '60%', color: '#eab308', text: 'Fair' },
+            { width: '80%', color: '#22c55e', text: 'Strong' },
+            { width: '100%', color: '#059669', text: 'Very Strong' },
+        ];
+        const level = levels[score] || levels[0];
+        strengthBarFill.style.width = level.width;
+        strengthBarFill.style.backgroundColor = level.color;
+        strengthText.textContent = level.text;
+        strengthText.style.color = level.color;
+    }
+
+    function validateNewPassword() {
+        const currentVal = currentPassInput ? currentPassInput.value.trim() : '';
+        const newVal = newPassInput.value.trim();
+        newPassMessage.innerHTML = '';
+        newPassMessage.className = 'field-message';
+
+        if (newVal && currentVal && newVal === currentVal) {
+            newPassMessage.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> New password cannot be the same as your current password';
+            newPassMessage.className = 'field-message field-error';
+        }
+    }
+
+    function checkPasswordMatch() {
+        if (!confirmPassInput || !newPassInput) return;
+        const newPass = newPassInput.value;
+        const confirmPass = confirmPassInput.value;
+        confirmPassMessage.innerHTML = '';
+        confirmPassMessage.className = 'field-message';
+        if (!confirmPass) return;
+        if (newPass === confirmPass) {
+            confirmPassMessage.innerHTML = '<i class="fa-solid fa-circle-check"></i> Passwords match';
+            confirmPassMessage.className = 'field-message field-success';
+        } else {
+            confirmPassMessage.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Passwords do not match';
+            confirmPassMessage.className = 'field-message field-error';
+        }
+    }
+
+    if (newPassInput) {
+        newPassInput.addEventListener('input', function() {
+            const score = checkPasswordStrength(this.value);
+            updateStrengthUI(score);
+            validateNewPassword();
+            checkPasswordMatch();
+        });
+    }
+
+    if (confirmPassInput) {
+        confirmPassInput.addEventListener('input', checkPasswordMatch);
+    }
+
+    if (currentPassInput) {
+        currentPassInput.addEventListener('input', function() {
+            if (newPassInput.value.trim()) validateNewPassword();
+        });
+    }
+
     const avatarFileInput = document.getElementById('avatarFileInput');
     const avatarEditBtn = document.getElementById('avatarEditBtn');
     const avatarImage = document.getElementById('avatarImage');
     const avatarDefaultIcon = document.getElementById('avatarDefaultIcon');
-
-    // Load saved avatar from localStorage
-    const savedAvatar = localStorage.getItem('user_profile_avatar');
-    if (savedAvatar) {
-        avatarImage.src = savedAvatar;
-        avatarImage.style.display = 'block';
-        avatarDefaultIcon.style.display = 'none';
-    }
 
     // Trigger file dialog on clicking edit button
     if (avatarEditBtn && avatarFileInput) {
@@ -158,29 +250,70 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle photo selection / update
+    // Handle photo selection / update — upload to server
     if (avatarFileInput) {
         avatarFileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (file) {
-                if (!file.type.startsWith('image/')) {
-                    if (typeof showToast === 'function') showToast('Please select a valid image file', 'remove');
-                    return;
-                }
+            if (!file) return;
 
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const base64Data = event.target.result;
-                    avatarImage.src = base64Data;
-                    avatarImage.style.display = 'block';
-                    avatarDefaultIcon.style.display = 'none';
-                    localStorage.setItem('user_profile_avatar', base64Data);
-                    if (typeof showToast === 'function') {
-                        showToast('Profile photo updated successfully!');
-                    }
-                };
-                reader.readAsDataURL(file);
+            if (!file.type.startsWith('image/')) {
+                if (typeof showToast === 'function') showToast('Please select a valid image file', 'remove');
+                return;
             }
+
+            if (file.size > 5 * 1024 * 1024) {
+                if (typeof showToast === 'function') showToast('Image must be under 5MB', 'remove');
+                return;
+            }
+
+            // Preview immediately
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                avatarImage.src = event.target.result;
+                avatarImage.style.display = 'block';
+                if (avatarDefaultIcon) avatarDefaultIcon.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to server
+            const formData = new FormData();
+            formData.append('action', 'update_avatar');
+            formData.append('avatar', file);
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+            avatarEditBtn.disabled = true;
+            avatarEditBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i>';
+
+            fetch('{% url "profile" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(async res => {
+                const rawText = await res.text();
+                try { return JSON.parse(rawText); }
+                catch (e) { return { success: false, message: 'Unexpected response.' }; }
+            })
+            .then(data => {
+                if (data.success && data.avatar_url) {
+                    avatarImage.src = data.avatar_url;
+                    avatarImage.style.display = 'block';
+                    if (avatarDefaultIcon) avatarDefaultIcon.style.display = 'none';
+                    if (typeof showToast === 'function') showToast(data.message || 'Profile photo updated!', 'success');
+                } else {
+                    if (typeof showToast === 'function') showToast(data.message || 'Failed to upload photo.', 'remove');
+                }
+            })
+            .catch(() => {
+                if (typeof showToast === 'function') showToast('Error uploading photo.', 'remove');
+            })
+            .finally(() => {
+                avatarEditBtn.disabled = false;
+                avatarEditBtn.innerHTML = '<i class="fa-solid fa-camera"></i>';
+            });
         });
     }
 
@@ -322,6 +455,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (!currentPass) {
                 highlightFieldError(currentPassInput, 'Please enter your current password.');
+                return;
+            }
+
+            if (currentPass === newPass) {
+                highlightFieldError(newPassInput, 'New password cannot be the same as your current password.');
                 return;
             }
 

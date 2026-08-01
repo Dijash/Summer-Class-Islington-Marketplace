@@ -1,0 +1,86 @@
+{% extends 'seller/seller_base.html' %}
+{% load static %}
+
+{% block title %}Requests - Seller Portal{% endblock %}
+
+{% block seller_content %}
+<div class="seller-page-header">
+    <div>
+        <h1>Product Requests</h1>
+        <p>Track your product submission status. Admin reviews each request before it goes live.</p>
+    </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="orders-filter-tabs">
+    <a href="{% url 'seller_requests' %}" class="order-tab {% if not active_filter %}active{% endif %}">
+        All ({{ status_counts.all|default:0 }})
+    </a>
+    <a href="{% url 'seller_requests' %}?status=pending" class="order-tab {% if active_filter == 'pending' %}active{% endif %}">
+        Pending ({{ status_counts.pending|default:0 }})
+    </a>
+    <a href="{% url 'seller_requests' %}?status=approved" class="order-tab {% if active_filter == 'approved' %}active{% endif %}">
+        Approved ({{ status_counts.approved|default:0 }})
+    </a>
+    <a href="{% url 'seller_requests' %}?status=rejected" class="order-tab {% if active_filter == 'rejected' %}active{% endif %}">
+        Rejected ({{ status_counts.rejected|default:0 }})
+    </a>
+</div>
+
+{% if requests %}
+<div class="card seller-table-card">
+    <div class="table-responsive">
+        <table class="seller-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Admin Note</th>
+                    <th>Submitted</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for req in requests %}
+                <tr>
+                    <td>
+                        <div class="product-cell">
+                            {% if req.image %}
+                                <img src="{{ req.image.url }}" alt="{{ req.title }}" class="product-cell-img">
+                            {% else %}
+                                <div class="product-cell-img product-cell-placeholder"><i class="fa-solid fa-image"></i></div>
+                            {% endif %}
+                            <div>
+                                <strong>{{ req.title }}</strong>
+                                <small>{{ req.brand_name }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ req.category.name }}</td>
+                    <td>₹{{ req.price|floatformat:0 }}</td>
+                    <td>
+                        {% if req.status == 'approved' %}
+                            <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Approved</span>
+                        {% elif req.status == 'pending' %}
+                            <span class="badge badge-warning"><i class="fa-solid fa-circle-notch fa-spin"></i> Pending</span>
+                        {% else %}
+                            <span class="badge badge-danger"><i class="fa-solid fa-circle-xmark"></i> Rejected</span>
+                        {% endif %}
+                    </td>
+                    <td>{% if req.admin_note %}{{ req.admin_note }}{% else %}<span style="color: var(--seller-text-muted);">—</span>{% endif %}</td>
+                    <td style="color: var(--seller-text-muted);">{{ req.created_at|date:"M j, Y" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% else %}
+<div class="card empty-state">
+    <i class="fa-solid fa-inbox"></i>
+    <h3>No requests found</h3>
+    <p>{% if active_filter %}No {{ active_filter }} requests. <a href="{% url 'seller_requests' %}" style="color: var(--seller-sidebar-active);">View all</a>{% else %}Submit your first product for review!{% endif %}</p>
+</div>
+{% endif %}
+{% endblock %}

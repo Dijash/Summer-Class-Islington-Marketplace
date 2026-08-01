@@ -1,9 +1,51 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.db.models import Count, Q, F
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import Product, ProductColor, ProductImage, ProductSize
 from core.models import Category
 
+
+def search_suggestions(request):
+    q = request.GET.get('q', '').strip()
+    if len(q) < 2:
+        return JsonResponse({'suggestions': []})
+
+    products = Product.objects.filter(
+        is_active=True
+    ).filter(
+        Q(title__icontains=q) | Q(brand_name__icontains=q)
+    ).select_related().prefetch_related('images')[:8]
+
+    suggestions = []
+    for p in products:
+        img = p.images.first()
+        suggestions.append({
+            'title': p.title,
+            'brand': p.brand_name,
+            'slug': p.slug,
+            'price': float(p.price),
+            'mrp': float(p.mrp),
+            'image': img.image.url if img else '',
+        })
+
+    categories = Category.objects.filter(
+        is_active=True, name__icontains=q
+    ).values('name', 'slug')[:3]
+
+    for c in categories:
+        suggestions.append({
+            'title': c['name'],
+            'brand': 'Category',
+            'slug': c['slug'],
+            'type': 'category',
+        })
+
+    return JsonResponse({'suggestions': suggestions})
+
+
+@ensure_csrf_cookie
 def product_list(request):
     category_slug = request.GET.get('category')
     brand_query = request.GET.get('brand')
@@ -122,6 +164,7 @@ def product_list(request):
         'selected_rating': selected_rating,
     })
 
+@ensure_csrf_cookie
 def product_detail(request, pk=None, slug=None):
     if slug:
         product = get_object_or_404(Product, slug=slug)

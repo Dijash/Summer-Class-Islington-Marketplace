@@ -28,17 +28,20 @@
             <div class="jockey-gallery-grid" id="multiAngleGalleryGrid">
                 {% if default_color and default_color.images.all %}
                     {% for img in default_color.images.all %}
-                        <div class="jockey-gallery-item {% if forloop.first %}has-finer-details{% endif %}">
-                            <img src="{{ img.image_url }}" alt="{{ img.angle_label }}" class="jockey-gallery-img">
-                            {% if forloop.first %}
-                                <button type="button" class="finer-details-btn">
-                                    <i class="fa-solid fa-microscope"></i> Finer Details
-                                </button>
+                        <div class="jockey-gallery-item">
+                            <!-- Ribbon Badge on 1st Image -->
+                            {% if forloop.first and product.mrp > product.price %}
+                                <div class="gallery-discount-ribbon">{{ product.discount_percentage }}% off</div>
                             {% endif %}
+
+                            <img src="{{ img.image_url }}" alt="{{ img.angle_label }}" class="jockey-gallery-img">
                         </div>
                     {% endfor %}
                 {% else %}
                     <div class="jockey-gallery-item">
+                        {% if product.mrp > product.price %}
+                            <div class="gallery-discount-ribbon">{{ product.discount_percentage }}% off</div>
+                        {% endif %}
                         <img src="{{ product.primary_image }}" alt="{{ product.title }}" class="jockey-gallery-img">
                     </div>
                 {% endif %}
@@ -68,18 +71,9 @@
             <!-- Rating & Reviews Bar -->
             <div class="jockey-rating-row">
                 <div class="jockey-rating-badge">
-                    <span>{{ product.rating }} ★</span>
+                    <i class="fa-solid fa-star"></i> <span>{{ product.rating }}</span>
                 </div>
-                <span class="jockey-rating-counts"><b>{{ product.ratings_count }}</b> Ratings & <b>{{ product.reviews_count }}</b> Review</span>
-            </div>
-
-            <!-- Perks Bar -->
-            <div class="jockey-perks-card">
-                <div class="perks-left">
-                    <span class="perks-badge-icon">CLIq Perks</span>
-                    <span class="perks-text">Login to view your benefits</span>
-                </div>
-                <i class="fa-solid fa-chevron-right perks-arrow"></i>
+                <span class="jockey-rating-counts"><b>{{ product.ratings_count }}</b> Ratings & <b>{{ product.reviews_count }}</b> Reviews</span>
             </div>
 
             <!-- Colour Variants Selector -->
@@ -89,12 +83,18 @@
                 </div>
                 <div class="jockey-color-swatches">
                     {% for c in colors %}
-                        <button type="button" 
+                        <button type="button"
                                 class="color-swatch-btn {% if c.id == default_color.id %}active{% endif %}"
                                 data-color-id="{{ c.id }}"
                                 data-color-name="{{ c.color_name }}"
-                                onclick="switchColorVariant(this)">
-                            <img src="{{ c.swatch_image_url|default:c.images.first.image_url }}" alt="{{ c.color_name }}">
+                                data-color-code="{{ c.color_code }}"
+                                onclick="switchColorVariant(this)"
+                                title="{{ c.color_name }}">
+                            {% if c.swatch_image_url %}
+                                <img src="{{ c.swatch_image_url }}" alt="{{ c.color_name }}">
+                            {% else %}
+                                <span class="color-dot" style="background-color: {{ c.color_code }};"></span>
+                            {% endif %}
                         </button>
                     {% endfor %}
                 </div>
@@ -113,42 +113,47 @@
 
             <!-- Size Selector -->
             <div class="jockey-section-group">
-                <div class="jockey-size-header">
-                    <span class="jockey-section-title">Select Size</span>
-                    <a href="#size-guide" class="jockey-size-guide-link">Size Guide</a>
-                </div>
+                <div class="jockey-section-title">Select Size</div>
                 <div class="jockey-size-options">
                     {% for s in sizes %}
-                        <button type="button" class="jockey-size-btn {% if not s.is_available %}out-of-stock{% endif %}" onclick="selectSize(this)">
+                        <button type="button" class="jockey-size-btn {% if not s.is_available %}out-of-stock{% endif %}" data-size="{{ s.size_label }}" onclick="selectSize(this)">
                             {{ s.size_label }}
                         </button>
                     {% empty %}
-                        <button type="button" class="jockey-size-btn active">S</button>
-                        <button type="button" class="jockey-size-btn">M</button>
-                        <button type="button" class="jockey-size-btn">L</button>
-                        <button type="button" class="jockey-size-btn">XL</button>
+                        <button type="button" class="jockey-size-btn active" data-size="S">S</button>
+                        <button type="button" class="jockey-size-btn" data-size="M">M</button>
+                        <button type="button" class="jockey-size-btn" data-size="L">L</button>
+                        <button type="button" class="jockey-size-btn" data-size="XL">XL</button>
                     {% endfor %}
                 </div>
-                <p class="jockey-size-note">{{ product.size_guidelines }}</p>
             </div>
 
             <!-- Available Offers -->
             <div class="jockey-offers-section">
-                <h4 class="jockey-offers-heading">Available Offers</h4>
+                <h4 class="jockey-offers-heading"><i class="fa-solid fa-tag"></i> Available Offers</h4>
                 <div class="jockey-offer-item">
-                    <i class="fa-solid fa-tag offer-icon"></i>
-                    <span>{{ product.offers_text }} <a href="#" class="offer-more">more</a></span>
+                    <i class="fa-solid fa-percent offer-icon"></i>
+                    <span>{{ product.offers_text }}</span>
                 </div>
             </div>
 
             <!-- Ship To & Action CTAs -->
             <div class="jockey-actions-section">
-                <span class="jockey-ship-label">Ship To</span>
+                <div class="jockey-ship-row">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span class="jockey-ship-label">Ship To</span>
+                </div>
                 <div class="jockey-cta-row">
-                    <button type="button" class="jockey-icon-btn" title="Share Product"><i class="fa-solid fa-share-nodes"></i></button>
-                    <button type="button" class="jockey-icon-btn" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                    <button type="button" class="jockey-icon-btn" title="Share Product" onclick="shareProduct()">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </button>
+                    <button type="button" class="jockey-icon-btn wishlist-btn" id="wishlistBtn" title="Add to Wishlist" data-product-id="{{ product.id }}" onclick="toggleWishlist(this)">
+                        <i class="fa-regular fa-heart"></i>
+                    </button>
                     <a href="{% url 'checkout' %}" class="jockey-buy-now-btn">Buy Now</a>
-                    <button type="button" class="jockey-add-bag-btn"><i class="fa-solid fa-bag-shopping"></i> Add To Bag</button>
+                    <button type="button" class="jockey-add-bag-btn" data-product-id="{{ product.id }}" onclick="addToBag(this)">
+                        <i class="fa-solid fa-bag-shopping"></i> Add To Bag
+                    </button>
                 </div>
             </div>
 
@@ -156,23 +161,37 @@
             <div class="jockey-guarantees-list">
                 <div class="guarantee-item">
                     <i class="fa-solid fa-truck-fast"></i>
-                    <span>Delivery by <b>3rd Aug</b></span>
+                    <span>{{ product.delivery_info }}</span>
+                </div>
+                <div class="guarantee-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>{{ product.return_policy }}</span>
                 </div>
                 <div class="guarantee-item">
                     <i class="fa-solid fa-money-bill-wave"></i>
-                    <span>Cash on Delivery | <b class="text-success">Available</b></span>
-                </div>
-                <div class="guarantee-item">
-                    <i class="fa-solid fa-rotate-left"></i>
-                    <span>7 Days Return and Replacement available | <a href="#" class="guarantee-link">Know More</a></span>
+                    <span>Cash on Delivery available</span>
                 </div>
             </div>
 
             <!-- Seller Store Card -->
             <div class="jockey-seller-box">
-                <span>Sold By <b>{{ product.seller_name }}</b></span>
+                <div class="seller-info-left">
+                    <i class="fa-solid fa-store"></i>
+                    <div>
+                        <span class="seller-label">Sold By</span>
+                        <b class="seller-name">{{ product.seller_name }}</b>
+                    </div>
+                </div>
                 <i class="fa-solid fa-chevron-right"></i>
             </div>
+
+            <!-- Product Description -->
+            {% if product.description %}
+            <div class="jockey-description-section">
+                <h4 class="jockey-desc-heading">Product Description</h4>
+                <p class="jockey-desc-text">{{ product.description }}</p>
+            </div>
+            {% endif %}
         </div>
 
     </div>
@@ -180,18 +199,18 @@
 
 <script>
 function switchColorVariant(btn) {
-    // 1. Highlight clicked color swatch
     document.querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
-    // 2. Update color name text
     const colorName = btn.getAttribute('data-color-name');
     document.getElementById('selectedColorName').innerText = colorName;
 
-    // 3. Update multi-angle gallery grid
     const colorId = btn.getAttribute('data-color-id');
     const imageContainer = document.getElementById('color-images-' + colorId);
     const galleryGrid = document.getElementById('multiAngleGalleryGrid');
+
+    const discountPercentage = parseInt("{{ product.discount_percentage|default:0 }}");
+    const hasDiscount = discountPercentage > 0;
 
     if (imageContainer && galleryGrid) {
         const imageItems = imageContainer.querySelectorAll('.gallery-data-item');
@@ -201,11 +220,15 @@ function switchColorVariant(btn) {
                 const url = item.getAttribute('data-url');
                 const label = item.getAttribute('data-label');
                 const isFirst = (index === 0);
-                
+
+                const discountHtml = (isFirst && hasDiscount)
+                    ? `<div class="gallery-discount-ribbon">${discountPercentage}% off</div>`
+                    : '';
+
                 newHtml += `
-                    <div class="jockey-gallery-item ${isFirst ? 'has-finer-details' : ''}">
+                    <div class="jockey-gallery-item">
+                        ${discountHtml}
                         <img src="${url}" alt="${label}" class="jockey-gallery-img">
-                        ${isFirst ? '<button type="button" class="finer-details-btn"><i class="fa-solid fa-microscope"></i> Finer Details</button>' : ''}
                     </div>
                 `;
             });
@@ -218,6 +241,98 @@ function selectSize(btn) {
     if (btn.classList.contains('out-of-stock')) return;
     document.querySelectorAll('.jockey-size-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
+}
+
+function getCookie(name) {
+    const value = '; ' + document.cookie;
+    const parts = value.split('; ' + name + '=');
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return '';
+}
+
+function shareProduct() {
+    const title = "{{ product.brand_name }} - {{ product.title }}";
+    const url = window.location.href;
+    if (navigator.share) {
+        navigator.share({ title: title, url: url });
+    } else {
+        navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard!'));
+    }
+}
+
+function toggleWishlist(btn) {
+    const productId = btn.getAttribute('data-product-id');
+    const icon = btn.querySelector('i');
+
+    fetch(`/customer/wishlist/toggle/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.added) {
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid');
+            btn.classList.add('wishlisted');
+            showToast(data.message || 'Added to wishlist');
+        } else {
+            icon.classList.remove('fa-solid');
+            icon.classList.add('fa-regular');
+            btn.classList.remove('wishlisted');
+            showToast(data.message || 'Removed from wishlist', 'remove');
+        }
+    });
+}
+
+function addToBag(btn) {
+    const productId = btn.getAttribute('data-product-id');
+    const activeSize = document.querySelector('.jockey-size-btn.active');
+    const size = activeSize ? activeSize.getAttribute('data-size') : '';
+    const activeColor = document.querySelector('.color-swatch-btn.active');
+    const colorId = activeColor ? activeColor.getAttribute('data-color-id') : '';
+
+    const formData = new FormData();
+    formData.append('quantity', 1);
+    if (size) formData.append('size', size);
+    if (colorId) formData.append('color', colorId);
+
+    btn.disabled = true;
+
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+        btn.disabled = false;
+        if (!ok && data.login_required) {
+            showToast(data.message || 'Please log in to add items to your cart', 'remove');
+            setTimeout(() => { window.location.href = '/accounts/login/'; }, 1500);
+            return;
+        }
+        if (data.success) {
+            showToast(data.message || 'Added to bag!');
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Added';
+            btn.classList.add('added');
+
+            if (typeof loadMiniCart === 'function') loadMiniCart();
+
+            const miniCart = document.getElementById('miniCartDropdown');
+            if (miniCart) miniCart.classList.add('active');
+
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Add To Bag';
+                btn.classList.remove('added');
+            }, 2000);
+        }
+    });
 }
 </script>
 {% endblock %}

@@ -230,7 +230,7 @@
     align-items: center;
     width: 0;
     opacity: 0;
-    overflow: hidden;
+    overflow: visible;
     transform: scaleX(0.95) translateX(-8px);
     transform-origin: left center;
     transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1),
@@ -242,6 +242,7 @@
     border-radius: 9999px;
     margin-left: 0.35rem;
     border: 1.5px solid transparent;
+    position: relative;
 }
 
 .nav-search-container.active .expandable-search-form {
@@ -291,6 +292,126 @@
 
 .search-submit-btn:hover {
     transform: scale(1.15) translateX(2px);
+}
+
+/* Search Suggestions Dropdown */
+.search-suggestions-dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 320px;
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.12);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    z-index: 1100;
+}
+
+.search-suggestions-dropdown.active {
+    max-height: 420px;
+    overflow-y: auto;
+    opacity: 1;
+    visibility: visible;
+    padding: 0.5rem 0;
+}
+
+.suggestion-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    text-decoration: none;
+    color: #1a1a1a;
+    transition: background 0.15s ease;
+}
+
+.suggestion-item:hover {
+    background: #f5f5f5;
+}
+
+.suggestion-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 6px;
+    object-fit: cover;
+    border: 1px solid #eee;
+    flex-shrink: 0;
+}
+
+.suggestion-item div {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.suggestion-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.suggestion-brand {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+.suggestion-price {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.suggestion-price del {
+    color: #aaa;
+    font-weight: 400;
+    margin-left: 0.35rem;
+}
+
+.suggestion-category {
+    color: #555;
+}
+
+.suggestion-category i {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.suggestion-tag {
+    font-size: 0.65rem;
+    background: #f0f0f0;
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    color: #666;
+    margin-left: 0.5rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.suggestion-view-all {
+    border-top: 1px solid #eee;
+    margin-top: 0.25rem;
+    padding-top: 0.6rem;
+    color: #555;
+    font-size: 0.82rem;
+    font-weight: 600;
+}
+
+.suggestion-view-all i {
+    font-size: 0.75rem;
+}
+
+.suggestion-empty {
+    padding: 1.5rem;
+    text-align: center;
+    color: #999;
+    font-size: 0.85rem;
 }
 
 /* MINI-CART DROPDOWN STYLING */
@@ -480,6 +601,108 @@
     color: #ffffff;
 }
 
+/* Cart Badge */
+.cart-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    background: #e91e63;
+    color: #ffffff;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    line-height: 1;
+}
+
+.cart-toggle-btn {
+    position: relative;
+}
+
+/* Mini Cart Empty State */
+.mini-cart-empty {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #94a3b8;
+}
+
+.mini-cart-empty i {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.mini-cart-empty p {
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* Mini Cart Item Meta (size/color) */
+.mini-item-meta {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-bottom: 2px;
+}
+
+/* Mini Cart Login Prompt (for non-authenticated users) */
+.mini-cart-login-prompt {
+    text-align: center;
+    padding: 1.5rem 1rem;
+}
+
+.mini-cart-login-prompt i {
+    font-size: 2rem;
+    color: #94a3b8;
+    margin-bottom: 0.75rem;
+    display: block;
+}
+
+.mini-cart-login-prompt h3 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #000000;
+    margin-bottom: 0.35rem;
+}
+
+.mini-cart-login-prompt p {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 1rem;
+    line-height: 1.4;
+}
+
+.mini-cart-login-prompt .btn {
+    text-align: center;
+    padding: 0.6rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 6px;
+    text-decoration: none;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.mini-cart-login-prompt .btn-primary {
+    background-color: #000000;
+    color: #ffffff;
+    border: 1px solid #000000;
+}
+
+.mini-cart-login-prompt .btn-outline-secondary {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #000000;
+}
+
 /* ==========================================================================
    SECONDARY CATEGORY SUB-NAV CONTAINER (EVENLY DISTRIBUTED ACROSS FULL WIDTH)
    ========================================================================== */
@@ -582,7 +805,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%;
     height: 100vh;
     background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
@@ -601,7 +824,7 @@
 
 .mobile-nav-drawer {
     position: fixed;
-    top: 0;
+    top: 30px;
     left: 0;
     width: 320px;
     max-width: 85vw;
@@ -760,6 +983,10 @@
         display: none !important;
     }
 
+    .nav-auth-buttons {
+        display: none !important;
+    }
+
     /* Horizontal Touch-Scrollable Sub-Nav Bar for Mobile */
     .nav-secondary-container {
         display: block !important;
@@ -795,7 +1022,7 @@
 
     .mini-cart-dropdown {
         width: 320px;
-        right: -10px;
+        right: 0;
     }
 }
 
@@ -841,7 +1068,7 @@
     }
 
     .mini-cart-dropdown {
-        width: calc(100vw - 1.5rem);
+        width: calc(100% + 1.5rem);
         right: -0.75rem;
         padding: 1rem;
     }
