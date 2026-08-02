@@ -19,7 +19,7 @@ class SellerProfile(models.Model):
         from customer.models import Order, OrderItem
         product_ids = ProductRequest.objects.filter(
             seller=self, status='approved'
-        ).values_list('product_id', flat=True)
+        ).exclude(product__is_active=False).exclude(product__isnull=True).values_list('product_id', flat=True)
         return float(
             OrderItem.objects.filter(
                 product_id__in=product_ids, order__status='delivered'
@@ -28,14 +28,16 @@ class SellerProfile(models.Model):
 
     @property
     def total_products(self):
-        return ProductRequest.objects.filter(seller=self, status='approved').count()
+        return ProductRequest.objects.filter(
+            seller=self, status='approved'
+        ).exclude(product__is_active=False).exclude(product__isnull=True).count()
 
     @property
     def total_items_sold(self):
         from customer.models import OrderItem
         product_ids = ProductRequest.objects.filter(
             seller=self, status='approved'
-        ).values_list('product_id', flat=True)
+        ).exclude(product__is_active=False).exclude(product__isnull=True).values_list('product_id', flat=True)
         return OrderItem.objects.filter(
             product_id__in=product_ids, order__status='delivered'
         ).aggregate(total=models.Sum('quantity'))['total'] or 0
@@ -63,8 +65,20 @@ class ProductRequest(models.Model):
     mrp = models.DecimalField(max_digits=10, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, default='')
-    image = models.ImageField(upload_to='seller_products/', blank=True, null=True)
     quantity = models.PositiveIntegerField(default=1)
+
+    color_name = models.CharField(max_length=100, blank=True, default='Default')
+    color_code = models.CharField(max_length=30, blank=True, default='#000000')
+    sizes = models.CharField(max_length=255, blank=True, default='', help_text='Comma-separated sizes, e.g. S,M,L,XL')
+    image = models.ImageField(upload_to='seller_products/', blank=True, null=True)
+    image2 = models.ImageField(upload_to='seller_products/', blank=True, null=True)
+    image3 = models.ImageField(upload_to='seller_products/', blank=True, null=True)
+    image4 = models.ImageField(upload_to='seller_products/', blank=True, null=True)
+
+    delivery_info = models.CharField(max_length=200, blank=True, default='Delivery by 3rd Aug')
+    return_policy = models.CharField(max_length=200, blank=True, default='7 Days Return and Replacement available')
+    offers_text = models.CharField(max_length=255, blank=True, default='Hurry! Get 5% Cashback. Offer ends tonight.')
+    size_guidelines = models.TextField(blank=True, default='Please check size chart table to know the exact size to be ordered.')
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

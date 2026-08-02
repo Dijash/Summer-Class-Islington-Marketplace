@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils.text import slugify
 from core.models import Category
 
@@ -9,9 +10,9 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     mrp = models.DecimalField(max_digits=10, decimal_places=2, help_text="Original MRP price")
     price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Discounted selling price")
-    rating = models.FloatField(default=4.5, help_text="Star rating out of 5.0")
-    ratings_count = models.PositiveIntegerField(default=12, help_text="Total ratings count")
-    reviews_count = models.PositiveIntegerField(default=3, help_text="Total reviews count")
+    rating = models.FloatField(default=2.0, help_text="Average star rating out of 5.0")
+    ratings_count = models.PositiveIntegerField(default=0, help_text="Total ratings count")
+    reviews_count = models.PositiveIntegerField(default=0, help_text="Total reviews count")
     description = models.TextField(blank=True, help_text="Detailed product description")
     size_guidelines = models.TextField(blank=True, default="Please check size chart table to know the exact size to be ordered.")
     offers_text = models.CharField(max_length=255, blank=True, default="Hurry! Get 5% Cashback. Offer ends tonight.")
@@ -46,6 +47,30 @@ class Product(models.Model):
         return 0
 
     @property
+    def computed_rating(self):
+        reviews = self.reviews.all()
+        if reviews.exists():
+            avg = reviews.aggregate(models.Avg('rating'))['rating__avg']
+            return round(avg, 1) if avg else 2.0
+        return 2.0
+
+    @property
+    def computed_reviews_count(self):
+        return self.reviews.count()
+
+    @property
+    def rating_breakdown(self):
+        reviews = self.reviews.all()
+        total = reviews.count()
+        if total == 0:
+            return {5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 'percentages': {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}}
+        counts = {}
+        for i in range(1, 6):
+            counts[i] = reviews.filter(rating=i).count()
+        percentages = {k: round((v / total) * 100) for k, v in counts.items()}
+        return {'counts': counts, 'percentages': percentages, 'total': total}
+
+    @property
     def default_color(self):
         return self.colors.filter(is_default=True).first() or self.colors.first()
 
@@ -55,6 +80,43 @@ class Product(models.Model):
         if def_color and def_color.images.exists():
             return def_color.images.first().image_url
         return "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80"
+
+
+class Review(models.Model):
+    RATING_CHOICES = [(i, str(i)) for i in range(1, 6)]
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='product_reviews')
+    rating = models.PositiveIntegerField(choices=RATING_CHOICES, default=2)
+    title = models.CharField(max_length=200, blank=True, default='')
+    comment = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['product', 'user']
+
+    def __str__(self):
+        return f"{self.user.username} - {self.product.title} ({self.rating}/5)"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        self._update_product_rating()
+
+    def _update_product_rating(self):
+        product = self.product
+        reviews = product.reviews.all()
+        if reviews.exists():
+            avg = reviews.aggregate(models.Avg('rating'))['rating__avg']
+            product.rating = round(avg, 1) if avg else 2.0
+            product.ratings_count = reviews.count()
+            product.reviews_count = reviews.count()
+        else:
+            product.rating = 2.0
+            product.ratings_count = 0
+            product.reviews_count = 0
+        product.save(update_fields=['rating', 'ratings_count', 'reviews_count'])
 
 
 class ProductColor(models.Model):

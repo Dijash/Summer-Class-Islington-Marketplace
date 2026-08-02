@@ -150,7 +150,7 @@
                     <button type="button" class="jockey-icon-btn wishlist-btn" id="wishlistBtn" title="Add to Wishlist" data-product-id="{{ product.id }}" onclick="toggleWishlist(this)">
                         <i class="fa-regular fa-heart"></i>
                     </button>
-                    <a href="{% url 'checkout' %}" class="jockey-buy-now-btn">Buy Now</a>
+                    <button type="button" class="jockey-buy-now-btn" id="buyNowBtn" onclick="buyNow(event)">Buy Now</button>
                     <button type="button" class="jockey-add-bag-btn" data-product-id="{{ product.id }}" onclick="addToBag(this)">
                         <i class="fa-solid fa-bag-shopping"></i> Add To Bag
                     </button>
@@ -197,7 +197,147 @@
     </div>
 </div>
 
+<!-- Reviews Section -->
+<div class="container product-detail-container">
+    <div class="reviews-section">
+        <h2><i class="fa-solid fa-star" style="color: #f59e0b;"></i> Customer Reviews</h2>
+
+        <!-- Rating Summary -->
+        <div class="reviews-summary">
+            <div class="reviews-avg">
+                <div class="reviews-avg-score">{{ product.computed_rating }}</div>
+                <div class="reviews-avg-stars">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= product.computed_rating %}
+                            <i class="fa-solid fa-star" style="color: #f59e0b;"></i>
+                        {% else %}
+                            <i class="fa-regular fa-star" style="color: #d1d5db;"></i>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="reviews-avg-count">{{ product.computed_reviews_count }} review{{ product.computed_reviews_count|pluralize }}</div>
+            </div>
+
+            <div class="reviews-bars">
+                {% for star in "54321" %}
+                <div class="review-bar-row">
+                    <span class="review-bar-num">{{ star }}</span>
+                    <i class="fa-solid fa-star" style="color: #f59e0b; font-size: 0.75rem;"></i>
+                    <div class="review-bar-track">
+                        <div class="review-bar-fill" style="width: {{ review_percentages|slice:forloop.counter0 }}%;"></div>
+                    </div>
+                    <span class="review-bar-count">{{ review_counts|slice:forloop.counter0 }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Write a Review Form -->
+        {% if user.is_authenticated %}
+        <div class="review-form-box">
+            <h3><i class="fa-solid fa-pen"></i> {% if user_review %}Edit Your Review{% else %}Write a Review{% endif %}</h3>
+            <form method="POST" action="{% url 'submit_review' product.id %}" id="reviewForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label>Your Rating <span style="color: #ef4444;">*</span></label>
+                    <div id="starRating" class="star-rating-input">
+                        {% for i in "12345" %}
+                        {% with star_val=forloop.counter %}
+                        <label id="starLabel{{ star_val }}" class="{% if user_review and forloop.counter <= user_review.rating %}active{% elif not user_review and forloop.counter <= 2 %}active{% endif %}" onmouseover="hoverStars({{ star_val }})" onmouseout="resetStars()" onclick="selectStars({{ star_val }})">
+                            <i class="fa-solid fa-star"></i>
+                            <input type="radio" name="rating" value="{{ star_val }}" style="display: none;" {% if user_review and forloop.counter == user_review.rating %}checked{% elif not user_review and forloop.counter == 2 %}checked{% endif %}>
+                        </label>
+                        {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Review Title</label>
+                    <input type="text" name="title" class="form-control" placeholder="e.g. Great quality!" value="{{ user_review.title|default:'' }}">
+                </div>
+                <div class="form-group">
+                    <label>Your Review</label>
+                    <textarea name="comment" rows="4" class="form-control" placeholder="Share your experience with this product...">{{ user_review.comment|default:'' }}</textarea>
+                </div>
+                <button type="submit" class="jockey-add-bag-btn" style="border: none; background: #e91e63; color: #fff; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                    <i class="fa-solid fa-paper-plane"></i> {% if user_review %}Update Review{% else %}Submit Review{% endif %}
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="review-login-prompt">
+            <p style="margin: 0;"><a href="{% url 'login' %}">Log in</a> to write a review</p>
+        </div>
+        {% endif %}
+
+        <!-- Reviews List -->
+        <div id="reviewsList">
+            {% for review in reviews %}
+            <div class="review-item">
+                <div class="review-header">
+                    <div class="review-user">
+                        {% if review.user.profile.avatar %}
+                            <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.user.username }}" class="review-avatar">
+                        {% else %}
+                            <div class="review-avatar-placeholder">
+                                <i class="fa-solid fa-user"></i>
+                            </div>
+                        {% endif %}
+                        <div>
+                            <div class="review-user-name">{{ review.user.get_full_name|default:review.user.username }}</div>
+                            <div class="review-user-stars">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fa-solid fa-star" style="color: #f59e0b;"></i>
+                                    {% else %}
+                                        <i class="fa-regular fa-star" style="color: #d1d5db;"></i>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    <span class="review-date">{{ review.created_at|date:"M j, Y" }}</span>
+                </div>
+                {% if review.title %}
+                <h4 class="review-title">{{ review.title }}</h4>
+                {% endif %}
+                {% if review.comment %}
+                <p class="review-comment">{{ review.comment }}</p>
+                {% endif %}
+            </div>
+            {% empty %}
+            <div class="review-empty">
+                <i class="fa-regular fa-comment-dots"></i>
+                <p style="margin: 0; font-size: 0.95rem;">No reviews yet. Be the first to review this product!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
 <script>
+let selectedRating = {{ user_review.rating|default:2 }};
+let currentRating = selectedRating;
+
+function hoverStars(n) {
+    for (let i = 1; i <= 5; i++) {
+        document.getElementById('starLabel' + i).classList.toggle('active', i <= n);
+    }
+}
+
+function resetStars() {
+    for (let i = 1; i <= 5; i++) {
+        document.getElementById('starLabel' + i).classList.toggle('active', i <= currentRating);
+    }
+}
+
+function selectStars(n) {
+    selectedRating = n;
+    currentRating = n;
+    resetStars();
+    document.querySelector('#starRating input[value="' + n + '"]').checked = true;
+}
+
 function switchColorVariant(btn) {
     document.querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -332,6 +472,55 @@ function addToBag(btn) {
                 btn.classList.remove('added');
             }, 2000);
         }
+    });
+}
+
+function buyNow(e) {
+    e.preventDefault();
+    const btn = document.getElementById('buyNowBtn');
+    const productId = '{{ product.id }}';
+    const activeSize = document.querySelector('.jockey-size-btn.active');
+    const size = activeSize ? activeSize.getAttribute('data-size') : '';
+    const activeColor = document.querySelector('.color-swatch-btn.active');
+    const colorId = activeColor ? activeColor.getAttribute('data-color-id') : '';
+
+    const formData = new FormData();
+    formData.append('quantity', 1);
+    if (size) formData.append('size', size);
+    if (colorId) formData.append('color', colorId);
+
+    btn.classList.add('loading');
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+
+    fetch(`/cart/add/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(res => res.json().then(data => ({ ok: res.ok, data })))
+    .then(({ ok, data }) => {
+        if (!ok && data.login_required) {
+            btn.classList.remove('loading');
+            btn.innerHTML = 'Buy Now';
+            showToast(data.message || 'Please log in to continue', 'remove');
+            setTimeout(() => { window.location.href = '/accounts/login/'; }, 1500);
+            return;
+        }
+        if (data.success) {
+            window.location.href = '{% url "checkout" %}';
+        } else {
+            btn.classList.remove('loading');
+            btn.innerHTML = 'Buy Now';
+            showToast(data.message || 'Failed to add item', 'remove');
+        }
+    })
+    .catch(() => {
+        btn.classList.remove('loading');
+        btn.innerHTML = 'Buy Now';
+        showToast('Something went wrong. Please try again.', 'remove');
     });
 }
 </script>

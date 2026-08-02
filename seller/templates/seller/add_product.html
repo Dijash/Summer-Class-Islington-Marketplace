@@ -24,118 +24,365 @@
 </div>
 {% endif %}
 
-<form method="POST" action="{% url 'seller_add_product' %}" novalidate enctype="multipart/form-data">
+<!-- Step Indicator -->
+<div class="wizard-steps">
+    <div class="wizard-step active" data-step="1">
+        <div class="wizard-step-num">1</div>
+        <span>Basic Info</span>
+    </div>
+    <div class="wizard-step-line"></div>
+    <div class="wizard-step" data-step="2">
+        <div class="wizard-step-num">2</div>
+        <span>Color & Sizes</span>
+    </div>
+    <div class="wizard-step-line"></div>
+    <div class="wizard-step" data-step="3">
+        <div class="wizard-step-num">3</div>
+        <span>Description & Images</span>
+    </div>
+    <div class="wizard-step-line"></div>
+    <div class="wizard-step" data-step="4">
+        <div class="wizard-step-num">4</div>
+        <span>Shipping & Submit</span>
+    </div>
+</div>
+
+<form method="POST" action="{% url 'seller_add_product' %}" novalidate enctype="multipart/form-data" id="addProductForm">
     {% csrf_token %}
-    
-    <div class="card" style="margin-bottom: 2rem;">
-        <h3 style="font-size: 1.1rem; border-bottom: 1px solid var(--seller-border); padding-bottom: 1rem; margin-top: 0; margin-bottom: 1.5rem;">Basic Information</h3>
-        
-        <div class="form-grid-3">
-            <div class="form-group">
-                <label>Product Title <span style="color: #ef4444;">*</span></label>
-                <input type="text" name="title" class="form-control" value="{{ form_data.title|default:'' }}" placeholder="e.g. Premium Noise-Canceling Headphones" required>
+
+    <!-- STEP 1: Basic Information -->
+    <div class="wizard-panel active" data-panel="1">
+        <div class="card">
+            <h3 style="font-size: 1.1rem; border-bottom: 1px solid var(--seller-border); padding-bottom: 1rem; margin-top: 0; margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-box" style="color: var(--seller-sidebar-active);"></i> Basic Information
+            </h3>
+
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label>Product Title <span style="color: #ef4444;">*</span></label>
+                    <input type="text" name="title" class="form-control" value="{{ form_data.title|default:'' }}" placeholder="e.g. Premium Noise-Canceling Headphones" required>
+                </div>
+                <div class="form-group">
+                    <label>Brand Name <span style="color: #ef4444;">*</span></label>
+                    <input type="text" name="brand_name" class="form-control" value="{{ form_data.brand_name|default:'' }}" placeholder="e.g. Sony" required>
+                </div>
+                <div class="form-group">
+                    <label>Category <span style="color: #ef4444;">*</span></label>
+                    <select name="category" class="form-control" required>
+                        <option value="">Select a category</option>
+                        {% for parent in parent_categories %}
+                            {% if parent.subcategories.all %}
+                                <optgroup label="{{ parent.name }}">
+                                    {% for child in parent.subcategories.all %}
+                                        {% if child.is_active %}
+                                            <option value="{{ child.id }}" {% if form_data.category == child.id|stringformat:"s" %}selected{% endif %}>{{ child.name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </optgroup>
+                            {% else %}
+                                <option value="{{ parent.id }}" {% if form_data.category == parent.id|stringformat:"s" %}selected{% endif %}>{{ parent.name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Brand Name <span style="color: #ef4444;">*</span></label>
-                <input type="text" name="brand_name" class="form-control" value="{{ form_data.brand_name|default:'' }}" placeholder="e.g. Sony" required>
-            </div>
-            <div class="form-group">
-                <label>Category <span style="color: #ef4444;">*</span></label>
-                <select name="category" class="form-control" required>
-                    <option value="">Select a category</option>
-                    {% for parent in parent_categories %}
-                        {% if parent.subcategories.all %}
-                            <optgroup label="{{ parent.name }}">
-                                {% for child in parent.subcategories.all %}
-                                    {% if child.is_active %}
-                                        <option value="{{ child.id }}" {% if form_data.category == child.id|stringformat:"s" %}selected{% endif %}>{{ child.name }}</option>
-                                    {% endif %}
-                                {% endfor %}
-                            </optgroup>
-                        {% else %}
-                            <option value="{{ parent.id }}" {% if form_data.category == parent.id|stringformat:"s" %}selected{% endif %}>{{ parent.name }}</option>
-                        {% endif %}
-                    {% endfor %}
-                </select>
+
+            <div class="form-grid-3">
+                <div class="form-group">
+                    <label>MRP / Original Price (₹) <span style="color: #ef4444;">*</span></label>
+                    <input type="number" name="mrp" class="form-control" value="{{ form_data.mrp|default:'' }}" step="0.01" min="1" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Selling Price (₹) <span style="color: #ef4444;">*</span></label>
+                    <input type="number" name="price" class="form-control" value="{{ form_data.price|default:'' }}" step="0.01" min="1" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Initial Stock Quantity <span style="color: #ef4444;">*</span></label>
+                    <input type="number" name="quantity" class="form-control" value="{{ form_data.quantity|default:'1' }}" min="1" required>
+                </div>
             </div>
         </div>
 
-        <div class="form-grid-3">
-            <div class="form-group">
-                <label>MRP / Original Price (₹) <span style="color: #ef4444;">*</span></label>
-                <input type="number" name="mrp" class="form-control" value="{{ form_data.mrp|default:'' }}" step="0.01" min="1" placeholder="0.00" required>
-            </div>
-            <div class="form-group">
-                <label>Selling Price (₹) <span style="color: #ef4444;">*</span></label>
-                <input type="number" name="price" class="form-control" value="{{ form_data.price|default:'' }}" step="0.01" min="1" placeholder="0.00" required>
-            </div>
-            <div class="form-group">
-                <label>Initial Stock Quantity <span style="color: #ef4444;">*</span></label>
-                <input type="number" name="quantity" class="form-control" value="{{ form_data.quantity|default:'1' }}" min="1" required>
-            </div>
+        <div class="wizard-nav">
+            <div></div>
+            <button type="button" class="btn-seller wizard-next" data-next="2">
+                Next: Color & Sizes <i class="fa-solid fa-arrow-right"></i>
+            </button>
         </div>
     </div>
 
-    <div class="card" style="margin-bottom: 2rem;">
-        <h3 style="font-size: 1.1rem; border-bottom: 1px solid var(--seller-border); padding-bottom: 1rem; margin-top: 0; margin-bottom: 1.5rem;">Product Details & Media</h3>
-        
-        <div class="form-grid-2-1">
+    <!-- STEP 2: Color & Sizes -->
+    <div class="wizard-panel" data-panel="2">
+        <div class="card">
+            <h3 style="font-size: 1.1rem; border-bottom: 1px solid var(--seller-border); padding-bottom: 1rem; margin-top: 0; margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-palette" style="color: var(--seller-sidebar-active);"></i> Color & Sizes
+            </h3>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Color Name</label>
+                    <input type="text" name="color_name" class="form-control" value="{{ form_data.color_name|default:'Default' }}" placeholder="e.g. Midnight Navy, Orchid Smoke">
+                </div>
+                <div class="form-group">
+                    <label>Color Code</label>
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <input type="color" name="color_code" value="{{ form_data.color_code|default:'#000000' }}" style="width: 48px; height: 40px; border: 1px solid var(--seller-border); border-radius: 6px; cursor: pointer; padding: 2px;">
+                        <input type="text" name="color_code_text" class="form-control" value="{{ form_data.color_code|default:'#000000' }}" placeholder="#000000" style="flex: 1;" id="colorCodeText">
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
+                <label>Available Sizes</label>
+                <div class="size-checkbox-grid">
+                    <div class="size-group">
+                        <span class="size-group-label">Clothing</span>
+                        <div class="size-checkbox-row">
+                            {% for s in sizes_clothing %}
+                                <label class="size-checkbox">
+                                    <input type="checkbox" name="sizes" value="{{ s }}" {% if s in form_data_sizes %}checked{% endif %}>
+                                    <span>{{ s }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="size-group">
+                        <span class="size-group-label">Lingerie</span>
+                        <div class="size-checkbox-row">
+                            {% for s in sizes_lingerie %}
+                                <label class="size-checkbox">
+                                    <input type="checkbox" name="sizes" value="{{ s }}" {% if s in form_data_sizes %}checked{% endif %}>
+                                    <span>{{ s }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="size-group">
+                        <span class="size-group-label">Footwear (UK)</span>
+                        <div class="size-checkbox-row">
+                            {% for s in sizes_footwear %}
+                                <label class="size-checkbox">
+                                    <input type="checkbox" name="sizes" value="{{ s }}" {% if s in form_data_sizes %}checked{% endif %}>
+                                    <span>{{ s }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <small style="color: var(--seller-text-muted); font-size: 0.75rem;">Select all applicable sizes. Leave all unchecked if not applicable.</small>
+            </div>
+        </div>
+
+        <div class="wizard-nav">
+            <button type="button" class="btn-seller wizard-prev" data-prev="1" style="background: white; color: var(--seller-text-main); border: 1px solid var(--seller-border);">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="btn-seller wizard-next" data-next="3">
+                Next: Images <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- STEP 3: Description & Images -->
+    <div class="wizard-panel" data-panel="3">
+        <div class="card">
+            <h3 style="font-size: 1.1rem; border-bottom: 1px solid var(--seller-border); padding-bottom: 1rem; margin-top: 0; margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-images" style="color: var(--seller-sidebar-active);"></i> Description & Images
+            </h3>
+
+            <div class="form-group" style="margin-bottom: 1.5rem;">
                 <label>Product Description</label>
                 <textarea name="description" class="form-control" rows="5" placeholder="Highlight the key features and benefits of this product...">{{ form_data.description|default:'' }}</textarea>
             </div>
-            <div class="form-group">
-                <label>Primary Image <span style="color: #ef4444;">*</span></label>
-                <div class="image-upload-dropzone" id="imageDropzone">
-                    <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
-                    <span style="font-size: 0.85rem; font-weight: 600;">Click or drag image here</span>
-                    <span style="font-size: 0.75rem; color: var(--seller-text-muted);">PNG, JPG up to 5MB</span>
-                    <input type="file" name="image" id="imageFileInput" class="dropzone-file-input" accept="image/*">
+
+            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--seller-text-main); margin-bottom: 1rem;">Product Images (Up to 4)</label>
+            <div class="form-grid-4">
+                <div class="form-group">
+                    <label style="font-size: 0.8rem; color: var(--seller-text-muted);">Image 1 <span style="color: #ef4444;">*</span></label>
+                    <div class="image-upload-dropzone" id="imageDropzone1">
+                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                        <span style="font-size: 0.82rem; font-weight: 600;">Front View</span>
+                        <input type="file" name="image" id="imageFileInput1" class="dropzone-file-input" accept="image/*">
+                    </div>
+                    <div class="image-preview-wrapper" id="imagePreviewWrapper1" style="display:none;">
+                        <img id="imagePreview1" src="" alt="Preview">
+                        <button type="button" class="remove-preview-btn remove-preview-btn-1"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
                 </div>
-                
-                <div class="image-preview-wrapper" id="imagePreviewWrapper" style="display:none;">
-                    <img id="imagePreview" src="" alt="Preview">
-                    <button type="button" id="removePreview" class="remove-preview-btn"><i class="fa-solid fa-xmark"></i></button>
+                <div class="form-group">
+                    <label style="font-size: 0.8rem; color: var(--seller-text-muted);">Image 2</label>
+                    <div class="image-upload-dropzone" id="imageDropzone2">
+                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                        <span style="font-size: 0.82rem; font-weight: 600;">Side View</span>
+                        <input type="file" name="image2" id="imageFileInput2" class="dropzone-file-input" accept="image/*">
+                    </div>
+                    <div class="image-preview-wrapper" id="imagePreviewWrapper2" style="display:none;">
+                        <img id="imagePreview2" src="" alt="Preview">
+                        <button type="button" class="remove-preview-btn remove-preview-btn-2"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 0.8rem; color: var(--seller-text-muted);">Image 3</label>
+                    <div class="image-upload-dropzone" id="imageDropzone3">
+                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                        <span style="font-size: 0.82rem; font-weight: 600;">Back View</span>
+                        <input type="file" name="image3" id="imageFileInput3" class="dropzone-file-input" accept="image/*">
+                    </div>
+                    <div class="image-preview-wrapper" id="imagePreviewWrapper3" style="display:none;">
+                        <img id="imagePreview3" src="" alt="Preview">
+                        <button type="button" class="remove-preview-btn remove-preview-btn-3"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label style="font-size: 0.8rem; color: var(--seller-text-muted);">Image 4</label>
+                    <div class="image-upload-dropzone" id="imageDropzone4">
+                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                        <span style="font-size: 0.82rem; font-weight: 600;">Detail View</span>
+                        <input type="file" name="image4" id="imageFileInput4" class="dropzone-file-input" accept="image/*">
+                    </div>
+                    <div class="image-preview-wrapper" id="imagePreviewWrapper4" style="display:none;">
+                        <img id="imagePreview4" src="" alt="Preview">
+                        <button type="button" class="remove-preview-btn remove-preview-btn-4"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <div class="wizard-nav">
+            <button type="button" class="btn-seller wizard-prev" data-prev="2" style="background: white; color: var(--seller-text-main); border: 1px solid var(--seller-border);">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+            <button type="button" class="btn-seller wizard-next" data-next="4">
+                Next: Shipping <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
     </div>
 
-    <div style="display: flex; justify-content: flex-end; gap: 1rem;">
-        <a href="{% url 'seller_dashboard' %}" class="btn-seller" style="background: white; color: var(--seller-text-main); border: 1px solid var(--seller-border);">Cancel</a>
-        <button type="submit" class="btn-seller"><i class="fa-solid fa-paper-plane"></i> Submit Listing</button>
+    <!-- STEP 4: Shipping & Submit -->
+    <div class="wizard-panel" data-panel="4">
+        <div class="card">
+            <h3 style="font-size: 1.1rem; border-bottom: 1px solid var(--seller-border); padding-bottom: 1rem; margin-top: 0; margin-bottom: 1.5rem;">
+                <i class="fa-solid fa-truck" style="color: var(--seller-sidebar-active);"></i> Shipping & Offers
+            </h3>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Delivery Info</label>
+                    <input type="text" name="delivery_info" class="form-control" value="{{ form_data.delivery_info|default:'Delivery by 3rd Aug' }}" placeholder="e.g. Delivery by 3rd Aug">
+                </div>
+                <div class="form-group">
+                    <label>Return Policy</label>
+                    <input type="text" name="return_policy" class="form-control" value="{{ form_data.return_policy|default:'7 Days Return and Replacement available' }}" placeholder="e.g. 7 Days Return and Replacement available">
+                </div>
+            </div>
+
+            <div class="form-grid-2">
+                <div class="form-group">
+                    <label>Offers Text</label>
+                    <input type="text" name="offers_text" class="form-control" value="{{ form_data.offers_text|default:'Hurry! Get 5% Cashback. Offer ends tonight.' }}" placeholder="e.g. Hurry! Get 5% Cashback. Offer ends tonight.">
+                </div>
+                <div class="form-group">
+                    <label>Size Guidelines</label>
+                    <textarea name="size_guidelines" class="form-control" rows="2" placeholder="e.g. Please check size chart table to know the exact size to be ordered.">{{ form_data.size_guidelines|default:'' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="wizard-nav">
+            <button type="button" class="btn-seller wizard-prev" data-prev="3" style="background: white; color: var(--seller-text-main); border: 1px solid var(--seller-border);">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </button>
+            <div style="display: flex; gap: 1rem;">
+                <a href="{% url 'seller_dashboard' %}" class="btn-seller" style="background: white; color: var(--seller-text-main); border: 1px solid var(--seller-border);">Cancel</a>
+                <button type="submit" class="btn-seller"><i class="fa-solid fa-paper-plane"></i> Submit Listing</button>
+            </div>
+        </div>
     </div>
 </form>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const dropzone = document.getElementById('imageDropzone');
-    const fileInput = document.getElementById('imageFileInput');
-    const previewWrapper = document.getElementById('imagePreviewWrapper');
-    const previewImg = document.getElementById('imagePreview');
-    const removeBtn = document.getElementById('removePreview');
+    var currentStep = 1;
+    var totalSteps = 4;
 
-    if (fileInput) {
-        fileInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    previewImg.src = ev.target.result;
-                    previewWrapper.style.display = 'block';
-                    dropzone.style.display = 'none';
-                };
-                reader.readAsDataURL(file);
-            }
+    function goToStep(step) {
+        document.querySelectorAll('.wizard-panel').forEach(function(p) { p.classList.remove('active'); });
+        document.querySelectorAll('.wizard-step').forEach(function(s) { s.classList.remove('active', 'completed'); });
+
+        document.querySelector('[data-panel="' + step + '"]').classList.add('active');
+
+        document.querySelectorAll('.wizard-step').forEach(function(s) {
+            var sNum = parseInt(s.getAttribute('data-step'));
+            if (sNum < step) s.classList.add('completed');
+            if (sNum === step) s.classList.add('active');
         });
+
+        currentStep = step;
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    if (removeBtn) {
-        removeBtn.addEventListener('click', function() {
-            fileInput.value = '';
-            previewWrapper.style.display = 'none';
-            dropzone.style.display = 'flex';
+    document.querySelectorAll('.wizard-next').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var next = parseInt(this.getAttribute('data-next'));
+            goToStep(next);
         });
+    });
+
+    document.querySelectorAll('.wizard-prev').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var prev = parseInt(this.getAttribute('data-prev'));
+            goToStep(prev);
+        });
+    });
+
+    document.querySelectorAll('.wizard-step').forEach(function(stepEl) {
+        stepEl.addEventListener('click', function() {
+            var target = parseInt(this.getAttribute('data-step'));
+            if (target <= currentStep) goToStep(target);
+        });
+    });
+
+    function setupDropzone(dropzoneId, fileInputId, previewWrapperId, previewImgId, removeBtnClass) {
+        var dropzone = document.getElementById(dropzoneId);
+        var fileInput = document.getElementById(fileInputId);
+        var previewWrapper = document.getElementById(previewWrapperId);
+        var previewImg = document.getElementById(previewImgId);
+        var removeBtn = document.querySelector('.' + removeBtnClass);
+
+        if (fileInput) {
+            fileInput.addEventListener('change', function(e) {
+                var file = e.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    var reader = new FileReader();
+                    reader.onload = function(ev) {
+                        previewImg.src = ev.target.result;
+                        previewWrapper.style.display = 'block';
+                        dropzone.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        if (removeBtn) {
+            removeBtn.addEventListener('click', function() {
+                fileInput.value = '';
+                previewWrapper.style.display = 'none';
+                dropzone.style.display = 'flex';
+            });
+        }
+    }
+
+    setupDropzone('imageDropzone1', 'imageFileInput1', 'imagePreviewWrapper1', 'imagePreview1', 'remove-preview-btn-1');
+    setupDropzone('imageDropzone2', 'imageFileInput2', 'imagePreviewWrapper2', 'imagePreview2', 'remove-preview-btn-2');
+    setupDropzone('imageDropzone3', 'imageFileInput3', 'imagePreviewWrapper3', 'imagePreview3', 'remove-preview-btn-3');
+    setupDropzone('imageDropzone4', 'imageFileInput4', 'imagePreviewWrapper4', 'imagePreview4', 'remove-preview-btn-4');
+
+    var colorPicker = document.querySelector('input[type="color"]');
+    var colorText = document.getElementById('colorCodeText');
+    if (colorPicker && colorText) {
+        colorPicker.addEventListener('input', function() { colorText.value = this.value; });
+        colorText.addEventListener('input', function() { if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) colorPicker.value = this.value; });
     }
 });
 </script>

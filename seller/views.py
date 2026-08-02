@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Sum, Count, F, Q
 from django.utils import timezone
+from django.utils.html import json_script
+import json
 from datetime import timedelta
 from .models import SellerProfile, ProductRequest
 from core.models import Category
@@ -25,17 +27,19 @@ def seller_dashboard(request):
     total_items_sold = seller.total_items_sold
     pending_requests = seller.pending_requests
 
-    # Recent requests
-    recent_requests = ProductRequest.objects.filter(seller=seller)[:5]
-
     # Recent orders containing seller's products
     from customer.models import Order, OrderItem
     product_ids = ProductRequest.objects.filter(
         seller=seller, status='approved'
-    ).values_list('product_id', flat=True)
+    ).exclude(product__is_active=False).exclude(product__isnull=True).values_list('product_id', flat=True)
     recent_orders = Order.objects.filter(
         items__product_id__in=product_ids
-    ).distinct()[:5]
+    ).distinct().select_related('user')[:5]
+
+    # Recent requests
+    recent_requests = ProductRequest.objects.filter(seller=seller).exclude(
+        status='rejected'
+    ).select_related('category')[:5]
 
     return render(request, 'seller/dashboard.html', {
         'seller': seller,
@@ -52,7 +56,7 @@ def seller_dashboard(request):
 def seller_analytics(request):
     seller = get_or_create_seller(request.user)
 
-    approved_count = ProductRequest.objects.filter(seller=seller, status='approved').count()
+    approved_count = ProductRequest.objects.filter(seller=seller, status='approved').exclude(product__is_active=False).exclude(product__isnull=True).count()
     pending_count = ProductRequest.objects.filter(seller=seller, status='pending').count()
     rejected_count = ProductRequest.objects.filter(seller=seller, status='rejected').count()
     total_products = seller.total_products
@@ -66,7 +70,7 @@ def seller_analytics(request):
     from customer.models import OrderItem, Order
     product_ids = ProductRequest.objects.filter(
         seller=seller, status='approved'
-    ).values_list('product_id', flat=True)
+    ).exclude(product__is_active=False).exclude(product__isnull=True).values_list('product_id', flat=True)
 
     for i in range(5, -1, -1):
         month_date = timezone.now() - timedelta(days=30 * i)
@@ -89,16 +93,16 @@ def seller_analytics(request):
         orders_data.append(month_orders)
 
     # Status breakdown for pie chart
-    status_data = {
+    status_data = json.dumps({
         'approved': approved_count,
         'pending': pending_count,
         'rejected': rejected_count,
-    }
+    })
 
     # Category breakdown
     category_data = ProductRequest.objects.filter(
         seller=seller, status='approved'
-    ).values('category__name').annotate(count=Count('id')).order_by('-count')[:5]
+    ).exclude(product__is_active=False).exclude(product__isnull=True).values('category__name').annotate(count=Count('id')).order_by('-count')[:5]
 
     return render(request, 'seller/analytics.html', {
         'seller': seller,
@@ -112,8 +116,13 @@ def seller_analytics(request):
         'revenue_data': revenue_data,
         'orders_data': orders_data,
         'status_data': status_data,
-        'category_data': list(category_data),
+        'category_data': json.dumps(list(category_data)),
     })
+
+
+SIZES_CLOTHING = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL']
+SIZES_LINGERIE = ['30B', '32B', '32C', '34B', '34C', '36B', '36C', '38B', '38C']
+SIZES_FOOTWEAR = ['UK 4', 'UK 5', 'UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11', 'UK 12']
 
 
 @login_required(login_url='login')
@@ -130,6 +139,19 @@ def add_product(request):
         description = request.POST.get('description', '').strip()
         quantity = request.POST.get('quantity', '1').strip()
         image = request.FILES.get('image')
+
+        color_name = request.POST.get('color_name', 'Default').strip() or 'Default'
+        color_code = request.POST.get('color_code', '#000000').strip() or '#000000'
+        sizes_list = request.POST.getlist('sizes')
+        sizes = ','.join(sizes_list)
+        image2 = request.FILES.get('image2')
+        image3 = request.FILES.get('image3')
+        image4 = request.FILES.get('image4')
+
+        delivery_info = request.POST.get('delivery_info', '').strip()
+        return_policy = request.POST.get('return_policy', '').strip()
+        offers_text = request.POST.get('offers_text', '').strip()
+        size_guidelines = request.POST.get('size_guidelines', '').strip()
 
         errors = []
         if not brand_name:
@@ -155,6 +177,10 @@ def add_product(request):
                 'parent_categories': parent_categories,
                 'errors': errors,
                 'form_data': request.POST,
+                'sizes_clothing': SIZES_CLOTHING,
+                'sizes_lingerie': SIZES_LINGERIE,
+                'sizes_footwear': SIZES_FOOTWEAR,
+                'form_data_sizes': sizes_list,
             })
 
         category = get_object_or_404(Category, pk=category_id)
@@ -169,6 +195,16 @@ def add_product(request):
             description=description,
             image=image,
             quantity=int(quantity),
+            color_name=color_name,
+            color_code=color_code,
+            sizes=sizes,
+            image2=image2,
+            image3=image3,
+            image4=image4,
+            delivery_info=delivery_info,
+            return_policy=return_policy,
+            offers_text=offers_text,
+            size_guidelines=size_guidelines,
         )
 
         return redirect('seller_requests')
@@ -176,13 +212,21 @@ def add_product(request):
     return render(request, 'seller/add_product.html', {
         'seller': seller,
         'parent_categories': parent_categories,
+        'sizes_clothing': SIZES_CLOTHING,
+        'sizes_lingerie': SIZES_LINGERIE,
+        'sizes_footwear': SIZES_FOOTWEAR,
+        'form_data_sizes': [],
     })
 
 
 @login_required(login_url='login')
 def my_products(request):
     seller = get_or_create_seller(request.user)
-    products = ProductRequest.objects.filter(seller=seller, status='approved').select_related('category', 'product')
+    products = ProductRequest.objects.filter(
+        seller=seller, status='approved'
+    ).select_related('category', 'product').exclude(
+        product__is_active=False
+    ).exclude(product__isnull=True)
     return render(request, 'seller/my_products.html', {
         'seller': seller,
         'products': products,
@@ -217,7 +261,7 @@ def seller_orders(request):
 
     product_ids = ProductRequest.objects.filter(
         seller=seller, status='approved'
-    ).values_list('product_id', flat=True)
+    ).exclude(product__is_active=False).exclude(product__isnull=True).values_list('product_id', flat=True)
 
     from customer.models import Order, OrderItem
     orders_qs = Order.objects.filter(

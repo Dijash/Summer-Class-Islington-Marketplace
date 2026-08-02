@@ -1,9 +1,10 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.db.models import Count, Q, F
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
-from .models import Product, ProductColor, ProductImage, ProductSize
+from django.contrib import messages
+from .models import Product, ProductColor, ProductImage, ProductSize, Review
 from core.models import Category
 
 
@@ -16,18 +17,21 @@ def search_suggestions(request):
         is_active=True
     ).filter(
         Q(title__icontains=q) | Q(brand_name__icontains=q)
-    ).select_related().prefetch_related('images')[:8]
+    ).select_related('category').prefetch_related('colors__images')[:8]
 
     suggestions = []
     for p in products:
-        img = p.images.first()
+        img = None
+        default_color = p.colors.filter(is_default=True).first() or p.colors.first()
+        if default_color:
+            img = default_color.images.first()
         suggestions.append({
             'title': p.title,
             'brand': p.brand_name,
             'slug': p.slug,
             'price': float(p.price),
             'mrp': float(p.mrp),
-            'image': img.image.url if img else '',
+            'image': img.image_url if img else '',
         })
 
     categories = Category.objects.filter(
@@ -104,7 +108,9 @@ def product_list(request):
         products = products.filter(brand_name__iexact=brand_query)
 
     if search_query:
-        products = products.filter(title__icontains=search_query)
+        products = products.filter(
+            Q(title__icontains=search_query) | Q(brand_name__icontains=search_query)
+        )
 
     if min_price:
         try:
@@ -178,10 +184,66 @@ def product_detail(request, pk=None, slug=None):
     colors = product.colors.prefetch_related('images').all()
     sizes = product.sizes.all()
     default_color = colors.filter(is_default=True).first() or colors.first()
+    reviews = product.reviews.select_related('user', 'user__profile').all()
+    user_review = None
+    if request.user.is_authenticated:
+        user_review = Review.objects.filter(product=product, user=request.user).first()
+
+    breakdown = product.rating_breakdown
+    review_counts = [breakdown['counts'].get(i, 0) for i in range(5, 0, -1)]
+    review_percentages = [breakdown['percentages'].get(i, 0) for i in range(5, 0, -1)]
 
     return render(request, 'product/product_detail.html', {
         'product': product,
         'colors': colors,
         'sizes': sizes,
         'default_color': default_color,
+        'reviews': reviews,
+        'user_review': user_review,
+        'review_counts': review_counts,
+        'review_percentages': review_percentages,
     })
+
+
+@ensure_csrf_cookie
+def submit_review(request, product_id):
+    if request.method != 'POST':
+        return redirect('product_detail', pk=product_id)
+
+    if not request.user.is_authenticated:
+        messages.error(request, 'Please log in to submit a review.')
+        return redirect('login')
+
+    product = get_object_or_404(Product, pk=product_id)
+    rating = request.POST.get('rating', '2')
+    title = request.POST.get('title', '').strip()
+    comment = request.POST.get('comment', '').strip()
+
+    try:
+        rating = int(rating)
+        if rating < 1 or rating > 5:
+            rating = 2
+    except (ValueError, TypeError):
+        rating = 2
+
+    review, created = Review.objects.update_or_create(
+        product=product,
+        user=request.user,
+        defaults={
+            'rating': rating,
+            'title': title,
+            'comment': comment,
+        }
+    )
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        product.refresh_from_db()
+        return JsonResponse({
+            'success': True,
+            'message': 'Review submitted!' if created else 'Review updated!',
+            'rating': product.rating,
+            'reviews_count': product.reviews_count,
+        })
+
+    messages.success(request, 'Review submitted!' if created else 'Review updated!')
+    return redirect('product_detail', slug=product.slug)

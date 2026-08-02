@@ -110,15 +110,22 @@
 </div>
 
 <script>
+var STATUS_DATA = {{ status_data|safe }};
+var CATEGORY_DATA = {{ category_data|safe }};
+</script>
+
+<script>
 document.addEventListener('DOMContentLoaded', function() {
     const months = {{ months|safe }};
     const revenueData = {{ revenue_data|safe }};
     const ordersData = {{ orders_data|safe }};
-    const statusData = {{ status_data|safe }};
-    const categoryData = {{ category_data|safe }};
+    const statusData = STATUS_DATA;
+    const categoryData = CATEGORY_DATA;
 
     // Revenue Line Chart
     const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+    const maxRevenue = Math.max(...revenueData, 0);
+    const revenueStep = maxRevenue > 0 ? Math.ceil(maxRevenue / 5) : 100;
     new Chart(revenueCtx, {
         type: 'line',
         data: {
@@ -143,21 +150,40 @@ document.addEventListener('DOMContentLoaded', function() {
             maintainAspectRatio: false,
             plugins: { legend: { display: false } },
             scales: {
-                y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { family: 'Inter' }, color: '#64748b', callback: v => '₹' + v } },
-                x: { grid: { display: false }, ticks: { font: { family: 'Inter' }, color: '#64748b' } }
+                y: {
+                    beginAtZero: true,
+                    grid: { color: '#f1f5f9' },
+                    ticks: {
+                        font: { family: 'Inter', size: 12 },
+                        color: '#64748b',
+                        stepSize: revenueStep,
+                        callback: function(value) {
+                            if (value >= 100000) return '₹' + (value / 100000).toFixed(1) + 'L';
+                            if (value >= 1000) return '₹' + (value / 1000).toFixed(1) + 'K';
+                            return '₹' + value;
+                        }
+                    },
+                    suggestedMax: maxRevenue > 0 ? maxRevenue + revenueStep : 100
+                },
+                x: {
+                    grid: { display: false },
+                    ticks: { font: { family: 'Inter', size: 12 }, color: '#64748b' }
+                }
             }
         }
     });
 
     // Status Doughnut
     const statusCtx = document.getElementById('statusChart').getContext('2d');
+    const statusValues = [statusData.approved || 0, statusData.pending || 0, statusData.rejected || 0];
+    const hasStatusData = statusValues.some(v => v > 0);
     new Chart(statusCtx, {
         type: 'doughnut',
         data: {
             labels: ['Approved', 'Pending', 'Rejected'],
             datasets: [{
-                data: [statusData.approved || 0, statusData.pending || 0, statusData.rejected || 0],
-                backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                data: hasStatusData ? statusValues : [1],
+                backgroundColor: hasStatusData ? ['#10b981', '#f59e0b', '#ef4444'] : ['#e2e8f0'],
                 borderWidth: 0,
                 hoverOffset: 6,
             }]
@@ -166,7 +192,10 @@ document.addEventListener('DOMContentLoaded', function() {
             responsive: true,
             maintainAspectRatio: false,
             cutout: '65%',
-            plugins: { legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, padding: 16, usePointStyle: true } } }
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { family: 'Inter', size: 12 }, padding: 16, usePointStyle: true } },
+                tooltip: { enabled: hasStatusData }
+            }
         }
     });
 
@@ -196,7 +225,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Category Horizontal Bar
-    if (categoryData.length > 0) {
+    if (categoryData && categoryData.length > 0) {
         const catCtx = document.getElementById('categoryChart').getContext('2d');
         new Chart(catCtx, {
             type: 'bar',
@@ -221,6 +250,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         });
+    } else {
+        const catContainer = document.getElementById('categoryChart').parentElement;
+        catContainer.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--seller-text-muted);font-size:0.9rem;"><i class="fa-solid fa-chart-bar" style="margin-right:0.5rem;"></i> No category data yet</div>';
     }
 });
 </script>

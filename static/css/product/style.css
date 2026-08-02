@@ -1406,6 +1406,16 @@ body.sidebar-open {
   background: #fff5f8;
 }
 
+.jockey-buy-now-btn.loading {
+  pointer-events: none;
+  opacity: 0.85;
+  gap: 0.5rem;
+}
+
+.jockey-buy-now-btn.loading i {
+  font-size: 0.9rem;
+}
+
 .jockey-add-bag-btn {
   flex: 1;
   height: 48px;
@@ -2689,6 +2699,255 @@ body.sidebar-open {
 /* Hidden color image data container on product detail */
 #colorImageData {
   display: none;
+}
+
+/* ==========================================================================
+   REVIEW SECTION
+   ========================================================================== */
+.reviews-section {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 3rem;
+}
+
+.reviews-section h2 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.reviews-summary {
+  display: flex;
+  gap: 2.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  align-items: flex-start;
+}
+
+.reviews-avg {
+  text-align: center;
+  min-width: 130px;
+  flex-shrink: 0;
+}
+
+.reviews-avg-score {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.reviews-avg-stars {
+  margin: 0.5rem 0;
+}
+
+.reviews-avg-stars i {
+  font-size: 1rem;
+}
+
+.reviews-avg-count {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.reviews-bars {
+  flex: 1;
+  max-width: 400px;
+}
+
+.review-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.review-bar-num {
+  font-size: 0.82rem;
+  font-weight: 600;
+  min-width: 12px;
+  color: #0f172a;
+}
+
+.review-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.review-bar-fill {
+  height: 100%;
+  background: #f59e0b;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.review-bar-count {
+  font-size: 0.78rem;
+  color: #64748b;
+  min-width: 30px;
+  text-align: right;
+}
+
+/* Write Review Form */
+.review-form-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.review-form-box h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.review-form-box .form-group {
+  margin-bottom: 1rem;
+}
+
+.review-form-box label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.star-rating-input {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.star-rating-input label {
+  cursor: pointer;
+  font-size: 1.5rem;
+  color: #d1d5db;
+  transition: color 0.15s ease;
+  margin-bottom: 0;
+}
+
+.star-rating-input label.active {
+  color: #f59e0b;
+}
+
+/* Review List */
+.review-item {
+  padding: 1.25rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.review-item:last-child {
+  border-bottom: none;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.review-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.review-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.review-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.review-user-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.review-user-stars i {
+  font-size: 0.7rem;
+}
+
+.review-date {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.review-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0.5rem 0 0.25rem;
+  color: #0f172a;
+}
+
+.review-comment {
+  font-size: 0.9rem;
+  color: #475569;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.review-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #94a3b8;
+}
+
+.review-empty i {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+.review-login-prompt {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.review-login-prompt a {
+  color: #e91e63;
+  font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .reviews-summary {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .reviews-bars {
+    max-width: 100%;
+    width: 100%;
+  }
 }
 
 /* Visual color chip swatch backgrounds */

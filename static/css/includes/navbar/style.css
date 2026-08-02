@@ -296,20 +296,20 @@
 
 /* Search Suggestions Dropdown */
 .search-suggestions-dropdown {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
-    min-width: 320px;
+    position: fixed;
+    min-width: 340px;
+    max-width: 420px;
     background: #ffffff;
     border: 1px solid #e5e5e5;
     border-radius: 10px;
-    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 12px 28px -4px rgba(0, 0, 0, 0.15);
     max-height: 0;
     overflow: hidden;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.2s ease;
-    z-index: 1100;
+    transition: opacity 0.2s ease, visibility 0.2s ease, max-height 0.2s ease;
+    z-index: 99999;
+    box-sizing: border-box;
 }
 
 .search-suggestions-dropdown.active {
@@ -328,6 +328,7 @@
     text-decoration: none;
     color: #1a1a1a;
     transition: background 0.15s ease;
+    cursor: pointer;
 }
 
 .suggestion-item:hover {
@@ -412,6 +413,29 @@
     text-align: center;
     color: #999;
     font-size: 0.85rem;
+}
+
+.suggestion-loading {
+    padding: 1rem;
+    text-align: center;
+    color: #888;
+    font-size: 0.82rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.suggestion-loading i {
+    font-size: 0.85rem;
+}
+
+.suggestion-item.highlighted {
+    background: #f0f0f0;
+}
+
+.suggestion-item.highlighted:hover {
+    background: #e8e8e8;
 }
 
 /* MINI-CART DROPDOWN STYLING */
@@ -1065,6 +1089,11 @@
 
     .search-expand-input {
         font-size: 0.78rem;
+    }
+
+    .search-suggestions-dropdown {
+        min-width: 260px;
+        max-width: calc(100vw - 24px);
     }
 
     .mini-cart-dropdown {

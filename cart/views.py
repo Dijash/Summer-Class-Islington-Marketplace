@@ -1,6 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
+from django.contrib import messages
 from product.models import Product
+from customer.models import Order, OrderItem
 from .models import Cart, CartItem
 
 
@@ -186,6 +188,10 @@ def checkout_view(request):
     cart_items = cart.items.select_related('product').all() if cart else []
     totals = _calc_totals(cart)
 
+    user_profile = None
+    if request.user.is_authenticated:
+        user_profile = getattr(request.user, 'profile', None)
+
     return render(request, 'cart/checkout.html', {
         'cart': cart,
         'cart_items': cart_items,
@@ -194,4 +200,74 @@ def checkout_view(request):
         'tax': totals['tax'],
         'grand_total': totals['grand_total'],
         'item_count': totals['count'],
+        'user_profile': user_profile,
     })
+
+
+def place_order(request):
+    if request.method != 'POST':
+        return redirect('checkout')
+
+    if not request.user.is_authenticated:
+        messages.error(request, 'Please log in to place an order.')
+        return redirect('login')
+
+    cart, _ = get_or_create_cart(request)
+    cart_items = cart.items.select_related('product').all() if cart else []
+
+    if not cart_items:
+        messages.error(request, 'Your cart is empty.')
+        return redirect('cart')
+
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    email = request.POST.get('email', '').strip()
+    phone = request.POST.get('phone', '').strip()
+    street = request.POST.get('street_address', '').strip()
+    city = request.POST.get('city', '').strip()
+    state = request.POST.get('state', '').strip()
+    zip_code = request.POST.get('zip_code', '').strip()
+    shipping_method = request.POST.get('shipping_method', '')
+    payment_type = request.POST.get('payment_type', '')
+
+    if not all([first_name, last_name, email, phone, street, city, state, zip_code]):
+        messages.error(request, 'Please fill in all required shipping fields.')
+        return redirect('checkout')
+
+    if not shipping_method:
+        messages.error(request, 'Please select a shipping method.')
+        return redirect('checkout')
+
+    if not payment_type:
+        messages.error(request, 'Please select a payment method.')
+        return redirect('checkout')
+
+    shipping_address = f"{first_name} {last_name}\n{street}\n{city}, {state} {zip_code}\nPhone: {phone}\nEmail: {email}"
+
+    totals = _calc_totals(cart)
+    shipping_cost = 0 if shipping_method == 'standard' else 12.99
+    grand_total = totals['subtotal'] + shipping_cost + totals['tax']
+
+    order = Order.objects.create(
+        user=request.user,
+        order_number=f"ORD-{Order.objects.count() + 10001}",
+        status='pending',
+        shipping_address=shipping_address,
+        total_amount=grand_total,
+    )
+
+    for cart_item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            product=cart_item.product,
+            product_title=cart_item.product.title,
+            product_image=cart_item.product.primary_image,
+            quantity=cart_item.quantity,
+            price=cart_item.product.price,
+        )
+
+    cart_items.delete()
+    cart.delete()
+
+    messages.success(request, f'Order #{order.order_number} placed successfully!')
+    return redirect('customer_orders')

@@ -9,6 +9,15 @@
 
 {% block content %}
 <div class="container checkout-page-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}" style="padding: 1rem 1.5rem; margin-bottom: 1.5rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; {% if message.tags == 'success' %}background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;{% elif message.tags == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe;{% endif %}">
+                <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %}"></i>
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     <!-- Breadcrumb -->
     <nav class="breadcrumb">
         <a href="{% url 'home' %}">Home</a>
@@ -36,7 +45,8 @@
         </div>
     </div>
 
-    <form class="checkout-form-grid" action="{% url 'customer_orders' %}" method="GET">
+    <form class="checkout-form-grid" id="checkoutForm" action="{% url 'place_order' %}" method="POST">
+        {% csrf_token %}
         <!-- Main Form Column -->
         <div class="checkout-main-col">
             <!-- Section 1: Shipping Address -->
@@ -46,37 +56,53 @@
                 </div>
                 <div class="grid grid-cols-2">
                     <div class="form-group">
-                        <label class="form-label">First Name</label>
-                        <input type="text" class="form-control" value="John" required>
+                        <label class="form-label">First Name <span class="required">*</span></label>
+                        <input type="text" name="first_name" class="form-control" value="{{ user.get_first_name|default:'' }}" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Last Name</label>
-                        <input type="text" class="form-control" value="Doe" required>
+                        <label class="form-label">Last Name <span class="required">*</span></label>
+                        <input type="text" name="last_name" class="form-control" value="{{ user.get_last_name|default:'' }}" required>
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Email Address (for tracking)</label>
-                    <input type="email" class="form-control" value="john.doe@example.com" required>
+                    <label class="form-label">Email Address (for tracking) <span class="required">*</span></label>
+                    <input type="email" name="email" class="form-control" value="{{ user.email|default:'' }}" required>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Street Address</label>
-                    <input type="text" class="form-control" placeholder="123 Market Street, Apt 4B" required>
+                    <label class="form-label">Phone Number <span class="required">*</span></label>
+                    <input type="tel" name="phone" class="form-control" value="{{ user_profile.phone|default:'' }}" placeholder="+977 98XXXXXXXX" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Street Address <span class="required">*</span></label>
+                    <input type="text" name="street_address" class="form-control" value="{{ user_profile.address|default:'' }}" placeholder="123 Market Street, Apt 4B" required>
                 </div>
 
                 <div class="grid grid-cols-3">
                     <div class="form-group">
-                        <label class="form-label">City</label>
-                        <input type="text" class="form-control" value="San Francisco" required>
+                        <label class="form-label">Province <span class="required">*</span></label>
+                        <select name="state" class="form-control" id="provinceSelect" required>
+                            <option value="">Select Province</option>
+                            <option value="Koshi">Koshi</option>
+                            <option value="Madhesh">Madhesh</option>
+                            <option value="Bagmati">Bagmati</option>
+                            <option value="Gandaki">Gandaki</option>
+                            <option value="Lumbini">Lumbini</option>
+                            <option value="Karnali">Karnali</option>
+                            <option value="Sudurpashchim">Sudurpashchim</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">State / Province</label>
-                        <input type="text" class="form-control" value="CA" required>
+                        <label class="form-label">District <span class="required">*</span></label>
+                        <select name="city" class="form-control" id="districtSelect" required>
+                            <option value="">Select District</option>
+                        </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Zip Code</label>
-                        <input type="text" class="form-control" value="94107" required>
+                        <label class="form-label">Zip Code <span class="required">*</span></label>
+                        <input type="text" name="zip_code" class="form-control" required>
                     </div>
                 </div>
             </div>
@@ -84,11 +110,11 @@
             <!-- Section 2: Shipping Option -->
             <div class="card checkout-section-card">
                 <div class="section-title-row">
-                    <h2><i class="fa-solid fa-plane"></i> Shipping Method</h2>
+                    <h2><i class="fa-solid fa-plane"></i> Shipping Method <span class="required">*</span></h2>
                 </div>
-                <div class="shipping-options-list">
+                <div class="shipping-options-list" id="shippingOptions">
                     <label class="shipping-option-card active">
-                        <input type="radio" name="shipping_method" checked>
+                        <input type="radio" name="shipping_method" value="standard" checked required>
                         <div class="shipping-info">
                             <h4>Standard Delivery (3-5 Business Days)</h4>
                             <p>Free tracked delivery via FedEx</p>
@@ -96,7 +122,7 @@
                         <span class="shipping-cost text-success">FREE</span>
                     </label>
                     <label class="shipping-option-card">
-                        <input type="radio" name="shipping_method">
+                        <input type="radio" name="shipping_method" value="express" required>
                         <div class="shipping-info">
                             <h4>Express Overnight (1-2 Business Days)</h4>
                             <p>Priority delivery via UPS Express</p>
@@ -104,45 +130,56 @@
                         <span class="shipping-cost">₹12.99</span>
                     </label>
                 </div>
+                <p class="field-error" id="shippingError" style="display:none; color:#ef4444; font-size:0.85rem; margin-top:0.5rem;">
+                    <i class="fa-solid fa-circle-exclamation"></i> Please select a shipping method
+                </p>
             </div>
 
             <!-- Section 3: Payment Details -->
             <div class="card checkout-section-card">
                 <div class="section-title-row">
-                    <h2><i class="fa-solid fa-credit-card"></i> Payment Method</h2>
+                    <h2><i class="fa-solid fa-wallet"></i> Payment Method <span class="required">*</span></h2>
                 </div>
 
-                <div class="payment-tabs">
-                    <label class="payment-tab-option">
-                        <input type="radio" name="payment_type" checked onclick="document.getElementById('cc-fields').style.display='block'">
-                        <span><i class="fa-solid fa-credit-card"></i> Credit / Debit Card</span>
+                <div class="payment-tabs" id="paymentTabs">
+                    <label class="payment-tab-option active">
+                        <input type="radio" name="payment_type" value="khalti" checked onclick="showPaymentSection('khalti')">
+                        <span><i class="fa-solid fa-mobile-screen-button"></i> Khalti</span>
                     </label>
                     <label class="payment-tab-option">
-                        <input type="radio" name="payment_type" onclick="document.getElementById('cc-fields').style.display='none'">
-                        <span><i class="fa-brands fa-paypal"></i> PayPal</span>
+                        <input type="radio" name="payment_type" value="cod" onclick="showPaymentSection('cod')">
+                        <span><i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery</span>
                     </label>
                 </div>
 
-                <div id="cc-fields" class="cc-fields-box">
-                    <div class="form-group">
-                        <label class="form-label">Cardholder Name</label>
-                        <input type="text" class="form-control" value="JOHN DOE">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Card Number</label>
-                        <input type="text" class="form-control" placeholder="4532 •••• •••• 8921">
-                    </div>
-                    <div class="grid grid-cols-2">
-                        <div class="form-group">
-                            <label class="form-label">Expiration Date</label>
-                            <input type="text" class="form-control" placeholder="MM/YY">
+                <!-- Khalti Payment Section -->
+                <div id="payment-khalti" class="cc-fields-box">
+                    <div class="khalti-info-box">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <div>
+                            <h4>Pay securely with Khalti</h4>
+                            <p>You will be redirected to Khalti's secure payment page to complete your payment. Supports eBanking, mobile wallets, and SCT cards.</p>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">CVV Code</label>
-                            <input type="password" class="form-control" placeholder="123">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Khalti-registered Mobile Number <span class="required">*</span></label>
+                        <input type="tel" name="khalti_phone" class="form-control" placeholder="98XXXXXXXX" id="khaltiPhone">
+                    </div>
+                </div>
+
+                <!-- Cash on Delivery Section -->
+                <div id="payment-cod" class="cc-fields-box" style="display:none;">
+                    <div class="khalti-info-box">
+                        <i class="fa-solid fa-circle-info"></i>
+                        <div>
+                            <h4>Cash on Delivery</h4>
+                            <p>Pay with cash when your order is delivered. Please keep the exact amount ready.</p>
                         </div>
                     </div>
                 </div>
+                <p class="field-error" id="paymentError" style="display:none; color:#ef4444; font-size:0.85rem; margin-top:0.5rem;">
+                    <i class="fa-solid fa-circle-exclamation"></i> Please select a payment method
+                </p>
             </div>
         </div>
 
@@ -188,11 +225,124 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-lg btn-full btn-place-order">
+                <button type="submit" class="btn btn-primary btn-lg btn-full btn-place-order" id="placeOrderBtn">
                     <i class="fa-solid fa-check"></i> Place Order (₹{{ grand_total|floatformat:0 }})
                 </button>
             </div>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Nepal Province → District mapping
+    const provinceDistricts = {
+        "Koshi": ["Bhojpur", "Dhankuta", "Ilam", "Jhapa", "Khotang", "Morang", "Okhaldhunga", "Panchthar", "Sankhuwasabha", "Solukhumbu", "Sunsari", "Taplejung", "Terhathum", "Udayapur"],
+        "Madhesh": ["Bara", "Dhanusha", "Mahottari", "Parsa", "Rautahat", "Saptari", "Siraha"],
+        "Bagmati": ["Bhaktapur", "Chitwan", "Dhading", "Dolakha", "Kathmandu", "Kavrepalanchok", "Lalitpur", "Makwanpur", "Nuwakot", "Rasuwa", "Ramechhap", "Sindhuli", "Sindhupalchok"],
+        "Gandaki": ["Baglung", "Gorkha", "Kaski", "Lamjung", "Manang", "Mustang", "Myagdi", "Nawalparasi East", "Parbat", "Syangja", "Tanahu"],
+        "Lumbini": ["Arghakhanchi", "Banke", "Bardiya", "Dang", "Gulmi", "Kapilvastu", "Parasi", "Palpa", "Rupandehi"],
+        "Karnali": ["Dailekh", "Dolpa", "Humla", "Jajarkot", "Jumla", "Kalikot", "Mugu", "Rukum West", "Salyan", "Surkhet"],
+        "Sudurpashchim": ["Achham", "Baitadi", "Bajhang", "Bajura", "Darchula", "Doti", "Kailali", "Kanchanpur", "Seti"]
+    };
+
+    const provinceSelect = document.getElementById('provinceSelect');
+    const districtSelect = document.getElementById('districtSelect');
+
+    provinceSelect.addEventListener('change', function() {
+        const province = this.value;
+        districtSelect.innerHTML = '<option value="">Select District</option>';
+
+        if (province && provinceDistricts[province]) {
+            provinceDistricts[province].forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+        }
+    });
+
+    // Payment section toggle
+    function showPaymentSection(method) {
+        document.getElementById('payment-khalti').style.display = method === 'khalti' ? 'block' : 'none';
+        document.getElementById('payment-cod').style.display = method === 'cod' ? 'block' : 'none';
+
+        // Update active tab styling
+        document.querySelectorAll('#paymentTabs .payment-tab-option').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.closest('.payment-tab-option').classList.add('active');
+
+        // Clear payment error
+        document.getElementById('paymentError').style.display = 'none';
+    }
+
+    // Shipping option active state
+    document.querySelectorAll('#shippingOptions .shipping-option-card').forEach(card => {
+        card.addEventListener('click', function() {
+            document.querySelectorAll('#shippingOptions .shipping-option-card').forEach(c => c.classList.remove('active'));
+            this.classList.add('active');
+            document.getElementById('shippingError').style.display = 'none';
+        });
+    });
+
+    // Form validation on submit
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+        let valid = true;
+
+        // Validate shipping method
+        const shippingSelected = document.querySelector('input[name="shipping_method"]:checked');
+        if (!shippingSelected) {
+            document.getElementById('shippingError').style.display = 'block';
+            valid = false;
+        }
+
+        // Validate payment method
+        const paymentSelected = document.querySelector('input[name="payment_type"]:checked');
+        if (!paymentSelected) {
+            document.getElementById('paymentError').style.display = 'block';
+            valid = false;
+        }
+
+        // Validate Khalti phone if Khalti is selected
+        if (paymentSelected && paymentSelected.value === 'khalti') {
+            const khaltiPhone = document.getElementById('khaltiPhone');
+            if (!khaltiPhone.value.trim()) {
+                khaltiPhone.style.borderColor = '#ef4444';
+                valid = false;
+            } else {
+                khaltiPhone.style.borderColor = '';
+            }
+        }
+
+        // Validate required fields
+        const requiredFields = this.querySelectorAll('[required]');
+        requiredFields.forEach(field => {
+            if (!field.value.trim() && field.name !== 'shipping_method' && field.name !== 'payment_type') {
+                field.style.borderColor = '#ef4444';
+                valid = false;
+            } else if (field.value.trim()) {
+                field.style.borderColor = '';
+            }
+        });
+
+        if (!valid) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = this.querySelector('[style*="border-color: rgb(239, 68, 68)"], .field-error[style*="display: block"]');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+
+    // Clear error on input
+    document.querySelectorAll('.form-control').forEach(field => {
+        field.addEventListener('input', function() {
+            this.style.borderColor = '';
+        });
+    });
+</script>
 {% endblock %}
