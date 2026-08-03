@@ -1,5 +1,6 @@
 {% extends 'accounts/auth_base.html' %}
 {% load static %}
+{% load socialaccount %}
 
 {% block auth_title %}Log In - MarketPlace{% endblock %}
 
@@ -51,9 +52,9 @@
 
 <!-- Social Logins (Circular) -->
 <div class="social-login-buttons slide-up-anim" style="--delay: 0.4s;">
-    <button type="button" class="social-circle-btn" aria-label="Login with Google">
+    <a href="{% provider_login_url 'google' %}" class="social-circle-btn" aria-label="Login with Google" title="Login with Google">
         <i class="fa-brands fa-google google-icon"></i>
-    </button>
+    </a>
     <button type="button" class="social-circle-btn" aria-label="Login with Apple">
         <i class="fa-brands fa-apple"></i>
     </button>

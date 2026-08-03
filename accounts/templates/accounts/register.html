@@ -1,5 +1,6 @@
 {% extends 'accounts/auth_base.html' %}
 {% load static %}
+{% load socialaccount %}
 
 {% block auth_title %}Create an Account - MarketPlace{% endblock %}
 
@@ -99,6 +100,23 @@
             <span class="btn-text">Create Account</span>
         </button>
     </form>
+
+    <div class="auth-divider slide-up-anim" style="--delay: 0.4s;">
+        <span>or continue with</span>
+    </div>
+
+    <!-- Social Logins (Circular) -->
+    <div class="social-login-buttons slide-up-anim" style="--delay: 0.45s;">
+        <a href="{% provider_login_url 'google' %}" class="social-circle-btn" aria-label="Sign up with Google" title="Sign up with Google">
+            <i class="fa-brands fa-google google-icon"></i>
+        </a>
+        <button type="button" class="social-circle-btn" aria-label="Sign up with Apple">
+            <i class="fa-brands fa-apple"></i>
+        </button>
+        <button type="button" class="social-circle-btn" aria-label="Sign up with Facebook">
+            <i class="fa-brands fa-facebook-f"></i>
+        </button>
+    </div>
 
     <footer class="auth-footer slide-up-anim" style="--delay: 0.5s;">
         <p>Already have an account? <a href="{% url 'login' %}" class="signup-highlight-link">Log in</a></p>

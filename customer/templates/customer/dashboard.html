@@ -109,7 +109,11 @@
         <div class="dash-side-col">
             <div class="card dash-profile-widget">
                 <div class="widget-user">
+                    {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture }}" alt="{{ user.username }}" class="avatar-md avatar-img">
+                    {% else %}
                     <div class="avatar-md"><i class="fa-solid fa-user"></i></div>
+                    {% endif %}
                     <div>
                         <h3 id="dashUserName">{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% else %}John Doe{% endif %}</h3>
                         <p id="dashUserEmail">{% if user.is_authenticated %}{{ user.email|default:user.username }}{% else %}john.doe@example.com{% endif %}</p>

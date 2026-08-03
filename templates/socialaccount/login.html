@@ -1,0 +1,40 @@
+{% extends 'accounts/auth_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block auth_title %}Sign In via Google - MarketPlace{% endblock %}
+
+{% block auth_form %}
+<header class="auth-header slide-up-anim" style="--delay: 0.1s;">
+    <div class="google-badge-circle">
+        <i class="fa-brands fa-google google-icon-large"></i>
+    </div>
+    <h1>Sign In with Google</h1>
+    <p>You are connecting your <strong>Google Account</strong> to MarketPlace. Click continue below to authorize.</p>
+</header>
+
+<form method="post" action="" class="auth-form slide-up-anim" style="--delay: 0.2s;">
+    {% csrf_token %}
+    
+    <div class="social-confirm-box">
+        <div class="account-provider-info">
+            <i class="fa-solid fa-shield-halved text-success"></i>
+            <span>Secure Authentication via Google OAuth 2.0</span>
+        </div>
+    </div>
+
+    <div class="social-action-buttons">
+        <button type="submit" class="btn btn-auth btn-google-continue">
+            <i class="fa-brands fa-google"></i> Continue to Google
+        </button>
+        
+        <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-cancel-auth">
+            Cancel
+        </a>
+    </div>
+</form>
+
+<footer class="auth-footer slide-up-anim" style="--delay: 0.3s;">
+    <p class="terms-disclaimer">By connecting your account, you agree to MarketPlace's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+</footer>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends 'accounts/auth_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block auth_title %}Complete Google Sign Up - MarketPlace{% endblock %}
+
+{% block auth_form %}
+<header class="auth-header slide-up-anim" style="--delay: 0.1s;">
+    <div class="google-badge-circle">
+        <i class="fa-brands fa-google google-icon-large"></i>
+    </div>
+    <h1>Almost Done!</h1>
+    <p>Complete your MarketPlace profile to finish signing up with Google.</p>
+</header>
+
+<form method="post" action="{% url 'socialaccount_signup' %}" class="auth-form slide-up-anim" style="--delay: 0.2s;" novalidate>
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <div class="auth-error-msg">
+        <i class="fa-solid fa-circle-exclamation"></i> Please check the form errors below.
+    </div>
+    {% endif %}
+
+    {% for field in form %}
+    <div class="form-group">
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+        <div class="input-with-icon">
+            {{ field }}
+        </div>
+        {% if field.errors %}
+        <small class="text-danger">{{ field.errors.0 }}</small>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-auth btn-google-continue">
+        Complete Registration &rarr;
+    </button>
+</form>
+
+<footer class="auth-footer slide-up-anim" style="--delay: 0.3s;">
+    <p class="terms-disclaimer">By creating an account, you agree to MarketPlace's <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.</p>
+</footer>
+{% endblock %}
