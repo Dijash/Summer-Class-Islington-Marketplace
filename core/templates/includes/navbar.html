@@ -98,7 +98,11 @@
                     {% if user.is_authenticated %}
                         <div class="user-dropdown-container">
                             <button type="button" class="icon-btn profile-btn" id="userDropdownToggle" title="Account Profile" aria-label="Account Profile">
-                                <i class="fa-regular fa-user"></i>
+                                {% if user.profile.profile_picture %}
+                                    <img src="{{ user.profile.profile_picture }}" alt="{{ user.username }}" class="nav-avatar-img">
+                                {% else %}
+                                    <i class="fa-regular fa-user"></i>
+                                {% endif %}
                             </button>
                             <div class="user-dropdown-menu" id="userDropdownMenu">
                                 <div class="dropdown-user-info">

@@ -245,6 +245,14 @@
     position: relative;
 }
 
+.nav-avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #cbd5e1;
+}
+
 .nav-search-container.active .expandable-search-form {
     width: 280px;
     opacity: 1;

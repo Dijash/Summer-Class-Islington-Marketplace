@@ -159,3 +159,6 @@ AUTHENTICATION_BACKENDS = [
 
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
+
+ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'

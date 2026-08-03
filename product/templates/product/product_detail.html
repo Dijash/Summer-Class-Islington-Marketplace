@@ -254,9 +254,7 @@
                             onmouseover="hoverStars({{ star_val }})" onmouseout="resetStars()"
                             onclick="selectStars({{ star_val }})">
                             <i class="fa-solid fa-star"></i>
-                            <input type="radio" name="rating" value="{{ star_val }}" style="display: none;" {% if
-                                user_review and forloop.counter==user_review.rating %}checked{% elif not user_review and
-                                forloop.counter==2 %}checked{% endif %}>
+                            <input type="radio" name="rating" value="{{ star_val }}" style="display: none;" {% if user_review and forloop.counter == user_review.rating %}checked{% elif not user_review and forloop.counter == 2 %}checked{% endif %}>
                         </label>
                         {% endwith %}
                         {% endfor %}
@@ -274,8 +272,7 @@
                 </div>
                 <button type="submit" class="jockey-add-bag-btn"
                     style="border: none; background: #e91e63; color: #fff; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer;">
-                    <i class="fa-solid fa-paper-plane"></i> {% if user_review %}Update Review{% else %}Submit Review{%
-                    endif %}
+                    <i class="fa-solid fa-paper-plane"></i> {% if user_review %}Update Review{% else %}Submit Review{% endif %}
                 </button>
             </form>
         </div>
@@ -291,8 +288,8 @@
             <div class="review-item">
                 <div class="review-header">
                     <div class="review-user">
-                        {% if review.user.profile.avatar %}
-                        <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.user.username }}"
+                        {% if review.user.profile.profile_picture %}
+                        <img src="{{ review.user.profile.profile_picture }}" alt="{{ review.user.username }}"
                             class="review-avatar">
                         {% else %}
                         <div class="review-avatar-placeholder">
@@ -300,7 +297,7 @@
                         </div>
                         {% endif %}
                         <div>
-                            <div class="review-user-name">{{ review.user.get_full_name|default:review.user.username }}
+                            <div class="review-user-name">{% if review.user.get_full_name %}{{ review.user.get_full_name }}{% else %}{{ review.user.username }}{% endif %}
                             </div>
                             <div class="review-user-stars">
                                 {% for i in "12345" %}
@@ -333,7 +330,7 @@
 </div>
 
 <script>
-    let selectedRating = {{ user_review.rating|default: 2 }};
+    let selectedRating = {{ user_review.rating|default:2 }};
     let currentRating = selectedRating;
 
     function hoverStars(n) {

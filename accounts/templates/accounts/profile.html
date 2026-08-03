@@ -14,8 +14,8 @@
         <div class="profile-banner"></div>
         <div class="profile-meta-row">
             <div class="profile-avatar-large" id="avatarContainer">
-                {% if profile and profile.avatar %}
-                    <img id="avatarImage" src="{{ profile.avatar.url }}" alt="Profile Photo" style="display:block;">
+                {% if profile and profile.profile_picture %}
+                    <img id="avatarImage" src="{{ profile.profile_picture }}" alt="Profile Photo" style="display:block;">
                     <i class="fa-solid fa-user" id="avatarDefaultIcon" style="display:none;"></i>
                 {% else %}
                     <i class="fa-solid fa-user" id="avatarDefaultIcon"></i>
