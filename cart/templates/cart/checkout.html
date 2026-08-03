@@ -127,7 +127,7 @@
                             <h4>Express Overnight (1-2 Business Days)</h4>
                             <p>Priority delivery via UPS Express</p>
                         </div>
-                        <span class="shipping-cost">₹12.99</span>
+                        <span class="shipping-cost">NPR 13</span>
                     </label>
                 </div>
                 <p class="field-error" id="shippingError" style="display:none; color:#ef4444; font-size:0.85rem; margin-top:0.5rem;">
@@ -142,11 +142,11 @@
                 </div>
 
                 <div class="payment-tabs" id="paymentTabs">
-                    <label class="payment-tab-option active">
+                    <label class="payment-tab-option khalti-tab active">
                         <input type="radio" name="payment_type" value="khalti" checked onclick="showPaymentSection('khalti')">
-                        <span><i class="fa-solid fa-mobile-screen-button"></i> Khalti</span>
+                        <span><i class="fa-solid fa-mobile-screen-button"></i> Khalti Wallet</span>
                     </label>
-                    <label class="payment-tab-option">
+                    <label class="payment-tab-option cod-tab">
                         <input type="radio" name="payment_type" value="cod" onclick="showPaymentSection('cod')">
                         <span><i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery</span>
                     </label>
@@ -155,25 +155,31 @@
                 <!-- Khalti Payment Section -->
                 <div id="payment-khalti" class="cc-fields-box">
                     <div class="khalti-info-box">
-                        <i class="fa-solid fa-circle-info"></i>
+                        <i class="fa-solid fa-shield-halved"></i>
                         <div>
-                            <h4>Pay securely with Khalti</h4>
-                            <p>You will be redirected to Khalti's secure payment page to complete your payment. Supports eBanking, mobile wallets, and SCT cards.</p>
+                            <h4>Pay Securely via Khalti Digital Wallet</h4>
+                            <p>Instant checkout supporting Khalti Mobile Wallet, eBanking, Mobile Banking, and SCT Cards. You will be redirected to Khalti's secure portal to authorize your transaction.</p>
                         </div>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Khalti-registered Mobile Number <span class="required">*</span></label>
-                        <input type="tel" name="khalti_phone" class="form-control" placeholder="98XXXXXXXX" id="khaltiPhone">
+                        <div class="phone-input-group">
+                            <span class="phone-prefix-addon">+977</span>
+                            <input type="tel" name="khalti_phone" class="form-control phone-input-field" value="{{ user_profile.phone|default:'' }}" placeholder="98XXXXXXXX" id="khaltiPhone" required>
+                        </div>
+                        <small id="khaltiPhoneHint" style="color: #64748b; font-size: 0.78rem; display: block; margin-top: 0.4rem;">
+                            <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> Enter 10-digit Nepal phone number (e.g. 9841234567)
+                        </small>
                     </div>
                 </div>
 
                 <!-- Cash on Delivery Section -->
                 <div id="payment-cod" class="cc-fields-box" style="display:none;">
-                    <div class="khalti-info-box">
-                        <i class="fa-solid fa-circle-info"></i>
+                    <div class="khalti-info-box" style="background: #f8fafc; border-color: #cbd5e1;">
+                        <i class="fa-solid fa-truck" style="color: #0f172a;"></i>
                         <div>
-                            <h4>Cash on Delivery</h4>
-                            <p>Pay with cash when your order is delivered. Please keep the exact amount ready.</p>
+                            <h4 style="color: #0f172a;">Cash on Delivery (COD)</h4>
+                            <p>Pay with cash upon order delivery at your doorstep. Please have exact change ready.</p>
                         </div>
                     </div>
                 </div>
@@ -193,7 +199,7 @@
                             <img src="{{ item.product.primary_image }}" alt="{{ item.product.title }}">
                             <div class="mini-item-details">
                                 <h4>{{ item.product.title }}</h4>
-                                <p>Qty: {{ item.quantity }}{% if item.size %} · {{ item.size }}{% endif %}{% if item.color %} · {{ item.color }}{% endif %} · ₹{{ item.get_subtotal|floatformat:0 }}</p>
+                                <p>Qty: {{ item.quantity }}{% if item.size %} · {{ item.size }}{% endif %}{% if item.color %} · {{ item.color }}{% endif %} · NPR {{ item.get_subtotal|floatformat:0 }}</p>
                             </div>
                         </div>
                     {% empty %}
@@ -204,29 +210,27 @@
                 <div class="summary-lines">
                     <div class="summary-line">
                         <span>Subtotal ({{ item_count }} item{{ item_count|pluralize }})</span>
-                        <span>₹{{ subtotal|floatformat:0 }}</span>
+                        <span>NPR {{ subtotal|floatformat:0 }}</span>
                     </div>
                     <div class="summary-line">
                         <span>Shipping</span>
-                        {% if shipping == 0 %}
-                            <span class="text-success">FREE</span>
-                        {% else %}
-                            <span>₹{{ shipping }}</span>
-                        {% endif %}
+                        <span id="summaryShippingLine" class="{% if shipping == 0 %}text-success{% endif %}">
+                            {% if shipping == 0 %}FREE{% else %}NPR {{ shipping }}{% endif %}
+                        </span>
                     </div>
                     <div class="summary-line">
                         <span>Tax (5%)</span>
-                        <span>₹{{ tax|floatformat:0 }}</span>
+                        <span id="summaryTaxLine">NPR {{ tax|floatformat:0 }}</span>
                     </div>
                     <div class="summary-divider"></div>
                     <div class="summary-line total-line">
                         <span>Total Due</span>
-                        <span class="total-price">₹{{ grand_total|floatformat:0 }}</span>
+                        <span class="total-price" id="summaryTotalLine">NPR {{ grand_total|floatformat:0 }}</span>
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary btn-lg btn-full btn-place-order" id="placeOrderBtn">
-                    <i class="fa-solid fa-check"></i> Place Order (₹{{ grand_total|floatformat:0 }})
+                <button type="submit" class="btn btn-primary btn-lg btn-full btn-place-order btn-khalti-submit" id="placeOrderBtn">
+                    <i class="fa-solid fa-lock"></i> Pay with Khalti (NPR {{ grand_total|floatformat:0 }})
                 </button>
             </div>
         </div>
@@ -264,26 +268,81 @@
         }
     });
 
+    const baseSubtotal = parseFloat("{{ subtotal|floatformat:2 }}");
+
+    function recalculateCheckoutTotals() {
+        const selectedShipping = document.querySelector('input[name="shipping_method"]:checked');
+        const shippingCost = (selectedShipping && selectedShipping.value === 'express') ? 13.00 : 0.00;
+
+        const tax = Math.round(baseSubtotal * 0.05);
+        const grandTotal = Math.round(baseSubtotal + shippingCost + tax);
+
+        const shippingElem = document.getElementById('summaryShippingLine');
+        if (shippingElem) {
+            if (shippingCost === 0) {
+                shippingElem.className = 'text-success';
+                shippingElem.textContent = 'FREE';
+            } else {
+                shippingElem.className = '';
+                shippingElem.textContent = 'NPR 13';
+            }
+        }
+
+        const taxElem = document.getElementById('summaryTaxLine');
+        if (taxElem) taxElem.textContent = 'NPR ' + tax;
+
+        const totalElem = document.getElementById('summaryTotalLine');
+        if (totalElem) totalElem.textContent = 'NPR ' + grandTotal;
+
+        const selectedPayment = document.querySelector('input[name="payment_type"]:checked');
+        const paymentMethod = selectedPayment ? selectedPayment.value : 'khalti';
+        const placeOrderBtn = document.getElementById('placeOrderBtn');
+
+        if (placeOrderBtn) {
+            if (paymentMethod === 'khalti') {
+                placeOrderBtn.className = 'btn btn-primary btn-lg btn-full btn-place-order btn-khalti-submit';
+                placeOrderBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Pay with Khalti (NPR ${grandTotal})`;
+            } else {
+                placeOrderBtn.className = 'btn btn-primary btn-lg btn-full btn-place-order';
+                placeOrderBtn.innerHTML = `<i class="fa-solid fa-check"></i> Place Order with COD (NPR ${grandTotal})`;
+            }
+        }
+    }
+
     // Payment section toggle
     function showPaymentSection(method) {
         document.getElementById('payment-khalti').style.display = method === 'khalti' ? 'block' : 'none';
         document.getElementById('payment-cod').style.display = method === 'cod' ? 'block' : 'none';
 
-        // Update active tab styling
         document.querySelectorAll('#paymentTabs .payment-tab-option').forEach(tab => {
             tab.classList.remove('active');
         });
-        event.target.closest('.payment-tab-option').classList.add('active');
+        if (event && event.target) {
+            const tabOption = event.target.closest('.payment-tab-option');
+            if (tabOption) tabOption.classList.add('active');
+        }
 
-        // Clear payment error
+        const khaltiPhone = document.getElementById('khaltiPhone');
+        if (method === 'khalti') {
+            khaltiPhone.setAttribute('required', 'required');
+        } else {
+            khaltiPhone.removeAttribute('required');
+        }
+
+        recalculateCheckoutTotals();
         document.getElementById('paymentError').style.display = 'none';
     }
 
-    // Shipping option active state
+    // Shipping option active state and dynamic price calculation
     document.querySelectorAll('#shippingOptions .shipping-option-card').forEach(card => {
         card.addEventListener('click', function() {
             document.querySelectorAll('#shippingOptions .shipping-option-card').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+            }
+            recalculateCheckoutTotals();
             document.getElementById('shippingError').style.display = 'none';
         });
     });
@@ -292,32 +351,38 @@
     document.getElementById('checkoutForm').addEventListener('submit', function(e) {
         let valid = true;
 
-        // Validate shipping method
         const shippingSelected = document.querySelector('input[name="shipping_method"]:checked');
         if (!shippingSelected) {
             document.getElementById('shippingError').style.display = 'block';
             valid = false;
         }
 
-        // Validate payment method
         const paymentSelected = document.querySelector('input[name="payment_type"]:checked');
         if (!paymentSelected) {
             document.getElementById('paymentError').style.display = 'block';
             valid = false;
         }
 
-        // Validate Khalti phone if Khalti is selected
         if (paymentSelected && paymentSelected.value === 'khalti') {
             const khaltiPhone = document.getElementById('khaltiPhone');
-            if (!khaltiPhone.value.trim()) {
-                khaltiPhone.style.borderColor = '#ef4444';
+            const val = khaltiPhone.value.trim();
+            const nepalPhoneRegex = /^(98|97)\d{8}$/;
+
+            if (!val || !nepalPhoneRegex.test(val)) {
+                const group = khaltiPhone.closest('.phone-input-group');
+                if (group) group.style.borderColor = '#ef4444';
+                const hint = document.getElementById('khaltiPhoneHint');
+                if (hint) {
+                    hint.style.color = '#ef4444';
+                    hint.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please enter a valid 10-digit Nepal mobile number (starts with 98 or 97)';
+                }
                 valid = false;
             } else {
-                khaltiPhone.style.borderColor = '';
+                const group = khaltiPhone.closest('.phone-input-group');
+                if (group) group.style.borderColor = '#10b981';
             }
         }
 
-        // Validate required fields
         const requiredFields = this.querySelectorAll('[required]');
         requiredFields.forEach(field => {
             if (!field.value.trim() && field.name !== 'shipping_method' && field.name !== 'payment_type') {
@@ -330,18 +395,26 @@
 
         if (!valid) {
             e.preventDefault();
-            // Scroll to first error
             const firstError = this.querySelector('[style*="border-color: rgb(239, 68, 68)"], .field-error[style*="display: block"]');
             if (firstError) {
                 firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
+        } else {
+            const placeOrderBtn = document.getElementById('placeOrderBtn');
+            placeOrderBtn.disabled = true;
+            if (paymentSelected && paymentSelected.value === 'khalti') {
+                placeOrderBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting to Khalti...`;
+            } else {
+                placeOrderBtn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processing Order...`;
+            }
         }
     });
 
-    // Clear error on input
     document.querySelectorAll('.form-control').forEach(field => {
         field.addEventListener('input', function() {
             this.style.borderColor = '';
+            const group = this.closest('.phone-input-group');
+            if (group) group.style.borderColor = '';
         });
     });
 </script>

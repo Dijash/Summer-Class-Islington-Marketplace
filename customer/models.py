@@ -24,9 +24,25 @@ class Order(models.Model):
         ('returned', 'Returned'),
     ]
 
+    PAYMENT_METHOD_CHOICES = [
+        ('cod', 'Cash on Delivery'),
+        ('khalti', 'Khalti Wallet'),
+    ]
+
+    PAYMENT_STATUS_CHOICES = [
+        ('unpaid', 'Unpaid'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+        ('refunded', 'Refunded'),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     order_number = models.CharField(max_length=20, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cod')
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='unpaid')
+    khalti_pidx = models.CharField(max_length=100, blank=True, default='')
+    khalti_transaction_id = models.CharField(max_length=100, blank=True, default='')
     tracking_number = models.CharField(max_length=100, blank=True, default='')
     shipping_address = models.TextField(blank=True, default='')
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)

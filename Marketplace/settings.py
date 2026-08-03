@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -130,3 +131,9 @@ STATICFILES_DIRS = [
 # Media files (Uploaded by user/admin)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Khalti Payment Gateway Settings
+KHALTI_SECRET_KEY = os.getenv('KHALTI_SECRET_KEY', '80007e115d4d421c9d240952044a76fb')
+KHALTI_INITIATE_URL = os.getenv('KHALTI_INITIATE_URL', 'https://dev.khalti.com/api/v2/epayment/initiate/')
+KHALTI_LOOKUP_URL = os.getenv('KHALTI_LOOKUP_URL', 'https://dev.khalti.com/api/v2/epayment/lookup/')
+

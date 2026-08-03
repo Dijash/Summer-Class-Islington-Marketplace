@@ -63,10 +63,9 @@ class Product(models.Model):
         reviews = self.reviews.all()
         total = reviews.count()
         if total == 0:
-            return {5: 0, 4: 0, 3: 0, 2: 0, 1: 0, 'percentages': {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}}
-        counts = {}
-        for i in range(1, 6):
-            counts[i] = reviews.filter(rating=i).count()
+            empty_counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+            return {'counts': empty_counts, 'percentages': empty_counts, 'total': 0}
+        counts = {i: reviews.filter(rating=i).count() for i in range(1, 6)}
         percentages = {k: round((v / total) * 100) for k, v in counts.items()}
         return {'counts': counts, 'percentages': percentages, 'total': total}
 

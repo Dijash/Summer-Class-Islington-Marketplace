@@ -80,9 +80,30 @@
 
                     <div class="order-meta-info">
                         <div class="meta-item">
-                            <span>Total Paid</span>
-                            <strong class="text-primary">₹{{ order.total_amount|floatformat:0 }}</strong>
+                            <span>Payment Method</span>
+                            {% if order.payment_method == 'khalti' %}
+                                <strong style="color: #5C2D91;">
+                                    <i class="fa-solid fa-mobile-screen-button"></i> Khalti Wallet
+                                    {% if order.payment_status == 'paid' %}
+                                        <span class="badge badge-success" style="font-size:0.7rem; margin-left:4px; background:#d1fae5; color:#065f46;">Paid</span>
+                                    {% else %}
+                                        <span class="badge badge-danger" style="font-size:0.7rem; margin-left:4px; background:#fee2e2; color:#991b1b;">Unpaid</span>
+                                    {% endif %}
+                                </strong>
+                            {% else %}
+                                <strong><i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery</strong>
+                            {% endif %}
                         </div>
+                        <div class="meta-item">
+                            <span>Total Amount</span>
+                            <strong class="text-primary">NPR {{ order.total_amount|floatformat:0 }}</strong>
+                        </div>
+                        {% if order.khalti_transaction_id %}
+                            <div class="meta-item">
+                                <span>Txn ID</span>
+                                <strong><code style="background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:0.8rem; color:#5C2D91;">{{ order.khalti_transaction_id }}</code></strong>
+                            </div>
+                        {% endif %}
                         {% if order.tracking_number %}
                             <div class="meta-item">
                                 <span>Tracking Number</span>

@@ -9,4 +9,6 @@ urlpatterns = [
     path('api/summary/', views.cart_summary_api, name='cart_summary_api'),
     path('checkout/', views.checkout_view, name='checkout'),
     path('place-order/', views.place_order, name='place_order'),
+    path('khalti/verify/', views.khalti_verify, name='khalti_verify'),
+    path('khalti/gateway/', views.khalti_gateway_sandbox, name='khalti_gateway_sandbox'),
 ]

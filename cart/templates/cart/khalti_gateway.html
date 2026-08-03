@@ -1,0 +1,329 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Pay with Khalti - MarketPlace{% endblock %}
+
+{% block extra_head %}
+<style>
+    .khalti-gateway-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 3rem 1.5rem;
+        background: radial-gradient(circle at top center, rgba(92, 45, 145, 0.07) 0%, rgba(248, 250, 252, 0.95) 100%);
+    }
+
+    .khalti-portal-card {
+        width: 100%;
+        max-width: 480px;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 25px 50px -12px rgba(92, 45, 145, 0.18), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
+        border: 1px solid rgba(92, 45, 145, 0.2);
+        overflow: hidden;
+        animation: portalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes portalSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .khalti-header-banner {
+        background: linear-gradient(135deg, #5C2D91 0%, #3B1B61 100%);
+        color: #ffffff;
+        padding: 2rem 1.75rem;
+        text-align: center;
+        position: relative;
+    }
+
+    .khalti-brand-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        padding: 0.4rem 1rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.85rem;
+        text-transform: uppercase;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .khalti-header-banner h2 {
+        font-size: 1.5rem;
+        color: #ffffff;
+        margin: 0 0 0.3rem 0;
+        font-weight: 800;
+        letter-spacing: -0.3px;
+    }
+
+    .khalti-header-banner p {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 0.88rem;
+        margin: 0;
+    }
+
+    .khalti-amount-card {
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 14px;
+        padding: 0.75rem 1.25rem;
+        margin-top: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .khalti-amount-card span {
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .khalti-amount-card strong {
+        font-size: 1.35rem;
+        font-weight: 800;
+        color: #ffffff;
+    }
+
+    .khalti-body {
+        padding: 2rem 1.75rem 1.75rem 1.75rem;
+    }
+
+    .merchant-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .merchant-detail-tile {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 0.75rem 0.9rem;
+    }
+
+    .merchant-detail-tile small {
+        display: block;
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 600;
+        margin-bottom: 0.2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+    }
+
+    .merchant-detail-tile strong {
+        font-size: 0.88rem;
+        color: #0f172a;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+
+    .khalti-form-group {
+        margin-bottom: 1.35rem;
+    }
+
+    .khalti-form-label {
+        display: block;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #334155;
+        margin-bottom: 0.5rem;
+    }
+
+    .khalti-input-wrap {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .khalti-input-wrap i {
+        position: absolute;
+        left: 1rem;
+        color: #5C2D91;
+        font-size: 1rem;
+        pointer-events: none;
+    }
+
+    .khalti-input-wrap input {
+        width: 100%;
+        padding: 0.85rem 1rem 0.85rem 2.75rem;
+        border: 1.5px solid #cbd5e1;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        outline: none;
+        transition: all 0.2s ease;
+        background: #ffffff;
+        color: #0f172a;
+    }
+
+    .khalti-input-wrap input:focus {
+        border-color: #5C2D91;
+        box-shadow: 0 0 0 4px rgba(92, 45, 145, 0.12);
+    }
+
+    .khalti-input-wrap input[readonly] {
+        background: #f8fafc;
+        color: #475569;
+    }
+
+    .khalti-actions-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-top: 1.75rem;
+    }
+
+    .btn-khalti-pay {
+        width: 100%;
+        background: linear-gradient(135deg, #5C2D91 0%, #421D6B 100%);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.98rem;
+        padding: 0.95rem 1.25rem;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.6rem;
+        box-shadow: 0 8px 20px -4px rgba(92, 45, 145, 0.4);
+    }
+
+    .btn-khalti-pay:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px -4px rgba(92, 45, 145, 0.5);
+    }
+
+    .btn-khalti-cancel {
+        width: 100%;
+        background: #f1f5f9;
+        color: #475569;
+        font-weight: 600;
+        font-size: 0.9rem;
+        padding: 0.85rem 1.25rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-khalti-cancel:hover {
+        background: #fee2e2;
+        color: #b91c1c;
+        border-color: #fca5a5;
+    }
+
+    .security-footer {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.78rem;
+        color: #64748b;
+        margin-top: 1.5rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid #f1f5f9;
+        text-align: center;
+    }
+
+    .security-footer i {
+        color: #10b981;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="khalti-gateway-container">
+    <div class="khalti-portal-card">
+        <div class="khalti-header-banner">
+            <div class="khalti-brand-badge">
+                <i class="fa-solid fa-shield-halved"></i> Khalti Secure Gateway
+            </div>
+            <h2>Pay via Khalti Wallet</h2>
+            <p>Order #{{ order.order_number }}</p>
+            <div class="khalti-amount-card">
+                <span>Total Amount Due</span>
+                <strong>NPR {{ amount }}</strong>
+            </div>
+        </div>
+
+        <div class="khalti-body">
+            <div class="merchant-details-grid">
+                <div class="merchant-detail-tile">
+                    <small>Merchant</small>
+                    <strong><i class="fa-solid fa-store" style="color:#5C2D91;"></i> MarketPlace</strong>
+                </div>
+                <div class="merchant-detail-tile">
+                    <small>Transaction PIDX</small>
+                    <strong><i class="fa-solid fa-receipt" style="color:#5C2D91;"></i> {{ pidx|truncatechars:12 }}</strong>
+                </div>
+            </div>
+
+            <form action="{% url 'khalti_verify' %}" method="GET" id="khaltiPayForm">
+                <input type="hidden" name="pidx" value="{{ pidx }}">
+                <input type="hidden" name="status" value="Completed">
+                <input type="hidden" name="mock_success" value="true">
+                <input type="hidden" name="purchase_order_id" value="{{ order.order_number }}">
+
+                <div class="khalti-form-group">
+                    <label class="khalti-form-label">Khalti Mobile Number</label>
+                    <div class="khalti-input-wrap">
+                        <i class="fa-solid fa-mobile-screen"></i>
+                        <input type="tel" name="mobile" value="{{ phone }}" readonly required>
+                    </div>
+                </div>
+
+                <div class="khalti-form-group">
+                    <label class="khalti-form-label">Khalti MPIN / OTP</label>
+                    <div class="khalti-input-wrap">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" name="mpin" placeholder="Enter 4-digit MPIN" required maxlength="6" id="mpinInput" autocomplete="off">
+                    </div>
+                </div>
+
+                <div class="khalti-actions-group">
+                    <button type="submit" class="btn-khalti-pay" id="confirmPayBtn">
+                        <i class="fa-solid fa-circle-check"></i> Authorize & Pay NPR {{ amount }}
+                    </button>
+
+                    <a href="{% url 'checkout' %}" class="btn-khalti-cancel">
+                        <i class="fa-solid fa-arrow-left"></i> Cancel & Return to Checkout
+                    </a>
+                </div>
+
+                <div class="security-footer">
+                    <i class="fa-solid fa-lock"></i> 256-Bit Encrypted Secure Khalti Session
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('khaltiPayForm').addEventListener('submit', function() {
+        const btn = document.getElementById('confirmPayBtn');
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Processing Authorization...`;
+    });
+</script>
+{% endblock %}

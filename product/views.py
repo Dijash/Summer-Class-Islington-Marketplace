@@ -190,8 +190,10 @@ def product_detail(request, pk=None, slug=None):
         user_review = Review.objects.filter(product=product, user=request.user).first()
 
     breakdown = product.rating_breakdown
-    review_counts = [breakdown['counts'].get(i, 0) for i in range(5, 0, -1)]
-    review_percentages = [breakdown['percentages'].get(i, 0) for i in range(5, 0, -1)]
+    counts_dict = breakdown.get('counts') if isinstance(breakdown, dict) and 'counts' in breakdown else breakdown
+    percentages_dict = breakdown.get('percentages', {}) if isinstance(breakdown, dict) else {}
+    review_counts = [counts_dict.get(i, 0) for i in range(5, 0, -1)]
+    review_percentages = [percentages_dict.get(i, 0) for i in range(5, 0, -1)]
 
     return render(request, 'product/product_detail.html', {
         'product': product,

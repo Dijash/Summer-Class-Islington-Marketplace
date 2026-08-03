@@ -22,28 +22,28 @@
 
     <!-- Main Detail Grid -->
     <div class="jockey-detail-layout">
-        
+
         <!-- Left Column: Multi-Angle Gallery Grid -->
         <div class="jockey-gallery-col">
             <div class="jockey-gallery-grid" id="multiAngleGalleryGrid">
                 {% if default_color and default_color.images.all %}
-                    {% for img in default_color.images.all %}
-                        <div class="jockey-gallery-item">
-                            <!-- Ribbon Badge on 1st Image -->
-                            {% if forloop.first and product.mrp > product.price %}
-                                <div class="gallery-discount-ribbon">{{ product.discount_percentage }}% off</div>
-                            {% endif %}
+                {% for img in default_color.images.all %}
+                <div class="jockey-gallery-item">
+                    <!-- Ribbon Badge on 1st Image -->
+                    {% if forloop.first and product.mrp > product.price %}
+                    <div class="gallery-discount-ribbon">{{ product.discount_percentage }}% off</div>
+                    {% endif %}
 
-                            <img src="{{ img.image_url }}" alt="{{ img.angle_label }}" class="jockey-gallery-img">
-                        </div>
-                    {% endfor %}
+                    <img src="{{ img.image_url }}" alt="{{ img.angle_label }}" class="jockey-gallery-img">
+                </div>
+                {% endfor %}
                 {% else %}
-                    <div class="jockey-gallery-item">
-                        {% if product.mrp > product.price %}
-                            <div class="gallery-discount-ribbon">{{ product.discount_percentage }}% off</div>
-                        {% endif %}
-                        <img src="{{ product.primary_image }}" alt="{{ product.title }}" class="jockey-gallery-img">
-                    </div>
+                <div class="jockey-gallery-item">
+                    {% if product.mrp > product.price %}
+                    <div class="gallery-discount-ribbon">{{ product.discount_percentage }}% off</div>
+                    {% endif %}
+                    <img src="{{ product.primary_image }}" alt="{{ product.title }}" class="jockey-gallery-img">
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -61,8 +61,8 @@
                 <div class="jockey-mrp-row">
                     <span class="jockey-price-value">MRP: ₹{{ product.price|floatformat:0 }}</span>
                     {% if product.mrp > product.price %}
-                        <span class="jockey-mrp-old">₹{{ product.mrp|floatformat:0 }}</span>
-                        <span class="jockey-discount-badge">{{ product.discount_percentage }}% OFF</span>
+                    <span class="jockey-mrp-old">₹{{ product.mrp|floatformat:0 }}</span>
+                    <span class="jockey-discount-badge">{{ product.discount_percentage }}% OFF</span>
                     {% endif %}
                 </div>
                 <span class="jockey-tax-note">Inclusive of all taxes</span>
@@ -73,7 +73,8 @@
                 <div class="jockey-rating-badge">
                     <i class="fa-solid fa-star"></i> <span>{{ product.rating }}</span>
                 </div>
-                <span class="jockey-rating-counts"><b>{{ product.ratings_count }}</b> Ratings & <b>{{ product.reviews_count }}</b> Reviews</span>
+                <span class="jockey-rating-counts"><b>{{ product.ratings_count }}</b> Ratings & <b>{{
+                        product.reviews_count }}</b> Reviews</span>
             </div>
 
             <!-- Colour Variants Selector -->
@@ -83,19 +84,16 @@
                 </div>
                 <div class="jockey-color-swatches">
                     {% for c in colors %}
-                        <button type="button"
-                                class="color-swatch-btn {% if c.id == default_color.id %}active{% endif %}"
-                                data-color-id="{{ c.id }}"
-                                data-color-name="{{ c.color_name }}"
-                                data-color-code="{{ c.color_code }}"
-                                onclick="switchColorVariant(this)"
-                                title="{{ c.color_name }}">
-                            {% if c.swatch_image_url %}
-                                <img src="{{ c.swatch_image_url }}" alt="{{ c.color_name }}">
-                            {% else %}
-                                <span class="color-dot" style="background-color: {{ c.color_code }};"></span>
-                            {% endif %}
-                        </button>
+                    <button type="button" class="color-swatch-btn {% if c.id == default_color.id %}active{% endif %}"
+                        data-color-id="{{ c.id }}" data-color-name="{{ c.color_name }}"
+                        data-color-code="{{ c.color_code }}" onclick="switchColorVariant(this)"
+                        title="{{ c.color_name }}">
+                        {% if c.swatch_image_url %}
+                        <img src="{{ c.swatch_image_url }}" alt="{{ c.color_name }}">
+                        {% else %}
+                        <span class="color-dot" style="background-color: {{ c.color_code }};"></span>
+                        {% endif %}
+                    </button>
                     {% endfor %}
                 </div>
             </div>
@@ -103,11 +101,12 @@
             <!-- Hidden Container for JavaScript Color Image Datasets -->
             <div id="colorImageData">
                 {% for c in colors %}
-                    <div id="color-images-{{ c.id }}">
-                        {% for img in c.images.all %}
-                            <div class="gallery-data-item" data-url="{{ img.image_url }}" data-label="{{ img.angle_label }}"></div>
-                        {% endfor %}
+                <div id="color-images-{{ c.id }}">
+                    {% for img in c.images.all %}
+                    <div class="gallery-data-item" data-url="{{ img.image_url }}" data-label="{{ img.angle_label }}">
                     </div>
+                    {% endfor %}
+                </div>
                 {% endfor %}
             </div>
 
@@ -116,14 +115,15 @@
                 <div class="jockey-section-title">Select Size</div>
                 <div class="jockey-size-options">
                     {% for s in sizes %}
-                        <button type="button" class="jockey-size-btn {% if not s.is_available %}out-of-stock{% endif %}" data-size="{{ s.size_label }}" onclick="selectSize(this)">
-                            {{ s.size_label }}
-                        </button>
+                    <button type="button" class="jockey-size-btn {% if not s.is_available %}out-of-stock{% endif %}"
+                        data-size="{{ s.size_label }}" onclick="selectSize(this)">
+                        {{ s.size_label }}
+                    </button>
                     {% empty %}
-                        <button type="button" class="jockey-size-btn active" data-size="S">S</button>
-                        <button type="button" class="jockey-size-btn" data-size="M">M</button>
-                        <button type="button" class="jockey-size-btn" data-size="L">L</button>
-                        <button type="button" class="jockey-size-btn" data-size="XL">XL</button>
+                    <button type="button" class="jockey-size-btn active" data-size="S">S</button>
+                    <button type="button" class="jockey-size-btn" data-size="M">M</button>
+                    <button type="button" class="jockey-size-btn" data-size="L">L</button>
+                    <button type="button" class="jockey-size-btn" data-size="XL">XL</button>
                     {% endfor %}
                 </div>
             </div>
@@ -147,11 +147,14 @@
                     <button type="button" class="jockey-icon-btn" title="Share Product" onclick="shareProduct()">
                         <i class="fa-solid fa-share-nodes"></i>
                     </button>
-                    <button type="button" class="jockey-icon-btn wishlist-btn" id="wishlistBtn" title="Add to Wishlist" data-product-id="{{ product.id }}" onclick="toggleWishlist(this)">
+                    <button type="button" class="jockey-icon-btn wishlist-btn" id="wishlistBtn" title="Add to Wishlist"
+                        data-product-id="{{ product.id }}" onclick="toggleWishlist(this)">
                         <i class="fa-regular fa-heart"></i>
                     </button>
-                    <button type="button" class="jockey-buy-now-btn" id="buyNowBtn" onclick="buyNow(event)">Buy Now</button>
-                    <button type="button" class="jockey-add-bag-btn" data-product-id="{{ product.id }}" onclick="addToBag(this)">
+                    <button type="button" class="jockey-buy-now-btn" id="buyNowBtn" onclick="buyNow(event)">Buy
+                        Now</button>
+                    <button type="button" class="jockey-add-bag-btn" data-product-id="{{ product.id }}"
+                        onclick="addToBag(this)">
                         <i class="fa-solid fa-bag-shopping"></i> Add To Bag
                     </button>
                 </div>
@@ -208,14 +211,15 @@
                 <div class="reviews-avg-score">{{ product.computed_rating }}</div>
                 <div class="reviews-avg-stars">
                     {% for i in "12345" %}
-                        {% if forloop.counter <= product.computed_rating %}
-                            <i class="fa-solid fa-star" style="color: #f59e0b;"></i>
+                    {% if forloop.counter <= product.computed_rating %} <i class="fa-solid fa-star"
+                        style="color: #f59e0b;"></i>
                         {% else %}
-                            <i class="fa-regular fa-star" style="color: #d1d5db;"></i>
+                        <i class="fa-regular fa-star" style="color: #d1d5db;"></i>
                         {% endif %}
-                    {% endfor %}
+                        {% endfor %}
                 </div>
-                <div class="reviews-avg-count">{{ product.computed_reviews_count }} review{{ product.computed_reviews_count|pluralize }}</div>
+                <div class="reviews-avg-count">{{ product.computed_reviews_count }} review{{
+                    product.computed_reviews_count|pluralize }}</div>
             </div>
 
             <div class="reviews-bars">
@@ -224,7 +228,8 @@
                     <span class="review-bar-num">{{ star }}</span>
                     <i class="fa-solid fa-star" style="color: #f59e0b; font-size: 0.75rem;"></i>
                     <div class="review-bar-track">
-                        <div class="review-bar-fill" style="width: {{ review_percentages|slice:forloop.counter0 }}%;"></div>
+                        <div class="review-bar-fill" style="width: {{ review_percentages|slice:forloop.counter0 }}%;">
+                        </div>
                     </div>
                     <span class="review-bar-count">{{ review_counts|slice:forloop.counter0 }}</span>
                 </div>
@@ -235,7 +240,8 @@
         <!-- Write a Review Form -->
         {% if user.is_authenticated %}
         <div class="review-form-box">
-            <h3><i class="fa-solid fa-pen"></i> {% if user_review %}Edit Your Review{% else %}Write a Review{% endif %}</h3>
+            <h3><i class="fa-solid fa-pen"></i> {% if user_review %}Edit Your Review{% else %}Write a Review{% endif %}
+            </h3>
             <form method="POST" action="{% url 'submit_review' product.id %}" id="reviewForm">
                 {% csrf_token %}
                 <div class="form-group">
@@ -243,9 +249,14 @@
                     <div id="starRating" class="star-rating-input">
                         {% for i in "12345" %}
                         {% with star_val=forloop.counter %}
-                        <label id="starLabel{{ star_val }}" class="{% if user_review and forloop.counter <= user_review.rating %}active{% elif not user_review and forloop.counter <= 2 %}active{% endif %}" onmouseover="hoverStars({{ star_val }})" onmouseout="resetStars()" onclick="selectStars({{ star_val }})">
+                        <label id="starLabel{{ star_val }}"
+                            class="{% if user_review and forloop.counter <= user_review.rating %}active{% elif not user_review and forloop.counter <= 2 %}active{% endif %}"
+                            onmouseover="hoverStars({{ star_val }})" onmouseout="resetStars()"
+                            onclick="selectStars({{ star_val }})">
                             <i class="fa-solid fa-star"></i>
-                            <input type="radio" name="rating" value="{{ star_val }}" style="display: none;" {% if user_review and forloop.counter == user_review.rating %}checked{% elif not user_review and forloop.counter == 2 %}checked{% endif %}>
+                            <input type="radio" name="rating" value="{{ star_val }}" style="display: none;" {% if
+                                user_review and forloop.counter==user_review.rating %}checked{% elif not user_review and
+                                forloop.counter==2 %}checked{% endif %}>
                         </label>
                         {% endwith %}
                         {% endfor %}
@@ -253,14 +264,18 @@
                 </div>
                 <div class="form-group">
                     <label>Review Title</label>
-                    <input type="text" name="title" class="form-control" placeholder="e.g. Great quality!" value="{{ user_review.title|default:'' }}">
+                    <input type="text" name="title" class="form-control" placeholder="e.g. Great quality!"
+                        value="{{ user_review.title|default:'' }}">
                 </div>
                 <div class="form-group">
                     <label>Your Review</label>
-                    <textarea name="comment" rows="4" class="form-control" placeholder="Share your experience with this product...">{{ user_review.comment|default:'' }}</textarea>
+                    <textarea name="comment" rows="4" class="form-control"
+                        placeholder="Share your experience with this product...">{{ user_review.comment|default:'' }}</textarea>
                 </div>
-                <button type="submit" class="jockey-add-bag-btn" style="border: none; background: #e91e63; color: #fff; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer;">
-                    <i class="fa-solid fa-paper-plane"></i> {% if user_review %}Update Review{% else %}Submit Review{% endif %}
+                <button type="submit" class="jockey-add-bag-btn"
+                    style="border: none; background: #e91e63; color: #fff; padding: 0.75rem 2rem; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                    <i class="fa-solid fa-paper-plane"></i> {% if user_review %}Update Review{% else %}Submit Review{%
+                    endif %}
                 </button>
             </form>
         </div>
@@ -277,22 +292,24 @@
                 <div class="review-header">
                     <div class="review-user">
                         {% if review.user.profile.avatar %}
-                            <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.user.username }}" class="review-avatar">
+                        <img src="{{ review.user.profile.avatar.url }}" alt="{{ review.user.username }}"
+                            class="review-avatar">
                         {% else %}
-                            <div class="review-avatar-placeholder">
-                                <i class="fa-solid fa-user"></i>
-                            </div>
+                        <div class="review-avatar-placeholder">
+                            <i class="fa-solid fa-user"></i>
+                        </div>
                         {% endif %}
                         <div>
-                            <div class="review-user-name">{{ review.user.get_full_name|default:review.user.username }}</div>
+                            <div class="review-user-name">{{ review.user.get_full_name|default:review.user.username }}
+                            </div>
                             <div class="review-user-stars">
                                 {% for i in "12345" %}
-                                    {% if forloop.counter <= review.rating %}
-                                        <i class="fa-solid fa-star" style="color: #f59e0b;"></i>
+                                {% if forloop.counter <= review.rating %} <i class="fa-solid fa-star"
+                                    style="color: #f59e0b;"></i>
                                     {% else %}
-                                        <i class="fa-regular fa-star" style="color: #d1d5db;"></i>
+                                    <i class="fa-regular fa-star" style="color: #d1d5db;"></i>
                                     {% endif %}
-                                {% endfor %}
+                                    {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -316,212 +333,212 @@
 </div>
 
 <script>
-let selectedRating = {{ user_review.rating|default:2 }};
-let currentRating = selectedRating;
+    let selectedRating = {{ user_review.rating|default: 2 }};
+    let currentRating = selectedRating;
 
-function hoverStars(n) {
-    for (let i = 1; i <= 5; i++) {
-        document.getElementById('starLabel' + i).classList.toggle('active', i <= n);
+    function hoverStars(n) {
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById('starLabel' + i).classList.toggle('active', i <= n);
+        }
     }
-}
 
-function resetStars() {
-    for (let i = 1; i <= 5; i++) {
-        document.getElementById('starLabel' + i).classList.toggle('active', i <= currentRating);
+    function resetStars() {
+        for (let i = 1; i <= 5; i++) {
+            document.getElementById('starLabel' + i).classList.toggle('active', i <= currentRating);
+        }
     }
-}
 
-function selectStars(n) {
-    selectedRating = n;
-    currentRating = n;
-    resetStars();
-    document.querySelector('#starRating input[value="' + n + '"]').checked = true;
-}
+    function selectStars(n) {
+        selectedRating = n;
+        currentRating = n;
+        resetStars();
+        document.querySelector('#starRating input[value="' + n + '"]').checked = true;
+    }
 
-function switchColorVariant(btn) {
-    document.querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    function switchColorVariant(btn) {
+        document.querySelectorAll('.color-swatch-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
 
-    const colorName = btn.getAttribute('data-color-name');
-    document.getElementById('selectedColorName').innerText = colorName;
+        const colorName = btn.getAttribute('data-color-name');
+        document.getElementById('selectedColorName').innerText = colorName;
 
-    const colorId = btn.getAttribute('data-color-id');
-    const imageContainer = document.getElementById('color-images-' + colorId);
-    const galleryGrid = document.getElementById('multiAngleGalleryGrid');
+        const colorId = btn.getAttribute('data-color-id');
+        const imageContainer = document.getElementById('color-images-' + colorId);
+        const galleryGrid = document.getElementById('multiAngleGalleryGrid');
 
-    const discountPercentage = parseInt("{{ product.discount_percentage|default:0 }}");
-    const hasDiscount = discountPercentage > 0;
+        const discountPercentage = parseInt("{{ product.discount_percentage|default:0 }}");
+        const hasDiscount = discountPercentage > 0;
 
-    if (imageContainer && galleryGrid) {
-        const imageItems = imageContainer.querySelectorAll('.gallery-data-item');
-        if (imageItems.length > 0) {
-            let newHtml = '';
-            imageItems.forEach((item, index) => {
-                const url = item.getAttribute('data-url');
-                const label = item.getAttribute('data-label');
-                const isFirst = (index === 0);
+        if (imageContainer && galleryGrid) {
+            const imageItems = imageContainer.querySelectorAll('.gallery-data-item');
+            if (imageItems.length > 0) {
+                let newHtml = '';
+                imageItems.forEach((item, index) => {
+                    const url = item.getAttribute('data-url');
+                    const label = item.getAttribute('data-label');
+                    const isFirst = (index === 0);
 
-                const discountHtml = (isFirst && hasDiscount)
-                    ? `<div class="gallery-discount-ribbon">${discountPercentage}% off</div>`
-                    : '';
+                    const discountHtml = (isFirst && hasDiscount)
+                        ? `<div class="gallery-discount-ribbon">${discountPercentage}% off</div>`
+                        : '';
 
-                newHtml += `
+                    newHtml += `
                     <div class="jockey-gallery-item">
                         ${discountHtml}
                         <img src="${url}" alt="${label}" class="jockey-gallery-img">
                     </div>
                 `;
+                });
+                galleryGrid.innerHTML = newHtml;
+            }
+        }
+    }
+
+    function selectSize(btn) {
+        if (btn.classList.contains('out-of-stock')) return;
+        document.querySelectorAll('.jockey-size-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    }
+
+    function getCookie(name) {
+        const value = '; ' + document.cookie;
+        const parts = value.split('; ' + name + '=');
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return '';
+    }
+
+    function shareProduct() {
+        const title = "{{ product.brand_name }} - {{ product.title }}";
+        const url = window.location.href;
+        if (navigator.share) {
+            navigator.share({ title: title, url: url });
+        } else {
+            navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard!'));
+        }
+    }
+
+    function toggleWishlist(btn) {
+        const productId = btn.getAttribute('data-product-id');
+        const icon = btn.querySelector('i');
+
+        fetch(`/customer/wishlist/toggle/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.added) {
+                    icon.classList.remove('fa-regular');
+                    icon.classList.add('fa-solid');
+                    btn.classList.add('wishlisted');
+                    showToast(data.message || 'Added to wishlist');
+                } else {
+                    icon.classList.remove('fa-solid');
+                    icon.classList.add('fa-regular');
+                    btn.classList.remove('wishlisted');
+                    showToast(data.message || 'Removed from wishlist', 'remove');
+                }
             });
-            galleryGrid.innerHTML = newHtml;
-        }
     }
-}
 
-function selectSize(btn) {
-    if (btn.classList.contains('out-of-stock')) return;
-    document.querySelectorAll('.jockey-size-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-}
+    function addToBag(btn) {
+        const productId = btn.getAttribute('data-product-id');
+        const activeSize = document.querySelector('.jockey-size-btn.active');
+        const size = activeSize ? activeSize.getAttribute('data-size') : '';
+        const activeColor = document.querySelector('.color-swatch-btn.active');
+        const colorId = activeColor ? activeColor.getAttribute('data-color-id') : '';
 
-function getCookie(name) {
-    const value = '; ' + document.cookie;
-    const parts = value.split('; ' + name + '=');
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return '';
-}
+        const formData = new FormData();
+        formData.append('quantity', 1);
+        if (size) formData.append('size', size);
+        if (colorId) formData.append('color', colorId);
 
-function shareProduct() {
-    const title = "{{ product.brand_name }} - {{ product.title }}";
-    const url = window.location.href;
-    if (navigator.share) {
-        navigator.share({ title: title, url: url });
-    } else {
-        navigator.clipboard.writeText(url).then(() => showToast('Link copied to clipboard!'));
+        btn.disabled = true;
+
+        fetch(`/cart/add/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                btn.disabled = false;
+                if (!ok && data.login_required) {
+                    showToast(data.message || 'Please log in to add items to your cart', 'remove');
+                    setTimeout(() => { window.location.href = '/accounts/login/'; }, 1500);
+                    return;
+                }
+                if (data.success) {
+                    showToast(data.message || 'Added to bag!');
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Added';
+                    btn.classList.add('added');
+
+                    if (typeof loadMiniCart === 'function') loadMiniCart();
+
+                    const miniCart = document.getElementById('miniCartDropdown');
+                    if (miniCart) miniCart.classList.add('active');
+
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Add To Bag';
+                        btn.classList.remove('added');
+                    }, 2000);
+                }
+            });
     }
-}
 
-function toggleWishlist(btn) {
-    const productId = btn.getAttribute('data-product-id');
-    const icon = btn.querySelector('i');
+    function buyNow(e) {
+        e.preventDefault();
+        const btn = document.getElementById('buyNowBtn');
+        const productId = '{{ product.id }}';
+        const activeSize = document.querySelector('.jockey-size-btn.active');
+        const size = activeSize ? activeSize.getAttribute('data-size') : '';
+        const activeColor = document.querySelector('.color-swatch-btn.active');
+        const colorId = activeColor ? activeColor.getAttribute('data-color-id') : '';
 
-    fetch(`/customer/wishlist/toggle/${productId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data.added) {
-            icon.classList.remove('fa-regular');
-            icon.classList.add('fa-solid');
-            btn.classList.add('wishlisted');
-            showToast(data.message || 'Added to wishlist');
-        } else {
-            icon.classList.remove('fa-solid');
-            icon.classList.add('fa-regular');
-            btn.classList.remove('wishlisted');
-            showToast(data.message || 'Removed from wishlist', 'remove');
-        }
-    });
-}
+        const formData = new FormData();
+        formData.append('quantity', 1);
+        if (size) formData.append('size', size);
+        if (colorId) formData.append('color', colorId);
 
-function addToBag(btn) {
-    const productId = btn.getAttribute('data-product-id');
-    const activeSize = document.querySelector('.jockey-size-btn.active');
-    const size = activeSize ? activeSize.getAttribute('data-size') : '';
-    const activeColor = document.querySelector('.color-swatch-btn.active');
-    const colorId = activeColor ? activeColor.getAttribute('data-color-id') : '';
+        btn.classList.add('loading');
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
 
-    const formData = new FormData();
-    formData.append('quantity', 1);
-    if (size) formData.append('size', size);
-    if (colorId) formData.append('color', colorId);
-
-    btn.disabled = true;
-
-    fetch(`/cart/add/${productId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData
-    })
-    .then(res => res.json().then(data => ({ ok: res.ok, data })))
-    .then(({ ok, data }) => {
-        btn.disabled = false;
-        if (!ok && data.login_required) {
-            showToast(data.message || 'Please log in to add items to your cart', 'remove');
-            setTimeout(() => { window.location.href = '/accounts/login/'; }, 1500);
-            return;
-        }
-        if (data.success) {
-            showToast(data.message || 'Added to bag!');
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Added';
-            btn.classList.add('added');
-
-            if (typeof loadMiniCart === 'function') loadMiniCart();
-
-            const miniCart = document.getElementById('miniCartDropdown');
-            if (miniCart) miniCart.classList.add('active');
-
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-bag-shopping"></i> Add To Bag';
-                btn.classList.remove('added');
-            }, 2000);
-        }
-    });
-}
-
-function buyNow(e) {
-    e.preventDefault();
-    const btn = document.getElementById('buyNowBtn');
-    const productId = '{{ product.id }}';
-    const activeSize = document.querySelector('.jockey-size-btn.active');
-    const size = activeSize ? activeSize.getAttribute('data-size') : '';
-    const activeColor = document.querySelector('.color-swatch-btn.active');
-    const colorId = activeColor ? activeColor.getAttribute('data-color-id') : '';
-
-    const formData = new FormData();
-    formData.append('quantity', 1);
-    if (size) formData.append('size', size);
-    if (colorId) formData.append('color', colorId);
-
-    btn.classList.add('loading');
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
-
-    fetch(`/cart/add/${productId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: formData
-    })
-    .then(res => res.json().then(data => ({ ok: res.ok, data })))
-    .then(({ ok, data }) => {
-        if (!ok && data.login_required) {
-            btn.classList.remove('loading');
-            btn.innerHTML = 'Buy Now';
-            showToast(data.message || 'Please log in to continue', 'remove');
-            setTimeout(() => { window.location.href = '/accounts/login/'; }, 1500);
-            return;
-        }
-        if (data.success) {
-            window.location.href = '{% url "checkout" %}';
-        } else {
-            btn.classList.remove('loading');
-            btn.innerHTML = 'Buy Now';
-            showToast(data.message || 'Failed to add item', 'remove');
-        }
-    })
-    .catch(() => {
-        btn.classList.remove('loading');
-        btn.innerHTML = 'Buy Now';
-        showToast('Something went wrong. Please try again.', 'remove');
-    });
-}
+        fetch(`/cart/add/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData
+        })
+            .then(res => res.json().then(data => ({ ok: res.ok, data })))
+            .then(({ ok, data }) => {
+                if (!ok && data.login_required) {
+                    btn.classList.remove('loading');
+                    btn.innerHTML = 'Buy Now';
+                    showToast(data.message || 'Please log in to continue', 'remove');
+                    setTimeout(() => { window.location.href = '/accounts/login/'; }, 1500);
+                    return;
+                }
+                if (data.success) {
+                    window.location.href = '{% url "checkout" %}';
+                } else {
+                    btn.classList.remove('loading');
+                    btn.innerHTML = 'Buy Now';
+                    showToast(data.message || 'Failed to add item', 'remove');
+                }
+            })
+            .catch(() => {
+                btn.classList.remove('loading');
+                btn.innerHTML = 'Buy Now';
+                showToast('Something went wrong. Please try again.', 'remove');
+            });
+    }
 </script>
 {% endblock %}
