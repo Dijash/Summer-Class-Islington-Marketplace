@@ -8,17 +8,21 @@ from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-6x!w@s_dk4&b^#@7+z82%yzl(mqs2ro#!=2t*-ms3o9!ggrv+s'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-6x!w@s_dk4&b^#@7+z82%yzl(mqs2ro#!=2t*-ms3o9!ggrv+s')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['summer-class-islington-marketplace-1.onrender.com',
+'127.0.0.1','localhost']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://summer-class-islington-marketplace-1.onrender.com',
+]
 
 # Application definition
 
@@ -75,19 +79,16 @@ WSGI_APPLICATION = 'Marketplace.wsgi.application'
 
 # Database
 # Use SQLite for local development server, and DATABASE_URL (.env) for production (e.g. Render)
-if os.environ.get('RENDER') or config('ENVIRONMENT', default='').lower() == 'production':
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=config('DATABASE_URL', default=f'sqlite:///{BASE_DIR / "db.sqlite3"}'),
-            conn_max_age=600
-        )
-    }
-else:
+if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
+    }
+else:
+    DATABASES = {
+        'default': dj_database_url.config(default=config('DATABASE_URL'), conn_max_age=600)
     }
 
 
@@ -171,3 +172,6 @@ LOGOUT_REDIRECT_URL = '/'
 
 ACCOUNT_ADAPTER = 'accounts.adapters.CustomAccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'accounts.adapters.CustomSocialAccountAdapter'
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
