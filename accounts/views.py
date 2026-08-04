@@ -34,6 +34,8 @@ def register_view(request):
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
         password = request.POST.get('password', '').strip()
+        account_type = request.POST.get('account_type', 'customer').strip().lower()
+        business_name = request.POST.get('business_name', '').strip()
 
         if not email or not password:
             return render(request, 'accounts/register.html', {'error': 'Please fill in all required fields.'})
@@ -55,6 +57,16 @@ def register_view(request):
             first_name=first_name,
             last_name=last_name
         )
+
+        Profile.objects.get_or_create(user=user)
+
+        if account_type == 'seller':
+            from seller.models import SellerProfile
+            SellerProfile.objects.create(
+                user=user,
+                shop_name=business_name
+            )
+
         auth_login(request, user)
         return redirect('home')
 
@@ -66,12 +78,33 @@ def logout_view(request):
 
 import re
 from .models import Profile
+from seller.models import SellerProfile
 
 def profile_view(request):
     if request.method == 'POST':
         action = request.POST.get('action')
         
-        if action == 'update_profile':
+        if action == 'request_seller':
+            if not request.user.is_authenticated:
+                return JsonResponse({'success': False, 'message': 'You must be logged in.'})
+
+            shop_name = request.POST.get('business_name', '').strip() or request.POST.get('shop_name', '').strip()
+            if not shop_name or len(shop_name) < 2:
+                return JsonResponse({'success': False, 'message': 'Please enter a valid business name (at least 2 characters).'})
+
+            seller, created = SellerProfile.objects.get_or_create(user=request.user)
+            seller.shop_name = shop_name
+            seller.is_verified = False  # Pending Admin approval
+            seller.save()
+
+            return JsonResponse({
+                'success': True,
+                'message': f"Seller request for '{shop_name}' submitted successfully! Awaiting admin approval.",
+                'shop_name': shop_name,
+                'is_verified': False
+            })
+
+        elif action == 'update_profile':
             first_name = request.POST.get('first_name', '').strip()
             last_name = request.POST.get('last_name', '').strip()
             phone = request.POST.get('phone', '').strip()
@@ -162,12 +195,15 @@ def profile_view(request):
 
     profile = None
     wishlist_count = 0
+    seller_profile = None
     if request.user.is_authenticated:
         profile, _ = Profile.objects.get_or_create(user=request.user)
+        seller_profile = SellerProfile.objects.filter(user=request.user).first()
         from customer.models import Wishlist
         wishlist_count = Wishlist.objects.filter(user=request.user).count()
 
     return render(request, 'accounts/profile.html', {
         'profile': profile,
         'wishlist_count': wishlist_count,
+        'seller_profile': seller_profile,
     })

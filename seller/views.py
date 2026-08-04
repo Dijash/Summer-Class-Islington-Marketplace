@@ -13,7 +13,7 @@ from core.models import Category
 def get_or_create_seller(user):
     profile, _ = SellerProfile.objects.get_or_create(
         user=user,
-        defaults={'shop_name': f"{user.first_name or user.username}'s Store"}
+        defaults={'shop_name': ''}
     )
     return profile
 
@@ -128,6 +128,34 @@ SIZES_FOOTWEAR = ['UK 4', 'UK 5', 'UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 1
 @login_required(login_url='login')
 def add_product(request):
     seller = get_or_create_seller(request.user)
+
+    # Require Business/Shop Name and Admin Verification before permitting product addition
+    if not seller.shop_name or not seller.shop_name.strip():
+        if request.method == 'POST' and 'set_shop_name' in request.POST:
+            shop_name = request.POST.get('shop_name', '').strip()
+            if not shop_name:
+                return render(request, 'seller/setup_business.html', {
+                    'seller': seller,
+                    'error': 'Business Name is required to start selling products.'
+                })
+            seller.shop_name = shop_name
+            seller.is_verified = False  # Pending Admin Approval
+            seller.save()
+            return render(request, 'seller/setup_business.html', {
+                'seller': seller,
+                'pending': True
+            })
+
+        return render(request, 'seller/setup_business.html', {
+            'seller': seller
+        })
+
+    if not seller.is_verified:
+        return render(request, 'seller/setup_business.html', {
+            'seller': seller,
+            'pending': True
+        })
+
     parent_categories = Category.objects.filter(is_active=True, parent__isnull=True).prefetch_related('subcategories')
 
     if request.method == 'POST':

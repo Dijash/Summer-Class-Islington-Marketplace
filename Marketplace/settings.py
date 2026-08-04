@@ -15,7 +15,15 @@ SECRET_KEY = 'django-insecure-6x!w@s_dk4&b^#@7+z82%yzl(mqs2ro#!=2t*-ms3o9!ggrv+s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+# Allow OAuth callbacks over HTTP and HTTPS for local/forwarded ports (VS Code DevTunnels)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.devtunnels.ms',
+    'https://f5twqh1w-8000.inc1.devtunnels.ms',
+]
 
 
 # Application definition

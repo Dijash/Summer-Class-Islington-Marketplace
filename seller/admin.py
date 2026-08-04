@@ -8,6 +8,18 @@ class SellerProfileAdmin(admin.ModelAdmin):
     list_display = ('shop_name', 'user', 'rating', 'is_verified', 'created_at')
     list_filter = ('is_verified', 'created_at')
     search_fields = ('shop_name', 'user__username')
+    list_editable = ('is_verified',)
+    actions = ['approve_sellers', 'reject_sellers']
+
+    @admin.action(description='Approve selected seller profiles (Verify)')
+    def approve_sellers(self, request, queryset):
+        updated = queryset.update(is_verified=True)
+        self.message_user(request, f"{updated} seller(s) approved successfully.")
+
+    @admin.action(description='Reject selected seller profiles (Unverify)')
+    def reject_sellers(self, request, queryset):
+        updated = queryset.update(is_verified=False)
+        self.message_user(request, f"{updated} seller(s) marked unverified.")
 
 
 def create_product_from_request(pr):

@@ -11,7 +11,8 @@
         <p>Join thousands of buyers and sellers on MarketPlace.</p>
     </header>
 
-    <form action="{% url 'register' %}" method="POST" class="auth-form slide-up-anim" id="registerForm" style="--delay: 0.2s;" novalidate>
+    <form action="{% url 'register' %}" method="POST" class="auth-form slide-up-anim" id="registerForm"
+        style="--delay: 0.2s;" novalidate>
         {% csrf_token %}
 
         {% if error %}
@@ -19,7 +20,7 @@
             <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
         </div>
         {% endif %}
-        
+
         <!-- Account Type Selector (Segmented Control) -->
         <div class="form-group">
             <div class="account-type-selector" role="radiogroup" aria-label="Account Type">
@@ -41,29 +42,35 @@
 
         <!-- Business Name (Seller Only) -->
         <div class="form-group seller-field" id="businessNameField" style="display: none;">
-            <input type="text" name="business_name" id="regBusinessName" class="form-control" placeholder="Business Name" aria-label="Business Name">
+            <input type="text" name="business_name" id="regBusinessName" class="form-control"
+                placeholder="Business Name" aria-label="Business Name">
         </div>
 
         <div class="grid grid-cols-2">
             <div class="form-group">
-                <input type="text" name="first_name" id="regFirstName" class="form-control" placeholder="First Name" required aria-label="First Name">
+                <input type="text" name="first_name" id="regFirstName" class="form-control" placeholder="First Name"
+                    required aria-label="First Name">
             </div>
             <div class="form-group">
-                <input type="text" name="last_name" id="regLastName" class="form-control" placeholder="Last Name" required aria-label="Last Name">
+                <input type="text" name="last_name" id="regLastName" class="form-control" placeholder="Last Name"
+                    required aria-label="Last Name">
             </div>
         </div>
 
         <div class="form-group">
             <div class="input-with-icon">
-                <input type="email" name="email" id="regEmail" class="form-control" placeholder="Email Address" required aria-label="Email Address">
+                <input type="email" name="email" id="regEmail" class="form-control" placeholder="Email Address" required
+                    aria-label="Email Address">
             </div>
         </div>
 
         <!-- Password Field -->
         <div class="form-group">
             <div class="input-with-icon">
-                <input type="password" name="password" id="regPassword" class="form-control" placeholder="Password (Min 6)" required>
-                <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Show password">
+                <input type="password" name="password" id="regPassword" class="form-control"
+                    placeholder="Password (Min 6)" required>
+                <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)"
+                    aria-label="Show password">
                     <i class="fa-regular fa-eye-slash"></i>
                 </button>
             </div>
@@ -76,12 +83,14 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Confirm Password Field -->
         <div class="form-group">
             <div class="input-with-icon">
-                <input type="password" id="regConfirmPassword" class="form-control" placeholder="Repeat Password" required>
-                <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)" aria-label="Show password">
+                <input type="password" id="regConfirmPassword" class="form-control" placeholder="Repeat Password"
+                    required>
+                <button type="button" class="password-toggle-btn" onclick="toggleAuthPassword(this)"
+                    aria-label="Show password">
                     <i class="fa-regular fa-eye-slash"></i>
                 </button>
             </div>
@@ -92,7 +101,8 @@
             <label class="custom-checkbox">
                 <input type="checkbox" id="regTermsCheckbox" required>
                 <span class="checkmark"></span>
-                <span class="checkbox-label-text">I agree to the <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</span>
+                <span class="checkbox-label-text">I agree to the <a href="#">Terms</a> and <a href="#">Privacy
+                        Policy</a>.</span>
             </label>
         </div>
 
@@ -107,7 +117,8 @@
 
     <!-- Social Logins (Circular) -->
     <div class="social-login-buttons slide-up-anim" style="--delay: 0.45s;">
-        <a href="{% provider_login_url 'google' %}" class="social-circle-btn" aria-label="Sign up with Google" title="Sign up with Google">
+        <a href="{% provider_login_url 'google' %}" class="social-circle-btn" aria-label="Sign up with Google"
+            title="Sign up with Google">
             <i class="fa-brands fa-google google-icon"></i>
         </a>
         <button type="button" class="social-circle-btn" aria-label="Sign up with Apple">
@@ -126,128 +137,128 @@
 
 {% block auth_scripts %}
 <script>
-function toggleAuthPassword(btn) {
-    const container = btn.closest('.input-with-icon');
-    const input = container.querySelector('input');
-    const icon = btn.querySelector('i');
-    
-    const isPassword = input.type === 'password';
-    input.type = isPassword ? 'text' : 'password';
-    
-    icon.className = isPassword ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
-    btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
-}
+    function toggleAuthPassword(btn) {
+        const container = btn.closest('.input-with-icon');
+        const input = container.querySelector('input');
+        const icon = btn.querySelector('i');
 
-document.addEventListener('DOMContentLoaded', () => {
-    const inputs = {
-        firstName: document.getElementById('regFirstName'),
-        lastName: document.getElementById('regLastName'),
-        email: document.getElementById('regEmail'),
-        password: document.getElementById('regPassword'),
-        confirm: document.getElementById('regConfirmPassword')
-    };
-    const terms = document.getElementById('regTermsCheckbox');
-    const signupBtn = document.getElementById('signupBtn');
-    const businessNameField = document.getElementById('businessNameField');
-    
-    const strengthElements = {
-        label: document.getElementById('strengthTextLabel'),
-        bar: document.getElementById('strengthBarFill')
-    };
-    const matchStatusText = document.getElementById('matchStatusText');
+        const isPassword = input.type === 'password';
+        input.type = isPassword ? 'text' : 'password';
 
-    // Handle Account Type Segmented Control
-    const typeOptions = document.querySelectorAll('.type-option');
-    const selectorIndicator = document.querySelector('.selector-indicator');
-    
-    function updateSelector() {
-        const activeOption = document.querySelector('.type-option.active');
-        const type = activeOption.dataset.type;
-        
-        // Move indicator
-        if (type === 'seller') {
-            selectorIndicator.style.transform = 'translateX(100%)';
-        } else {
-            selectorIndicator.style.transform = 'translateX(0)';
-        }
-        
-        // Show/hide business name field
-        if (type === 'seller') {
-            businessNameField.style.display = 'block';
-        } else {
-            businessNameField.style.display = 'none';
-        }
-    }
-    
-    typeOptions.forEach(opt => {
-        opt.addEventListener('click', function() {
-            typeOptions.forEach(o => o.classList.remove('active'));
-            this.classList.add('active');
-            const radio = this.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-            updateSelector();
-        });
-    });
-
-    function evaluatePasswordStrength(val) {
-        if (!val) return { score: 0, label: 'None', percent: '0%', color: 'transparent' };
-        
-        let score = 0;
-        if (val.length >= 6) score++;
-        if (val.length >= 8) score++;
-        if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
-        if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) score++;
-
-        if (score <= 1) return { score: 1, label: 'Weak', percent: '25%', color: '#ef4444' };
-        if (score === 2) return { score: 2, label: 'Fair', percent: '50%', color: '#f59e0b' };
-        if (score === 3) return { score: 3, label: 'Good', percent: '75%', color: '#10b981' };
-        return { score: 4, label: 'Strong', percent: '100%', color: '#059669' };
+        icon.className = isPassword ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+        btn.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
     }
 
-    function validateFormState() {
-        const vals = {
-            fn: inputs.firstName.value.trim(),
-            ln: inputs.lastName.value.trim(),
-            email: inputs.email.value.trim(),
-            pass: inputs.password.value,
-            confirm: inputs.confirm.value
+    document.addEventListener('DOMContentLoaded', () => {
+        const inputs = {
+            firstName: document.getElementById('regFirstName'),
+            lastName: document.getElementById('regLastName'),
+            email: document.getElementById('regEmail'),
+            password: document.getElementById('regPassword'),
+            confirm: document.getElementById('regConfirmPassword')
         };
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const terms = document.getElementById('regTermsCheckbox');
+        const signupBtn = document.getElementById('signupBtn');
+        const businessNameField = document.getElementById('businessNameField');
 
-        const strength = evaluatePasswordStrength(vals.pass);
-        strengthElements.bar.style.width = strength.percent;
-        strengthElements.bar.style.backgroundColor = strength.color;
-        strengthElements.label.textContent = `Strength: ${strength.label}`;
-        strengthElements.label.style.color = strength.score > 0 ? strength.color : 'var(--auth-text-muted)';
+        const strengthElements = {
+            label: document.getElementById('strengthTextLabel'),
+            bar: document.getElementById('strengthBarFill')
+        };
+        const matchStatusText = document.getElementById('matchStatusText');
 
-        let passMatchValid = false;
-        if (!vals.confirm) {
-            matchStatusText.textContent = '';
-            passMatchValid = false;
-        } else if (vals.pass === vals.confirm && vals.pass.length >= 6) {
-            matchStatusText.className = 'password-match-status match-success';
-            matchStatusText.textContent = 'Passwords match';
-            passMatchValid = true;
-        } else {
-            matchStatusText.className = 'password-match-status match-error';
-            matchStatusText.textContent = 'Passwords do not match';
-            passMatchValid = false;
+        // Handle Account Type Segmented Control
+        const typeOptions = document.querySelectorAll('.type-option');
+        const selectorIndicator = document.querySelector('.selector-indicator');
+
+        function updateSelector() {
+            const activeOption = document.querySelector('.type-option.active');
+            const type = activeOption.dataset.type;
+
+            // Move indicator
+            if (type === 'seller') {
+                selectorIndicator.style.transform = 'translateX(100%)';
+            } else {
+                selectorIndicator.style.transform = 'translateX(0)';
+            }
+
+            // Show/hide business name field
+            if (type === 'seller') {
+                businessNameField.style.display = 'block';
+            } else {
+                businessNameField.style.display = 'none';
+            }
         }
 
-        const isFormValid = (
-            vals.fn.length >= 2 &&
-            vals.ln.length >= 2 &&
-            emailRegex.test(vals.email) &&
-            vals.pass.length >= 6 &&
-            passMatchValid &&
-            terms.checked
-        );
+        typeOptions.forEach(opt => {
+            opt.addEventListener('click', function () {
+                typeOptions.forEach(o => o.classList.remove('active'));
+                this.classList.add('active');
+                const radio = this.querySelector('input[type="radio"]');
+                if (radio) radio.checked = true;
+                updateSelector();
+            });
+        });
 
-        signupBtn.disabled = !isFormValid;
-    }
+        function evaluatePasswordStrength(val) {
+            if (!val) return { score: 0, label: 'None', percent: '0%', color: 'transparent' };
 
-    Object.values(inputs).forEach(el => el.addEventListener('input', validateFormState));
-    terms.addEventListener('change', validateFormState);
-});
+            let score = 0;
+            if (val.length >= 6) score++;
+            if (val.length >= 8) score++;
+            if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++;
+            if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) score++;
+
+            if (score <= 1) return { score: 1, label: 'Weak', percent: '25%', color: '#ef4444' };
+            if (score === 2) return { score: 2, label: 'Fair', percent: '50%', color: '#f59e0b' };
+            if (score === 3) return { score: 3, label: 'Good', percent: '75%', color: '#10b981' };
+            return { score: 4, label: 'Strong', percent: '100%', color: '#059669' };
+        }
+
+        function validateFormState() {
+            const vals = {
+                fn: inputs.firstName.value.trim(),
+                ln: inputs.lastName.value.trim(),
+                email: inputs.email.value.trim(),
+                pass: inputs.password.value,
+                confirm: inputs.confirm.value
+            };
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            const strength = evaluatePasswordStrength(vals.pass);
+            strengthElements.bar.style.width = strength.percent;
+            strengthElements.bar.style.backgroundColor = strength.color;
+            strengthElements.label.textContent = `Strength: ${strength.label}`;
+            strengthElements.label.style.color = strength.score > 0 ? strength.color : 'var(--auth-text-muted)';
+
+            let passMatchValid = false;
+            if (!vals.confirm) {
+                matchStatusText.textContent = '';
+                passMatchValid = false;
+            } else if (vals.pass === vals.confirm && vals.pass.length >= 6) {
+                matchStatusText.className = 'password-match-status match-success';
+                matchStatusText.textContent = 'Passwords match';
+                passMatchValid = true;
+            } else {
+                matchStatusText.className = 'password-match-status match-error';
+                matchStatusText.textContent = 'Passwords do not match';
+                passMatchValid = false;
+            }
+
+            const isFormValid = (
+                vals.fn.length >= 2 &&
+                vals.ln.length >= 2 &&
+                emailRegex.test(vals.email) &&
+                vals.pass.length >= 6 &&
+                passMatchValid &&
+                terms.checked
+            );
+
+            signupBtn.disabled = !isFormValid;
+        }
+
+        Object.values(inputs).forEach(el => el.addEventListener('input', validateFormState));
+        terms.addEventListener('change', validateFormState);
+    });
 </script>
 {% endblock %}

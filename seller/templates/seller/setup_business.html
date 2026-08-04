@@ -1,0 +1,94 @@
+{% extends 'seller/seller_base.html' %}
+{% load static %}
+
+{% block title %}{% if pending %}Seller Request Pending - MarketPlace{% else %}Setup Business Name - MarketPlace{% endif %}{% endblock %}
+
+{% block seller_content %}
+<div class="seller-container" style="max-width: 600px; margin: 3rem auto; padding: 0 1rem;">
+    <div class="seller-card" style="background: #ffffff; border-radius: 16px; padding: 2.5rem; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);">
+        
+        {% if pending %}
+        <!-- Pending Approval View -->
+        <div style="text-align: center;">
+            <div style="width: 76px; height: 76px; border-radius: 50%; background: #fffbeb; border: 2px solid #fde68a; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1.25rem;">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+            </div>
+            <h1 style="font-size: 1.6rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Seller Request Pending Approval</h1>
+            <p style="color: #64748b; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1.5rem;">
+                Your request for shop <strong>"{{ seller.shop_name }}"</strong> has been submitted to the Admin. 
+                Once an administrator approves your account, you will be able to upload products and start selling.
+            </p>
+
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.75rem; text-align: left;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Shop Name:</span>
+                    <strong style="color: #0f172a; font-size: 0.95rem;">{{ seller.shop_name }}</strong>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.85rem; color: #64748b; font-weight: 600;">Status:</span>
+                    <span class="badge" style="background: #fef3c7; color: #92400e; border: 1px solid #fde68a; padding: 0.3rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">
+                        <i class="fa-solid fa-hourglass-half"></i> Under Admin Review
+                    </span>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 0.75rem;">
+                <a href="{% url 'profile' %}" class="btn" style="flex: 1; padding: 0.8rem; border-radius: 12px; background: #f1f5f9; color: #0f172a; font-weight: 600; text-align: center; text-decoration: none;">
+                    <i class="fa-solid fa-user"></i> View Profile
+                </a>
+                <a href="{% url 'home' %}" class="btn" style="flex: 1; padding: 0.8rem; border-radius: 12px; background: #0f172a; color: #ffffff; font-weight: 600; text-align: center; text-decoration: none;">
+                    <i class="fa-solid fa-house"></i> Return Home
+                </a>
+            </div>
+        </div>
+
+        {% else %}
+        <!-- Setup Business Form -->
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, #0f172a 0%, #334155 100%); color: #ffffff; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1rem; box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.25);">
+                <i class="fa-solid fa-building-store"></i>
+            </div>
+            <h1 style="font-size: 1.6rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Setup Your Business Name</h1>
+            <p style="color: #64748b; font-size: 0.95rem; line-height: 1.5; margin: 0;">
+                Before you can add products to MarketPlace, please provide your official business or shop name.
+            </p>
+        </div>
+
+        {% if error %}
+        <div style="background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.85rem 1rem; border-radius: 10px; font-size: 0.9rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="{% url 'seller_add_product' %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="set_shop_name" value="1">
+
+            <div style="margin-bottom: 1.75rem;">
+                <label for="shopNameInput" style="display: block; font-size: 0.88rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">
+                    Business / Shop Name <span style="color: #ef4444;">*</span>
+                </label>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <i class="fa-solid fa-store" style="position: absolute; left: 1.2rem; color: #94a3b8; font-size: 1rem;"></i>
+                    <input type="text" 
+                           name="shop_name" 
+                           id="shopNameInput" 
+                           class="form-control" 
+                           placeholder="e.g. Urban Style Apparel" 
+                           required 
+                           autofocus 
+                           style="width: 100%; padding: 0.9rem 1.25rem 0.9rem 3rem; border: 1.5px solid #cbd5e1; border-radius: 12px; font-size: 0.95rem; color: #0f172a; outline: none; transition: border-color 0.2s ease;">
+                </div>
+                <small style="display: block; color: #94a3b8; font-size: 0.8rem; margin-top: 0.4rem;">
+                    This request will be sent to the admin for verification.
+                </small>
+            </div>
+
+            <button type="submit" class="btn-auth" style="width: 100%; padding: 0.95rem; font-size: 1rem; font-weight: 700; color: #ffffff; background: #0f172a; border: none; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.6rem; transition: background-color 0.2s ease;">
+                <i class="fa-solid fa-paper-plane"></i> Submit Request to Admin
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
