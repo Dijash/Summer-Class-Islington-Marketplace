@@ -17,15 +17,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# Allow OAuth callbacks over HTTP and HTTPS for local/forwarded ports (VS Code DevTunnels)
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-USE_X_FORWARDED_HOST = True
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.devtunnels.ms',
-    'https://f5twqh1w-8000.inc1.devtunnels.ms',
-]
-
-
 # Application definition
 
 INSTALLED_APPS = [
