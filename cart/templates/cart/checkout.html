@@ -11,7 +11,7 @@
 <div class="container checkout-page-container">
     {% if messages %}
         {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}" style="padding: 1rem 1.5rem; margin-bottom: 1.5rem; border-radius: 8px; display: flex; align-items: center; gap: 0.75rem; {% if message.tags == 'success' %}background: #d1fae5; color: #065f46; border: 1px solid #a7f3d0;{% elif message.tags == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe;{% endif %}">
+            <div class="alert alert-custom-layout alert-{{ message.tags|default:'info' }}">
                 <i class="fa-solid {% if message.tags == 'success' %}fa-circle-check{% elif message.tags == 'error' %}fa-circle-exclamation{% else %}fa-circle-info{% endif %}"></i>
                 {{ message }}
             </div>
