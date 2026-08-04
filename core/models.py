@@ -63,6 +63,12 @@ class HeroBanner(models.Model):
         if self.image:
             return self.image.url
         if self.image_url:
+            from django.conf import settings
+            prefix = settings.STATIC_URL if settings.STATIC_URL.startswith('/') else '/' + settings.STATIC_URL
+            if self.image_url.startswith('/staticfiles/'):
+                return self.image_url.replace('/staticfiles/', prefix)
+            if self.image_url.startswith('/static/'):
+                return self.image_url.replace('/static/', prefix)
             return self.image_url
         return "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80"
 
@@ -110,6 +116,12 @@ class BrandSpotlight(models.Model):
         if self.image:
             return self.image.url
         if self.image_url:
+            from django.conf import settings
+            prefix = settings.STATIC_URL if settings.STATIC_URL.startswith('/') else '/' + settings.STATIC_URL
+            if self.image_url.startswith('/staticfiles/'):
+                return self.image_url.replace('/staticfiles/', prefix)
+            if self.image_url.startswith('/static/'):
+                return self.image_url.replace('/static/', prefix)
             return self.image_url
         return "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80"
 
@@ -151,6 +163,12 @@ class FeaturedCategory(models.Model):
         if self.image:
             return self.image.url
         if self.image_url:
+            from django.conf import settings
+            prefix = settings.STATIC_URL if settings.STATIC_URL.startswith('/') else '/' + settings.STATIC_URL
+            if self.image_url.startswith('/staticfiles/'):
+                return self.image_url.replace('/staticfiles/', prefix)
+            if self.image_url.startswith('/static/'):
+                return self.image_url.replace('/static/', prefix)
             return self.image_url
         return "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80"
 
@@ -194,6 +212,12 @@ class ShopDrop(models.Model):
         if self.image:
             return self.image.url
         if self.image_url:
+            from django.conf import settings
+            prefix = settings.STATIC_URL if settings.STATIC_URL.startswith('/') else '/' + settings.STATIC_URL
+            if self.image_url.startswith('/staticfiles/'):
+                return self.image_url.replace('/staticfiles/', prefix)
+            if self.image_url.startswith('/static/'):
+                return self.image_url.replace('/static/', prefix)
             return self.image_url
         return "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80"
 
