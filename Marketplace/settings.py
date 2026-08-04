@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 # pyrefly: ignore [missing-import]
+import dj_database_url
+# pyrefly: ignore [missing-import]
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
