@@ -185,22 +185,55 @@ def cart_summary_api(request):
 
 def checkout_view(request):
     cart, _ = get_or_create_cart(request)
-    cart_items = cart.items.select_related('product').all() if cart else []
-    totals = _calc_totals(cart)
+    if not cart:
+        return redirect('cart')
+
+    all_items = cart.items.select_related('product').all()
+    selected_ids = request.GET.getlist('selected_items')
+    if not selected_ids and request.POST.getlist('selected_items'):
+        selected_ids = request.POST.getlist('selected_items')
+
+    if selected_ids:
+        try:
+            selected_id_ints = [int(i) for i in selected_ids]
+            cart_items = all_items.filter(id__in=selected_id_ints)
+            request.session['selected_cart_item_ids'] = selected_id_ints
+        except (ValueError, TypeError):
+            cart_items = all_items
+            request.session['selected_cart_item_ids'] = [i.id for i in all_items]
+    else:
+        sess_selected = request.session.get('selected_cart_item_ids')
+        if sess_selected:
+            cart_items = all_items.filter(id__in=sess_selected)
+            if not cart_items.exists():
+                cart_items = all_items
+                request.session['selected_cart_item_ids'] = [i.id for i in all_items]
+        else:
+            cart_items = all_items
+            request.session['selected_cart_item_ids'] = [i.id for i in all_items]
+
+    subtotal = float(sum(i.get_subtotal() for i in cart_items))
+    shipping = 0 if subtotal > 1000 or subtotal == 0 else 99
+    tax = round(subtotal * 0.05, 2)
+    grand_total = subtotal + shipping + tax
+    total_count = sum(i.quantity for i in cart_items)
 
     user_profile = None
     if request.user.is_authenticated:
         user_profile = getattr(request.user, 'profile', None)
 
+    selected_items_csv = ",".join(str(i.id) for i in cart_items)
+
     return render(request, 'cart/checkout.html', {
         'cart': cart,
         'cart_items': cart_items,
-        'subtotal': totals['subtotal'],
-        'shipping': totals['shipping'],
-        'tax': totals['tax'],
-        'grand_total': totals['grand_total'],
-        'item_count': totals['count'],
+        'subtotal': subtotal,
+        'shipping': shipping,
+        'tax': tax,
+        'grand_total': grand_total,
+        'item_count': total_count,
         'user_profile': user_profile,
+        'selected_items_csv': selected_items_csv,
     })
 
 
@@ -220,10 +253,21 @@ def place_order(request):
         return redirect('login')
 
     cart, _ = get_or_create_cart(request)
-    cart_items = cart.items.select_related('product').all() if cart else []
+    all_cart_items = cart.items.select_related('product').all() if cart else []
+
+    selected_csv = request.POST.get('selected_items', '')
+    if selected_csv:
+        selected_ids = [int(x.strip()) for x in selected_csv.split(',') if x.strip().isdigit()]
+        cart_items = all_cart_items.filter(id__in=selected_ids)
+    else:
+        sess_selected = request.session.get('selected_cart_item_ids')
+        if sess_selected:
+            cart_items = all_cart_items.filter(id__in=sess_selected)
+        else:
+            cart_items = all_cart_items
 
     if not cart_items:
-        messages.error(request, 'Your cart is empty.')
+        messages.error(request, 'Your cart is empty or no items were selected for purchase.')
         return redirect('cart')
 
     first_name = request.POST.get('first_name', '').strip()
@@ -252,9 +296,10 @@ def place_order(request):
 
     shipping_address = f"{first_name} {last_name}\n{street}\n{city}, {state} {zip_code}\nPhone: {phone}\nEmail: {email}"
 
-    totals = _calc_totals(cart)
+    subtotal = float(sum(i.get_subtotal() for i in cart_items))
     shipping_cost = 0 if shipping_method == 'standard' else 12.99
-    grand_total = totals['subtotal'] + shipping_cost + totals['tax']
+    tax = round(subtotal * 0.05, 2)
+    grand_total = subtotal + shipping_cost + tax
 
     order = Order.objects.create(
         user=request.user,
@@ -275,6 +320,10 @@ def place_order(request):
             quantity=cart_item.quantity,
             price=cart_item.product.price,
         )
+
+    # Track purchased cart items in session so they can be deleted upon completion
+    purchased_ids = list(cart_items.values_list('id', flat=True))
+    request.session['purchased_cart_item_ids'] = purchased_ids
 
     if payment_type == 'khalti':
         amount_paisa = int(round(float(grand_total) * 100))
@@ -323,9 +372,14 @@ def place_order(request):
         sandbox_url = f"{reverse('khalti_gateway_sandbox')}?pidx={mock_pidx}&order_number={order.order_number}&amount={grand_total:.2f}&phone={khalti_phone or phone}"
         return redirect(sandbox_url)
 
-    # Cash on Delivery
-    cart_items.delete()
-    cart.delete()
+    # Cash on Delivery: Remove ONLY the checked/purchased items
+    CartItem.objects.filter(id__in=purchased_ids).delete()
+    if cart and not cart.items.exists():
+        cart.delete()
+
+    request.session.pop('selected_cart_item_ids', None)
+    request.session.pop('purchased_cart_item_ids', None)
+
     messages.success(request, f'Order #{order.order_number} placed successfully with Cash on Delivery!')
     return redirect('customer_orders')
 
@@ -377,11 +431,21 @@ def khalti_verify(request):
         order.khalti_transaction_id = transaction_id
         order.save()
 
-        # Clear active cart items
+        # Remove ONLY the checked/purchased cart items from the database
         cart, _ = get_or_create_cart(request)
         if cart:
-            cart.items.all().delete()
-            cart.delete()
+            purchased_ids = request.session.get('purchased_cart_item_ids')
+            if purchased_ids:
+                cart.items.filter(id__in=purchased_ids).delete()
+            else:
+                ordered_prod_ids = order.items.values_list('product_id', flat=True)
+                cart.items.filter(product_id__in=ordered_prod_ids).delete()
+
+            if not cart.items.exists():
+                cart.delete()
+
+        request.session.pop('selected_cart_item_ids', None)
+        request.session.pop('purchased_cart_item_ids', None)
 
         messages.success(request, f'Payment of NPR {order.total_amount:.2f} via Khalti was successful! Order #{order.order_number} confirmed.')
         return redirect('customer_orders')

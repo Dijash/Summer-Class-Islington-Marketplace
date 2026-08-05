@@ -25,7 +25,7 @@
 
         <!-- Left Column: Multi-Angle Gallery Grid -->
         <div class="jockey-gallery-col">
-            <div class="jockey-gallery-grid" id="multiAngleGalleryGrid">
+            <div class="jockey-gallery-grid" id="multiAngleGalleryGrid" data-discount="{{ product.discount_percentage|default:0 }}">
                 {% if default_color and default_color.images.all %}
                 {% for img in default_color.images.all %}
                 <div class="jockey-gallery-item">
@@ -71,10 +71,9 @@
             <!-- Rating & Reviews Bar -->
             <div class="jockey-rating-row">
                 <div class="jockey-rating-badge">
-                    <i class="fa-solid fa-star"></i> <span>{{ product.rating }}</span>
+                    <i class="fa-solid fa-star"></i> <span>{{ product.computed_rating }}</span>
                 </div>
-                <span class="jockey-rating-counts"><b>{{ product.ratings_count }}</b> Ratings & <b>{{
-                        product.reviews_count }}</b> Reviews</span>
+                <span class="jockey-rating-counts"><b>{{ product.computed_reviews_count }}</b> Ratings & <b>{{ product.computed_reviews_count }}</b> Reviews</span>
             </div>
 
             <!-- Colour Variants Selector -->
@@ -91,7 +90,7 @@
                         {% if c.swatch_image_url %}
                         <img src="{{ c.swatch_image_url }}" alt="{{ c.color_name }}">
                         {% else %}
-                        <span class="color-dot" style="background-color: {{ c.color_code }};"></span>
+                        <span class="color-dot" style="--color: {{ c.color_code }}; background-color: var(--color);"></span>
                         {% endif %}
                     </button>
                     {% endfor %}
@@ -144,14 +143,14 @@
                     <span class="jockey-ship-label">Ship To</span>
                 </div>
                 <div class="jockey-cta-row">
-                    <button type="button" class="jockey-icon-btn" title="Share Product" onclick="shareProduct()">
+                    <button type="button" class="jockey-icon-btn" title="Share Product" data-title="{{ product.brand_name }} - {{ product.title }}" onclick="shareProduct(this)">
                         <i class="fa-solid fa-share-nodes"></i>
                     </button>
                     <button type="button" class="jockey-icon-btn wishlist-btn" id="wishlistBtn" title="Add to Wishlist"
                         data-product-id="{{ product.id }}" onclick="toggleWishlist(this)">
                         <i class="fa-regular fa-heart"></i>
                     </button>
-                    <button type="button" class="jockey-buy-now-btn" id="buyNowBtn" onclick="buyNow(event)">Buy
+                    <button type="button" class="jockey-buy-now-btn" id="buyNowBtn" data-product-id="{{ product.id }}" onclick="buyNow(event, this)">Buy
                         Now</button>
                     <button type="button" class="jockey-add-bag-btn" data-product-id="{{ product.id }}"
                         onclick="addToBag(this)">
@@ -218,20 +217,18 @@
                         {% endif %}
                         {% endfor %}
                 </div>
-                <div class="reviews-avg-count">{{ product.computed_reviews_count }} review{{
-                    product.computed_reviews_count|pluralize }}</div>
+                <div class="reviews-avg-count">{{ product.computed_reviews_count }} review{{ product.computed_reviews_count|pluralize }}</div>
             </div>
 
             <div class="reviews-bars">
-                {% for star in "54321" %}
+                {% for stat in review_stats %}
                 <div class="review-bar-row">
-                    <span class="review-bar-num">{{ star }}</span>
+                    <span class="review-bar-num">{{ stat.star }}</span>
                     <i class="fa-solid fa-star" style="color: #f59e0b; font-size: 0.75rem;"></i>
                     <div class="review-bar-track">
-                        <div class="review-bar-fill" style="width: {{ review_percentages|slice:forloop.counter0 }}%;">
-                        </div>
+                        <div class="review-bar-fill" style="--fill-pct: {{ stat.percent }}%; width: var(--fill-pct);"></div>
                     </div>
-                    <span class="review-bar-count">{{ review_counts|slice:forloop.counter0 }}</span>
+                    <span class="review-bar-count">{{ stat.count }}</span>
                 </div>
                 {% endfor %}
             </div>
@@ -246,13 +243,13 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label>Your Rating <span style="color: #ef4444;">*</span></label>
-                    <div id="starRating" class="star-rating-input">
+                    <div id="starRating" class="star-rating-input" data-user-rating="{{ user_review.rating|default:2 }}">
                         {% for i in "12345" %}
                         {% with star_val=forloop.counter %}
-                        <label id="starLabel{{ star_val }}"
+                        <label id="starLabel{{ star_val }}" data-star="{{ star_val }}"
                             class="{% if user_review and forloop.counter <= user_review.rating %}active{% elif not user_review and forloop.counter <= 2 %}active{% endif %}"
-                            onmouseover="hoverStars({{ star_val }})" onmouseout="resetStars()"
-                            onclick="selectStars({{ star_val }})">
+                            onmouseover="hoverStars(parseInt(this.dataset.star))" onmouseout="resetStars()"
+                            onclick="selectStars(parseInt(this.dataset.star))">
                             <i class="fa-solid fa-star"></i>
                             <input type="radio" name="rating" value="{{ star_val }}" style="display: none;" {% if user_review and forloop.counter == user_review.rating %}checked{% elif not user_review and forloop.counter == 2 %}checked{% endif %}>
                         </label>
@@ -329,8 +326,62 @@
     </div>
 </div>
 
+<!-- Recommended Products Section -->
+{% if recommended_products %}
+<div class="container product-detail-container" style="margin-top: 2.5rem; margin-bottom: 2.5rem;">
+    <div class="recommended-section" style="background: #fff; border-radius: 12px; padding: 2rem; border: 1px solid var(--border-light, #e5e7eb); box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+        <div class="recommended-header" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-light, #e5e7eb); padding-bottom: 1rem;">
+            <div>
+                <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text-main, #1f2937); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fa-solid fa-sparkles" style="color: #f59e0b;"></i> Recommended For You
+                </h3>
+                <p style="font-size: 0.85rem; color: var(--text-muted, #6b7280); margin: 0.25rem 0 0 0;">Explore similar items you might like based on this product</p>
+            </div>
+            <a href="{% url 'product_list' %}" style="font-size: 0.88rem; font-weight: 600; color: #e91e63; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
+                View All <i class="fa-solid fa-arrow-right" style="font-size: 0.78rem;"></i>
+            </a>
+        </div>
+
+        <div class="grid grid-cols-3 catalog-grid" style="gap: 1.5rem;">
+            {% for rec in recommended_products %}
+            <div class="product-card" data-url="{% url 'product_detail' rec.slug %}" onclick="window.location=this.dataset.url;" style="cursor: pointer;">
+                <div class="product-thumb">
+                    {% if rec.discount_percentage > 0 %}
+                        <span class="badge badge-danger product-badge">-{{ rec.discount_percentage }}%</span>
+                    {% endif %}
+                    <img src="{{ rec.primary_image }}" alt="{{ rec.title }}">
+                    <div class="product-actions">
+                        <button type="button" class="action-btn" onclick="event.stopPropagation(); toggleWishlist(this)" data-product-id="{{ rec.id }}" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                        <a href="{% url 'product_detail' rec.slug %}" class="action-btn" title="View Details" onclick="event.stopPropagation()"><i class="fa-regular fa-eye"></i></a>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <span class="product-category">{{ rec.brand_name }} • {{ rec.category.name|default:"General" }}</span>
+                    <h3 class="product-title">{{ rec.title }}</h3>
+                    <div class="product-rating">
+                        <div class="stars"><i class="fa-solid fa-star" style="color: #f59e0b;"></i></div>
+                        <span class="rating-count"><strong>{{ rec.computed_rating }}</strong> ({{ rec.computed_reviews_count }})</span>
+                    </div>
+                    <div class="product-price-row">
+                        <div class="price-box">
+                            <span class="price-current">₹{{ rec.price|floatformat:0 }}</span>
+                            {% if rec.mrp > rec.price %}
+                                <span class="price-old">₹{{ rec.mrp|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+                        <button type="button" class="btn-cart-add" data-product-id="{{ rec.id }}" onclick="event.stopPropagation(); addToBag(this)" title="Add to Bag"><i class="fa-solid fa-bag-shopping"></i></button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <script>
-    let selectedRating = {{ user_review.rating|default:2 }};
+    const starRatingContainer = document.getElementById('starRating');
+    let selectedRating = starRatingContainer ? parseInt(starRatingContainer.getAttribute('data-user-rating') || '2') : 2;
     let currentRating = selectedRating;
 
     function hoverStars(n) {
@@ -363,7 +414,8 @@
         const imageContainer = document.getElementById('color-images-' + colorId);
         const galleryGrid = document.getElementById('multiAngleGalleryGrid');
 
-        const discountPercentage = parseInt("{{ product.discount_percentage|default:0 }}");
+        const discountAttr = galleryGrid ? galleryGrid.getAttribute('data-discount') : '0';
+        const discountPercentage = parseInt(discountAttr || '0');
         const hasDiscount = discountPercentage > 0;
 
         if (imageContainer && galleryGrid) {
@@ -404,8 +456,8 @@
         return '';
     }
 
-    function shareProduct() {
-        const title = "{{ product.brand_name }} - {{ product.title }}";
+    function shareProduct(btn) {
+        const title = btn ? btn.getAttribute('data-title') : document.title;
         const url = window.location.href;
         if (navigator.share) {
             navigator.share({ title: title, url: url });
@@ -489,10 +541,10 @@
             });
     }
 
-    function buyNow(e) {
+    function buyNow(e, btn) {
         e.preventDefault();
-        const btn = document.getElementById('buyNowBtn');
-        const productId = '{{ product.id }}';
+        btn = btn || document.getElementById('buyNowBtn');
+        const productId = btn ? btn.getAttribute('data-product-id') : '';
         const activeSize = document.querySelector('.jockey-size-btn.active');
         const size = activeSize ? activeSize.getAttribute('data-size') : '';
         const activeColor = document.querySelector('.color-swatch-btn.active');

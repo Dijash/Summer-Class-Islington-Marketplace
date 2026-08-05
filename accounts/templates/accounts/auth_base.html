@@ -21,8 +21,10 @@
         <img src="{% static 'assets/login image.jpg' %}" alt="MarketPlace Showcase" class="full-bg-image">
     </section>
 </main>
-
-{% block auth_scripts %}{% endblock %}
 {% endblock %}
 
 {% block footer %}{% endblock %}
+
+{% block extra_scripts %}
+{% block auth_scripts %}{% endblock %}
+{% endblock %}

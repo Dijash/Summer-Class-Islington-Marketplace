@@ -17,3 +17,13 @@ def index(request):
 
 def contact(request):
     return render(request, 'core/contact.html')
+
+def custom_404(request, exception=None):
+    return render(request, 'error_page/404.html', status=404)
+
+import traceback
+
+def custom_500(request):
+    traceback.print_exc()
+    return render(request, 'error_page/500.html', status=500)
+

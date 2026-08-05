@@ -14,11 +14,7 @@
     <form action="{% url 'register' %}" method="POST" class="auth-form slide-up-anim" id="registerForm" style="--delay: 0.2s;" novalidate>
         {% csrf_token %}
 
-        {% if error %}
-        <div class="auth-error-msg">
-            <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
-        </div>
-        {% endif %}
+
         
         <!-- Account Type Selector (Segmented Control) -->
         <div class="form-group">
@@ -125,6 +121,15 @@
 {% endblock %}
 
 {% block auth_scripts %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="django-flash-message" data-message="{{ message|escapejs }}" data-type="{% if message.tags == 'error' or message.tags == 'danger' %}error{% else %}success{% endif %}"></div>
+    {% endfor %}
+{% endif %}
+{% if error %}
+    <div class="django-flash-message" data-message="{{ error|escapejs }}" data-type="error"></div>
+{% endif %}
+
 <script>
 function toggleAuthPassword(btn) {
     const container = btn.closest('.input-with-icon');
@@ -139,6 +144,10 @@ function toggleAuthPassword(btn) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.django-flash-message').forEach(el => {
+        showToast(el.dataset.message, el.dataset.type);
+    });
+
     const inputs = {
         firstName: document.getElementById('regFirstName'),
         lastName: document.getElementById('regLastName'),

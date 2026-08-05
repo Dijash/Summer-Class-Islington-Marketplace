@@ -4,9 +4,26 @@ from core.models import Category
 
 
 class SellerProfile(models.Model):
+    STATUS_CHOICES = [
+        ('unapplied', 'Not Applied'),
+        ('pending', 'Pending Approval'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='seller_profile')
     shop_name = models.CharField(max_length=200)
     shop_description = models.TextField(blank=True, default='')
+
+    # Seller Verification & Document Fields
+    business_name = models.CharField(max_length=255, blank=True, default='')
+    pan_vat_number = models.CharField(max_length=50, blank=True, default='')
+    pan_vat_front = models.ImageField(upload_to='seller_documents/', blank=True, null=True)
+    pan_vat_back = models.ImageField(upload_to='seller_documents/', blank=True, null=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unapplied')
+    admin_note = models.TextField(blank=True, default='', help_text='Feedback or rejection reason from admin')
+    submitted_at = models.DateTimeField(null=True, blank=True)
+
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=5.0)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -88,3 +105,19 @@ class ProductRequest(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+
+
+class ProductRequestImage(models.Model):
+    product_request = models.ForeignKey(ProductRequest, on_delete=models.CASCADE, related_name='images')
+    color_index = models.PositiveIntegerField(default=0)
+    color_name = models.CharField(max_length=100, blank=True, default='')
+    image = models.ImageField(upload_to='seller_products/')
+    angle_label = models.CharField(max_length=100, default='Front View')
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['color_index', 'order']
+
+    def __str__(self):
+        return f"{self.product_request.title} - {self.color_name} ({self.angle_label})"
+

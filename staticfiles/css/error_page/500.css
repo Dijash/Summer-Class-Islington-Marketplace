@@ -1,0 +1,188 @@
+/* ==========================================================================
+   500 ERROR PAGE STYLES
+   ========================================================================== */
+
+.error-page-wrapper {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background-color: #f8fafc;
+}
+
+.error-card {
+  width: 100%;
+  max-width: 680px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 24px;
+  padding: 3.5rem 2.5rem;
+  text-align: center;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.08);
+  position: relative;
+  overflow: hidden;
+  animation: slideUpError 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideUpError {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error-content-inner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Graphic 500 Display */
+.error-code-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.error-code-number {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 7rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -3px;
+  color: #0f172a;
+}
+
+.error-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.85rem;
+}
+
+.error-description {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 auto 2rem auto;
+}
+
+/* Action Buttons */
+.error-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+
+.btn-error-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #0f172a;
+  color: #ffffff;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 50px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+}
+
+.btn-error-primary:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(220, 38, 38, 0.3);
+}
+
+.btn-error-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #f8fafc;
+  color: #0f172a;
+  border: 1.5px solid #e2e8f0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  padding: 0.85rem 1.75rem;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.btn-error-secondary:hover {
+  background-color: #ffffff;
+  border-color: #0f172a;
+  color: #0f172a;
+  transform: translateY(-2px);
+}
+
+/* Quick Navigation Links */
+.error-quick-links {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 1.5rem;
+}
+
+.error-quick-links p {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.quick-links-grid {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.quick-links-grid a {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #0f172a;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: color 0.15s ease;
+}
+
+.quick-links-grid a:hover {
+  color: #dc2626;
+}
+
+@media (max-width: 576px) {
+  .error-card {
+    padding: 2.5rem 1.5rem;
+  }
+
+  .error-code-number {
+    font-size: 5rem;
+  }
+
+  .error-title {
+    font-size: 1.5rem;
+  }
+}

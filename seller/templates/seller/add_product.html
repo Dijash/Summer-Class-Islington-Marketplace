@@ -68,19 +68,19 @@
                 </div>
                 <div class="form-group">
                     <label>Category <span style="color: #ef4444;">*</span></label>
-                    <select name="category" class="form-control" required>
+                    <select name="category" id="categorySelect" class="form-control" required>
                         <option value="">Select a category</option>
                         {% for parent in parent_categories %}
                             {% if parent.subcategories.all %}
                                 <optgroup label="{{ parent.name }}">
                                     {% for child in parent.subcategories.all %}
                                         {% if child.is_active %}
-                                            <option value="{{ child.id }}" {% if form_data.category == child.id|stringformat:"s" %}selected{% endif %}>{{ child.name }}</option>
+                                            <option value="{{ child.id }}" data-category-name="{{ child.name }}" {% if form_data.category == child.id|stringformat:"s" %}selected{% endif %}>{{ child.name }}</option>
                                         {% endif %}
                                     {% endfor %}
                                 </optgroup>
                             {% else %}
-                                <option value="{{ parent.id }}" {% if form_data.category == parent.id|stringformat:"s" %}selected{% endif %}>{{ parent.name }}</option>
+                                <option value="{{ parent.id }}" data-category-name="{{ parent.name }}" {% if form_data.category == parent.id|stringformat:"s" %}selected{% endif %}>{{ parent.name }}</option>
                             {% endif %}
                         {% endfor %}
                     </select>
@@ -101,6 +101,12 @@
                     <input type="number" name="quantity" class="form-control" value="{{ form_data.quantity|default:'1' }}" min="1" required>
                 </div>
             </div>
+
+            <!-- Instant Auto-Calculated Discount Banner -->
+            <div id="discountBanner" style="display: none; margin-top: 0.5rem; padding: 0.65rem 1rem; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; color: #166534; font-size: 0.85rem; font-weight: 600; align-items: center; gap: 0.5rem;">
+                <i class="fa-solid fa-tags" style="color: #16a34a;"></i>
+                <span>Instant Calculation: Customer gets <strong id="discountPercent" style="color: #15803d; font-size: 0.95rem;">0% OFF</strong> (<span id="discountSavings">₹0.00</span> savings)</span>
+            </div>
         </div>
 
         <div class="wizard-nav">
@@ -118,24 +124,71 @@
                 <i class="fa-solid fa-palette" style="color: var(--seller-sidebar-active);"></i> Color & Sizes
             </h3>
 
-            <div class="form-grid-2">
-                <div class="form-group">
-                    <label>Color Name</label>
-                    <input type="text" name="color_name" class="form-control" value="{{ form_data.color_name|default:'Default' }}" placeholder="e.g. Midnight Navy, Orchid Smoke">
+            <!-- Dynamic Multiple Colors Section -->
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                    <label style="font-size: 0.9rem; font-weight: 600; color: var(--seller-text-main); margin: 0;">Color Variants</label>
+                    <small style="color: var(--seller-text-muted); font-size: 0.78rem;">Color hex is auto-derived from name</small>
                 </div>
-                <div class="form-group">
-                    <label>Color Code</label>
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <input type="color" name="color_code" value="{{ form_data.color_code|default:'#000000' }}" style="width: 48px; height: 40px; border: 1px solid var(--seller-border); border-radius: 6px; cursor: pointer; padding: 2px;">
-                        <input type="text" name="color_code_text" class="form-control" value="{{ form_data.color_code|default:'#000000' }}" placeholder="#000000" style="flex: 1;" id="colorCodeText">
-                    </div>
+                
+                <div id="colorsContainer">
+                    {% if colors_list %}
+                        {% for cname, ccode in colors_list %}
+                        <div class="color-row" style="display: flex; align-items: flex-end; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.8rem; color: var(--seller-text-muted); margin-bottom: 0.25rem; display: block;">Color Name</label>
+                                <div style="position: relative; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span class="color-preview-badge" style="position: absolute; left: 12px; width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); --preview-bg: {{ ccode }}; background-color: var(--preview-bg); transition: background-color 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></span>
+                                    <input type="text" name="color_name" class="form-control color-name-input" value="{{ cname }}" placeholder="e.g. Midnight Navy, Crimson, Olive" style="padding-left: 44px; flex: 1;" required>
+                                    <div class="color-code-display-pill" style="display: flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.75rem; background: #f8fafc; border: 1px solid var(--seller-border); border-radius: 6px; white-space: nowrap; height: 42px;" title="Auto-detected Hex Code">
+                                        <span style="font-size: 0.7rem; font-weight: 700; color: var(--seller-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">HEX</span>
+                                        <span class="color-hex-text" style="font-size: 0.85rem; font-family: monospace; font-weight: 600; color: var(--seller-text-main);">{{ ccode }}</span>
+                                    </div>
+                                    <input type="hidden" name="color_code" class="color-code-hidden" value="{{ ccode }}">
+                                </div>
+                            </div>
+                            <button type="button" class="btn-remove-color" style="display: none; background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; border-radius: 6px; padding: 0.55rem 0.85rem; cursor: pointer; align-items: center; justify-content: center; height: 42px;" title="Remove Color">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="color-row" style="display: flex; align-items: flex-end; gap: 0.75rem; margin-bottom: 0.75rem;">
+                            <div style="flex: 1;">
+                                <label style="font-size: 0.8rem; color: var(--seller-text-muted); margin-bottom: 0.25rem; display: block;">Color Name</label>
+                                <div style="position: relative; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span class="color-preview-badge" style="position: absolute; left: 12px; width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); background-color: #111111; transition: background-color 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></span>
+                                    <input type="text" name="color_name" class="form-control color-name-input" value="Black" placeholder="e.g. Midnight Navy, Crimson, Olive" style="padding-left: 44px; flex: 1;" required>
+                                    <div class="color-code-display-pill" style="display: flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.75rem; background: #f8fafc; border: 1px solid var(--seller-border); border-radius: 6px; white-space: nowrap; height: 42px;" title="Auto-detected Hex Code">
+                                        <span style="font-size: 0.7rem; font-weight: 700; color: var(--seller-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">HEX</span>
+                                        <span class="color-hex-text" style="font-size: 0.85rem; font-family: monospace; font-weight: 600; color: var(--seller-text-main);">#111111</span>
+                                    </div>
+                                    <input type="hidden" name="color_code" class="color-code-hidden" value="#111111">
+                                </div>
+                            </div>
+                            <button type="button" class="btn-remove-color" style="display: none; background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; border-radius: 6px; padding: 0.55rem 0.85rem; cursor: pointer; align-items: center; justify-content: center; height: 42px;" title="Remove Color">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    {% endif %}
                 </div>
+
+                <button type="button" id="btnAddColor" style="background: #f8fafc; color: var(--seller-text-main); border: 1px solid var(--seller-border); border-radius: 6px; padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; transition: background 0.2s;">
+                    <i class="fa-solid fa-plus" style="color: var(--seller-sidebar-active);"></i> Add Another Color
+                </button>
             </div>
 
+            <!-- Dynamic Category-based Available Sizes -->
             <div class="form-group">
                 <label>Available Sizes</label>
+                
+                <div id="noSizeNotice" style="display: none; padding: 1.25rem; background: #f8fafc; border: 1px dashed var(--seller-border); border-radius: 8px; color: var(--seller-text-muted); font-size: 0.85rem; text-align: center;">
+                    <i class="fa-solid fa-info-circle" style="color: var(--seller-sidebar-active); margin-right: 0.4rem;"></i>
+                    No size options required for the selected category.
+                </div>
+
                 <div class="size-checkbox-grid">
-                    <div class="size-group">
+                    <div class="size-group" id="sizeGroupClothing">
                         <span class="size-group-label">Clothing</span>
                         <div class="size-checkbox-row">
                             {% for s in sizes_clothing %}
@@ -146,7 +199,7 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="size-group">
+                    <div class="size-group" id="sizeGroupLingerie">
                         <span class="size-group-label">Lingerie</span>
                         <div class="size-checkbox-row">
                             {% for s in sizes_lingerie %}
@@ -157,7 +210,7 @@
                             {% endfor %}
                         </div>
                     </div>
-                    <div class="size-group">
+                    <div class="size-group" id="sizeGroupFootwear">
                         <span class="size-group-label">Footwear (UK)</span>
                         <div class="size-checkbox-row">
                             {% for s in sizes_footwear %}
@@ -169,7 +222,7 @@
                         </div>
                     </div>
                 </div>
-                <small style="color: var(--seller-text-muted); font-size: 0.75rem;">Select all applicable sizes. Leave all unchecked if not applicable.</small>
+                <small style="color: var(--seller-text-muted); font-size: 0.75rem; margin-top: 0.5rem; display: block;">Select all applicable sizes. Leave all unchecked if not applicable.</small>
             </div>
         </div>
 
@@ -195,56 +248,14 @@
                 <textarea name="description" class="form-control" rows="5" placeholder="Highlight the key features and benefits of this product...">{{ form_data.description|default:'' }}</textarea>
             </div>
 
-            <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--seller-text-main); margin-bottom: 1rem;">Product Images (Up to 4)</label>
-            <div class="form-grid-4">
-                <div class="form-group">
-                    <label style="font-size: 0.8rem; color: var(--seller-text-muted);">Image 1 <span style="color: #ef4444;">*</span></label>
-                    <div class="image-upload-dropzone" id="imageDropzone1">
-                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
-                        <span style="font-size: 0.82rem; font-weight: 600;">Front View</span>
-                        <input type="file" name="image" id="imageFileInput1" class="dropzone-file-input" accept="image/*">
-                    </div>
-                    <div class="image-preview-wrapper" id="imagePreviewWrapper1" style="display:none;">
-                        <img id="imagePreview1" src="" alt="Preview">
-                        <button type="button" class="remove-preview-btn remove-preview-btn-1"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label style="font-size: 0.8rem; color: var(--seller-text-muted);">Image 2</label>
-                    <div class="image-upload-dropzone" id="imageDropzone2">
-                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
-                        <span style="font-size: 0.82rem; font-weight: 600;">Side View</span>
-                        <input type="file" name="image2" id="imageFileInput2" class="dropzone-file-input" accept="image/*">
-                    </div>
-                    <div class="image-preview-wrapper" id="imagePreviewWrapper2" style="display:none;">
-                        <img id="imagePreview2" src="" alt="Preview">
-                        <button type="button" class="remove-preview-btn remove-preview-btn-2"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label style="font-size: 0.8rem; color: var(--seller-text-muted);">Image 3</label>
-                    <div class="image-upload-dropzone" id="imageDropzone3">
-                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
-                        <span style="font-size: 0.82rem; font-weight: 600;">Back View</span>
-                        <input type="file" name="image3" id="imageFileInput3" class="dropzone-file-input" accept="image/*">
-                    </div>
-                    <div class="image-preview-wrapper" id="imagePreviewWrapper3" style="display:none;">
-                        <img id="imagePreview3" src="" alt="Preview">
-                        <button type="button" class="remove-preview-btn remove-preview-btn-3"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label style="font-size: 0.8rem; color: var(--seller-text-muted);">Image 4</label>
-                    <div class="image-upload-dropzone" id="imageDropzone4">
-                        <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
-                        <span style="font-size: 0.82rem; font-weight: 600;">Detail View</span>
-                        <input type="file" name="image4" id="imageFileInput4" class="dropzone-file-input" accept="image/*">
-                    </div>
-                    <div class="image-preview-wrapper" id="imagePreviewWrapper4" style="display:none;">
-                        <img id="imagePreview4" src="" alt="Preview">
-                        <button type="button" class="remove-preview-btn remove-preview-btn-4"><i class="fa-solid fa-xmark"></i></button>
-                    </div>
-                </div>
+            <!-- Dynamic Image Upload Container per Color -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+                <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--seller-text-main); margin: 0;">Color Variant Images</label>
+                <small style="color: var(--seller-text-muted); font-size: 0.78rem;">Upload up to 4 images per color (Front, Side, Back, Detail)</small>
+            </div>
+
+            <div id="colorImagesContainer">
+                <!-- Dynamically populated per color variant -->
             </div>
         </div>
 
@@ -309,7 +320,8 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.wizard-panel').forEach(function(p) { p.classList.remove('active'); });
         document.querySelectorAll('.wizard-step').forEach(function(s) { s.classList.remove('active', 'completed'); });
 
-        document.querySelector('[data-panel="' + step + '"]').classList.add('active');
+        var targetPanel = document.querySelector('[data-panel="' + step + '"]');
+        if (targetPanel) targetPanel.classList.add('active');
 
         document.querySelectorAll('.wizard-step').forEach(function(s) {
             var sNum = parseInt(s.getAttribute('data-step'));
@@ -318,13 +330,289 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         currentStep = step;
+        if (step === 2) {
+            updateSizeVisibility();
+        } else if (step === 3) {
+            syncColorImageSections();
+        }
         window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // --- Dynamic Per-Color Image Sections ---
+    function syncColorImageSections() {
+        var container = document.getElementById('colorImagesContainer');
+        if (!container) return;
+
+        var colorRows = document.querySelectorAll('.color-row');
+        var colors = [];
+        colorRows.forEach(function(row, idx) {
+            var nameInput = row.querySelector('.color-name-input');
+            var hiddenCode = row.querySelector('.color-code-hidden');
+            var cname = nameInput && nameInput.value.trim() ? nameInput.value.trim() : 'Color ' + (idx + 1);
+            var ccode = hiddenCode ? hiddenCode.value : '#111111';
+            colors.push({ index: idx, name: cname, code: ccode });
+        });
+
+        if (colors.length === 0) {
+            colors.push({ index: 0, name: 'Default Color', code: '#111111' });
+        }
+
+        // Remove surplus sections if colors were removed in Step 2
+        var existingCards = container.querySelectorAll('.color-image-card');
+        existingCards.forEach(function(card) {
+            var cIdx = parseInt(card.getAttribute('data-color-index'));
+            if (cIdx >= colors.length) {
+                card.remove();
+            }
+        });
+
+        colors.forEach(function(col, idx) {
+            var card = container.querySelector('.color-image-card[data-color-index="' + idx + '"]');
+            if (!card) {
+                card = document.createElement('div');
+                card.className = 'color-image-card';
+                card.setAttribute('data-color-index', idx);
+                card.style.cssText = 'margin-bottom: 1.5rem; background: #fafafa; border: 1px solid var(--seller-border); border-radius: 8px; padding: 1.25rem;';
+                
+                var angles = [
+                    { label: 'Front View', key: '0', required: (idx === 0) },
+                    { label: 'Side View', key: '1', required: false },
+                    { label: 'Back View', key: '2', required: false },
+                    { label: 'Detail View', key: '3', required: false }
+                ];
+
+                var gridHtml = angles.map(function(ang, aIdx) {
+                    var inputName = 'color_' + idx + '_image_' + aIdx;
+                    return `
+                        <div class="form-group">
+                            <label style="font-size: 0.8rem; color: var(--seller-text-muted); display: flex; align-items: center; justify-content: space-between;">
+                                <span>${ang.label} ${ang.required ? '<span style="color: #ef4444;">*</span>' : ''}</span>
+                            </label>
+                            <div class="image-upload-dropzone" id="dropzone_${idx}_${aIdx}">
+                                <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
+                                <span style="font-size: 0.82rem; font-weight: 600;">${ang.label}</span>
+                                <input type="file" name="${inputName}" class="dropzone-file-input" accept="image/*" ${ang.required ? 'data-required="true"' : ''}>
+                            </div>
+                            <div class="image-preview-wrapper" id="preview_wrapper_${idx}_${aIdx}" style="display:none;">
+                                <img id="preview_img_${idx}_${aIdx}" src="" alt="Preview">
+                                <button type="button" class="remove-preview-btn" data-color-idx="${idx}" data-angle-idx="${aIdx}"><i class="fa-solid fa-xmark"></i></button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                card.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; border-bottom: 1px solid var(--seller-border); padding-bottom: 0.75rem;">
+                        <span class="card-color-swatch" style="width: 18px; height: 18px; border-radius: 50%; background-color: ${col.code}; border: 1px solid rgba(0,0,0,0.15); display: inline-block;"></span>
+                        <h4 class="card-color-title" style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--seller-text-main);">Images for ${col.name}</h4>
+                        <span style="font-size: 0.75rem; color: var(--seller-text-muted); margin-left: auto;">Up to 4 angles</span>
+                    </div>
+                    <div class="form-grid-4">
+                        ${gridHtml}
+                    </div>
+                `;
+
+                container.appendChild(card);
+                bindDropzonesForCard(card, idx);
+            } else {
+                // Update swatch and title text if color name changed
+                var swatch = card.querySelector('.card-color-swatch');
+                var title = card.querySelector('.card-color-title');
+                if (swatch) swatch.style.backgroundColor = col.code;
+                if (title) title.textContent = 'Images for ' + col.name;
+            }
+        });
+    }
+
+    function bindDropzonesForCard(card, colorIdx) {
+        [0, 1, 2, 3].forEach(function(aIdx) {
+            var dropzone = card.querySelector('#dropzone_' + colorIdx + '_' + aIdx);
+            var fileInput = card.querySelector('input[name="color_' + colorIdx + '_image_' + aIdx + '"]');
+            var previewWrapper = card.querySelector('#preview_wrapper_' + colorIdx + '_' + aIdx);
+            var previewImg = card.querySelector('#preview_img_' + colorIdx + '_' + aIdx);
+            var removeBtn = card.querySelector('.remove-preview-btn[data-angle-idx="' + aIdx + '"]');
+
+            if (fileInput) {
+                fileInput.addEventListener('change', function(e) {
+                    var file = e.target.files[0];
+                    if (file && file.type.startsWith('image/')) {
+                        var reader = new FileReader();
+                        reader.onload = function(ev) {
+                            previewImg.src = ev.target.result;
+                            previewWrapper.style.display = 'block';
+                            if (dropzone) dropzone.style.display = 'none';
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                });
+            }
+
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function() {
+                    if (fileInput) fileInput.value = '';
+                    if (previewWrapper) previewWrapper.style.display = 'none';
+                    if (dropzone) dropzone.style.display = 'flex';
+                });
+            }
+        });
+    }
+
+    // --- Validation logic ---
+    function validateStep(step) {
+        var panel = document.querySelector('[data-panel="' + step + '"]');
+        if (!panel) return true;
+
+        var isValid = true;
+        var firstInvalidEl = null;
+
+        // Clear previous error states
+        panel.querySelectorAll('.form-control').forEach(function(input) {
+            input.style.borderColor = '';
+        });
+        panel.querySelectorAll('.image-upload-dropzone').forEach(function(dz) {
+            dz.style.borderColor = '';
+        });
+
+        if (step === 1) {
+            var title = panel.querySelector('input[name="title"]');
+            var brand = panel.querySelector('input[name="brand_name"]');
+            var category = panel.querySelector('select[name="category"]');
+            var mrp = panel.querySelector('input[name="mrp"]');
+            var price = panel.querySelector('input[name="price"]');
+            var quantity = panel.querySelector('input[name="quantity"]');
+
+            if (title && !title.value.trim()) {
+                title.style.borderColor = '#ef4444';
+                if (!firstInvalidEl) firstInvalidEl = title;
+                isValid = false;
+            }
+            if (brand && !brand.value.trim()) {
+                brand.style.borderColor = '#ef4444';
+                if (!firstInvalidEl) firstInvalidEl = brand;
+                isValid = false;
+            }
+            if (category && (!category.value || category.value === '')) {
+                category.style.borderColor = '#ef4444';
+                if (!firstInvalidEl) firstInvalidEl = category;
+                isValid = false;
+            }
+            var mrpVal = mrp ? parseFloat(mrp.value) : 0;
+            if (mrp && (isNaN(mrpVal) || mrpVal <= 0)) {
+                mrp.style.borderColor = '#ef4444';
+                if (!firstInvalidEl) firstInvalidEl = mrp;
+                isValid = false;
+            }
+            var priceVal = price ? parseFloat(price.value) : 0;
+            if (price && (isNaN(priceVal) || priceVal <= 0 || (mrpVal > 0 && priceVal > mrpVal))) {
+                price.style.borderColor = '#ef4444';
+                if (!firstInvalidEl) firstInvalidEl = price;
+                isValid = false;
+            }
+            var qtyVal = quantity ? parseInt(quantity.value) : 0;
+            if (quantity && (isNaN(qtyVal) || qtyVal <= 0)) {
+                quantity.style.borderColor = '#ef4444';
+                if (!firstInvalidEl) firstInvalidEl = quantity;
+                isValid = false;
+            }
+        } else if (step === 2) {
+            var colorNames = panel.querySelectorAll('input[name="color_name"]');
+            var hasColor = false;
+            colorNames.forEach(function(cn) {
+                if (cn.value.trim()) hasColor = true;
+                else cn.style.borderColor = '#ef4444';
+            });
+            if (!hasColor && colorNames.length > 0) {
+                if (!firstInvalidEl) firstInvalidEl = colorNames[0];
+                isValid = false;
+            }
+        } else if (step === 3) {
+            var color0Input = panel.querySelector('input[name="color_0_image_0"]');
+            var color0Wrapper = panel.querySelector('#preview_wrapper_0_0');
+
+            var hasImg0 = (color0Input && color0Input.files.length > 0) || (color0Wrapper && color0Wrapper.style.display !== 'none');
+
+            if (!hasImg0) {
+                var dropzone0 = panel.querySelector('#dropzone_0_0');
+                if (dropzone0) dropzone0.style.borderColor = '#ef4444';
+                if (!firstInvalidEl) firstInvalidEl = color0Input;
+                isValid = false;
+            }
+        }
+
+        if (!isValid && firstInvalidEl) {
+            firstInvalidEl.focus();
+            showStepErrorNotice("Please fill out all required fields marked in red before proceeding.");
+        }
+
+        return isValid;
+    }
+
+    function validateAllSteps() {
+        for (var s = 1; s <= totalSteps; s++) {
+            if (!validateStep(s)) {
+                goToStep(s);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function showStepErrorNotice(msg) {
+        var activePanel = document.querySelector('.wizard-panel.active');
+        if (!activePanel) return;
+        var existing = activePanel.querySelector('.step-val-notice');
+        if (existing) existing.remove();
+
+        var notice = document.createElement('div');
+        notice.className = 'step-val-notice';
+        notice.style.cssText = 'background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.88rem; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;';
+        notice.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> <span>' + msg + '</span>';
+
+        var card = activePanel.querySelector('.card');
+        if (card) card.insertBefore(notice, card.firstChild);
+
+        setTimeout(function() {
+            if (notice) notice.remove();
+        }, 4000);
+    }
+
+    // --- Prevent Enter key from submitting form prematurely ---
+    var addProductForm = document.getElementById('addProductForm');
+    if (addProductForm) {
+        addProductForm.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                var tag = e.target.tagName.toLowerCase();
+                if (tag === 'input' || tag === 'select') {
+                    e.preventDefault();
+                    if (currentStep < totalSteps) {
+                        if (validateStep(currentStep)) {
+                            goToStep(currentStep + 1);
+                        }
+                    } else if (currentStep === totalSteps) {
+                        if (validateAllSteps()) {
+                            addProductForm.submit();
+                        }
+                    }
+                    return false;
+                }
+            }
+        });
+
+        addProductForm.addEventListener('submit', function(e) {
+            if (!validateAllSteps()) {
+                e.preventDefault();
+                return false;
+            }
+        });
     }
 
     document.querySelectorAll('.wizard-next').forEach(function(btn) {
         btn.addEventListener('click', function() {
             var next = parseInt(this.getAttribute('data-next'));
-            goToStep(next);
+            var current = next - 1;
+            if (validateStep(current)) {
+                goToStep(next);
+            }
         });
     });
 
@@ -338,52 +626,224 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.wizard-step').forEach(function(stepEl) {
         stepEl.addEventListener('click', function() {
             var target = parseInt(this.getAttribute('data-step'));
-            if (target <= currentStep) goToStep(target);
+            if (target <= currentStep) {
+                goToStep(target);
+            } else {
+                if (validateStep(currentStep)) {
+                    goToStep(target);
+                }
+            }
         });
     });
 
-    function setupDropzone(dropzoneId, fileInputId, previewWrapperId, previewImgId, removeBtnClass) {
-        var dropzone = document.getElementById(dropzoneId);
-        var fileInput = document.getElementById(fileInputId);
-        var previewWrapper = document.getElementById(previewWrapperId);
-        var previewImg = document.getElementById(previewImgId);
-        var removeBtn = document.querySelector('.' + removeBtnClass);
+    // --- Instant Auto-Calculated Discount & Savings ---
+    var mrpInput = document.querySelector('input[name="mrp"]');
+    var priceInput = document.querySelector('input[name="price"]');
+    var discountBanner = document.getElementById('discountBanner');
+    var discountPercent = document.getElementById('discountPercent');
+    var discountSavings = document.getElementById('discountSavings');
 
-        if (fileInput) {
-            fileInput.addEventListener('change', function(e) {
-                var file = e.target.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    var reader = new FileReader();
-                    reader.onload = function(ev) {
-                        previewImg.src = ev.target.result;
-                        previewWrapper.style.display = 'block';
-                        dropzone.style.display = 'none';
-                    };
-                    reader.readAsDataURL(file);
+    function calculateDiscount() {
+        if (!mrpInput || !priceInput || !discountBanner) return;
+        var mrp = parseFloat(mrpInput.value);
+        var price = parseFloat(priceInput.value);
+
+        if (!isNaN(mrp) && !isNaN(price) && mrp > 0 && price > 0 && mrp > price) {
+            var savings = mrp - price;
+            var percent = Math.round((savings / mrp) * 100);
+            if (discountPercent) discountPercent.textContent = percent + '% OFF';
+            if (discountSavings) discountSavings.textContent = '₹' + savings.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' savings';
+            discountBanner.style.display = 'flex';
+        } else {
+            discountBanner.style.display = 'none';
+        }
+    }
+
+    if (mrpInput && priceInput) {
+        mrpInput.addEventListener('input', calculateDiscount);
+        priceInput.addEventListener('input', calculateDiscount);
+        calculateDiscount();
+    }
+
+    // --- Dynamic Color Management & Instant Auto Color Calculation ---
+    function getColorHexFromName(name) {
+        if (!name || !name.trim()) return '#111111';
+        var clean = name.trim().toLowerCase();
+
+        var map = {
+            'black': '#111111', 'ebony': '#111111', 'pitch': '#111111', 'jet': '#111111', 'midnight': '#0f172a',
+            'white': '#ffffff', 'off white': '#fafaf9', 'off-white': '#fafaf9', 'cream': '#fef3c7', 'ivory': '#fffbeb', 'snow': '#f8fafc',
+            'navy': '#0f172a', 'midnight navy': '#020617', 'dark blue': '#1e3a8a', 'blue': '#2563eb', 'royal blue': '#1d4ed8', 'cobalt': '#1e40af', 'sky blue': '#38bdf8', 'light blue': '#7dd3fc', 'baby blue': '#bae6fd', 'indigo': '#4f46e5', 'azure': '#0284c7',
+            'red': '#dc2626', 'crimson': '#991b1b', 'ruby': '#b91c1c', 'scarlet': '#ef4444', 'cherry': '#c2410c', 'maroon': '#881337', 'burgundy': '#4c0519', 'wine': '#701a75', 'oxblood': '#450a0a',
+            'pink': '#ec4899', 'rose': '#f43f5e', 'blush': '#f472b6', 'dusty rose': '#fb7185', 'fuchsia': '#d946ef', 'magenta': '#c026d3', 'peach': '#fdba74', 'coral': '#fb923c',
+            'purple': '#8b5cf6', 'violet': '#7c3aed', 'plum': '#581c87', 'lavender': '#c084fc', 'lilac': '#e9d5ff', 'orchid': '#a855f7',
+            'green': '#16a34a', 'dark green': '#14532d', 'forest green': '#166534', 'emerald': '#059669', 'olive': '#65a30d', 'army green': '#3f6212', 'khaki': '#84cc16', 'sage': '#86efac', 'mint': '#6ee7b7', 'seafoam': '#99f6e4', 'lime green': '#16a34a',
+            'yellow': '#eab308', 'mustard': '#ca8a04', 'gold': '#d97706', 'lemon': '#fde047', 'canary': '#facc15',
+            'orange': '#ea580c', 'rust': '#c2410c', 'amber': '#f59e0b', 'terracotta': '#9a3412', 'copper': '#b45309',
+            'brown': '#78350f', 'chocolate': '#451a03', 'coffee': '#78350f', 'tan': '#d97706', 'camel': '#b45309', 'chestnut': '#78350f', 'bronze': '#92400e',
+            'beige': '#fef3c7', 'nude': '#fde68a', 'sand': '#fef08a', 'taupe': '#78716c', 'wheat': '#fef3c7',
+            'grey': '#475569', 'gray': '#475569', 'dark grey': '#1e293b', 'dark gray': '#1e293b', 'charcoal': '#334155', 'slate': '#64748b', 'silver': '#cbd5e1', 'ash': '#94a3b8',
+            'teal': '#0d9488', 'turquoise': '#14b8a6', 'cyan': '#06b6d4', 'aqua': '#22d3ee'
+        };
+
+        if (map[clean]) return map[clean];
+
+        var words = clean.split(/[\s\-_]+/);
+        for (var i = 0; i < words.length; i++) {
+            if (map[words[i]]) return map[words[i]];
+        }
+
+        try {
+            var dummy = document.createElement('div');
+            dummy.style.color = clean;
+            if (dummy.style.color) {
+                document.body.appendChild(dummy);
+                var cs = window.getComputedStyle(dummy).color;
+                document.body.removeChild(dummy);
+                if (cs && cs.startsWith('rgb')) {
+                    var rgb = cs.match(/\d+/g);
+                    if (rgb && rgb.length >= 3) {
+                        return "#" + ((1 << 24) + (parseInt(rgb[0]) << 16) + (parseInt(rgb[1]) << 8) + parseInt(rgb[2])).toString(16).slice(1);
+                    }
                 }
-            });
+            }
+        } catch(e) {}
+
+        var hash = 0;
+        for (var j = 0; j < clean.length; j++) {
+            hash = clean.charCodeAt(j) + ((hash << 5) - hash);
+        }
+        var h = Math.abs(hash) % 360;
+        return 'hsl(' + h + ', 45%, 45%)';
+    }
+
+    function bindColorRowEvents(row) {
+        var nameInput = row.querySelector('.color-name-input');
+        var badge = row.querySelector('.color-preview-badge');
+        var hexText = row.querySelector('.color-hex-text');
+        var hiddenInput = row.querySelector('.color-code-hidden');
+        var removeBtn = row.querySelector('.btn-remove-color');
+
+        if (nameInput) {
+            var updateColor = function() {
+                var hex = getColorHexFromName(nameInput.value);
+                if (badge) badge.style.backgroundColor = hex;
+                if (hexText) hexText.textContent = hex;
+                if (hiddenInput) hiddenInput.value = hex;
+                syncColorImageSections();
+            };
+            nameInput.addEventListener('input', updateColor);
+            updateColor();
         }
 
         if (removeBtn) {
             removeBtn.addEventListener('click', function() {
-                fileInput.value = '';
-                previewWrapper.style.display = 'none';
-                dropzone.style.display = 'flex';
+                row.remove();
+                updateRemoveButtons();
+                syncColorImageSections();
             });
         }
     }
 
-    setupDropzone('imageDropzone1', 'imageFileInput1', 'imagePreviewWrapper1', 'imagePreview1', 'remove-preview-btn-1');
-    setupDropzone('imageDropzone2', 'imageFileInput2', 'imagePreviewWrapper2', 'imagePreview2', 'remove-preview-btn-2');
-    setupDropzone('imageDropzone3', 'imageFileInput3', 'imagePreviewWrapper3', 'imagePreview3', 'remove-preview-btn-3');
-    setupDropzone('imageDropzone4', 'imageFileInput4', 'imagePreviewWrapper4', 'imagePreview4', 'remove-preview-btn-4');
-
-    var colorPicker = document.querySelector('input[type="color"]');
-    var colorText = document.getElementById('colorCodeText');
-    if (colorPicker && colorText) {
-        colorPicker.addEventListener('input', function() { colorText.value = this.value; });
-        colorText.addEventListener('input', function() { if (/^#[0-9A-Fa-f]{6}$/.test(this.value)) colorPicker.value = this.value; });
+    function updateRemoveButtons() {
+        var rows = document.querySelectorAll('.color-row');
+        rows.forEach(function(row) {
+            var removeBtn = row.querySelector('.btn-remove-color');
+            if (removeBtn) {
+                removeBtn.style.display = rows.length > 1 ? 'inline-flex' : 'none';
+            }
+        });
     }
+
+    var addColorBtn = document.getElementById('btnAddColor');
+    if (addColorBtn) {
+        addColorBtn.addEventListener('click', function() {
+            var container = document.getElementById('colorsContainer');
+            var row = document.createElement('div');
+            row.className = 'color-row';
+            row.style.cssText = 'display: flex; align-items: flex-end; gap: 0.75rem; margin-bottom: 0.75rem;';
+            row.innerHTML = `
+                <div style="flex: 1;">
+                    <label style="font-size: 0.8rem; color: var(--seller-text-muted); margin-bottom: 0.25rem; display: block;">Color Name</label>
+                    <div style="position: relative; display: flex; align-items: center; gap: 0.5rem;">
+                        <span class="color-preview-badge" style="position: absolute; left: 12px; width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.15); background-color: #3b82f6; transition: background-color 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.1);"></span>
+                        <input type="text" name="color_name" class="form-control color-name-input" placeholder="e.g. Midnight Navy, Crimson, Olive" style="padding-left: 44px; flex: 1;" required>
+                        <div class="color-code-display-pill" style="display: flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.75rem; background: #f8fafc; border: 1px solid var(--seller-border); border-radius: 6px; white-space: nowrap; height: 42px;" title="Auto-detected Hex Code">
+                            <span style="font-size: 0.7rem; font-weight: 700; color: var(--seller-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">HEX</span>
+                            <span class="color-hex-text" style="font-size: 0.85rem; font-family: monospace; font-weight: 600; color: var(--seller-text-main);">#3b82f6</span>
+                        </div>
+                        <input type="hidden" name="color_code" class="color-code-hidden" value="#3b82f6">
+                    </div>
+                </div>
+                <button type="button" class="btn-remove-color" style="display: none; background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; border-radius: 6px; padding: 0.55rem 0.85rem; cursor: pointer; align-items: center; justify-content: center; height: 42px;" title="Remove Color">
+                    <i class="fa-solid fa-trash-can"></i>
+                </button>
+            `;
+            container.appendChild(row);
+            bindColorRowEvents(row);
+            updateRemoveButtons();
+            syncColorImageSections();
+        });
+    }
+
+    document.querySelectorAll('.color-row').forEach(function(row) {
+        bindColorRowEvents(row);
+    });
+    updateRemoveButtons();
+
+    // --- Dynamic Category-Based Size Visibility ---
+    var categorySelect = document.getElementById('categorySelect');
+
+    function updateSizeVisibility() {
+        if (!categorySelect) return;
+        var selectedOpt = categorySelect.options[categorySelect.selectedIndex];
+        var catName = selectedOpt ? (selectedOpt.getAttribute('data-category-name') || selectedOpt.text || '').toLowerCase() : '';
+
+        var groupClothing = document.getElementById('sizeGroupClothing');
+        var groupLingerie = document.getElementById('sizeGroupLingerie');
+        var groupFootwear = document.getElementById('sizeGroupFootwear');
+        var noSizeNotice = document.getElementById('noSizeNotice');
+
+        if (groupClothing) groupClothing.style.display = 'none';
+        if (groupLingerie) groupLingerie.style.display = 'none';
+        if (groupFootwear) groupFootwear.style.display = 'none';
+        if (noSizeNotice) noSizeNotice.style.display = 'none';
+
+        if (!catName || categorySelect.value === "") {
+            if (groupClothing) groupClothing.style.display = 'block';
+            return;
+        }
+
+        if (catName.includes('footwear') || catName.includes('sneaker') || catName.includes('shoe') || catName.includes('loafer') || catName.includes('kicks')) {
+            if (groupFootwear) groupFootwear.style.display = 'block';
+        } else if (catName.includes('lingerie') || catName.includes('innerwear') || catName.includes('bra')) {
+            if (groupLingerie) groupLingerie.style.display = 'block';
+        } else if (
+            catName.includes('kurtas') || catName.includes('dress') || catName.includes('shirt') || 
+            catName.includes('top') || catName.includes('tee') || catName.includes('denim') || 
+            catName.includes('jeans') || catName.includes('jacket') || catName.includes('coat') || 
+            catName.includes('ethnic') || catName.includes('menswear') || catName.includes('womenswear') || 
+            catName.includes('kidswear') || catName.includes('activewear') || catName.includes('fashion') || 
+            catName.includes('clothing') || catName.includes('zara') || catName.includes('h&m') || 
+            catName.includes('libas') || catName.includes('daali') || catName.includes('rang') || 
+            catName.includes('vero') || catName.includes('mango') || catName.includes('jack') || 
+            catName.includes('lacoste') || catName.includes('diesel') || catName.includes('raymond') || 
+            catName.includes('ralph') || catName.includes('tommy') || catName.includes('calvin') || 
+            catName.includes('hugo') || catName.includes('nike') || catName.includes('adidas') || 
+            catName.includes('puma') || catName.includes('gucci') || catName.includes('levi') || 
+            catName.includes('aurelia')
+        ) {
+            if (groupClothing) groupClothing.style.display = 'block';
+        } else {
+            if (noSizeNotice) noSizeNotice.style.display = 'block';
+        }
+    }
+
+    if (categorySelect) {
+        categorySelect.addEventListener('change', updateSizeVisibility);
+    }
+    updateSizeVisibility();
+    syncColorImageSections();
 });
 </script>
 {% endblock %}

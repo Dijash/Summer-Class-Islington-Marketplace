@@ -1,0 +1,44 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}404 - Page Not Found | MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/error_page/404.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="error-page-wrapper">
+    <div class="error-card">
+        <div class="error-content-inner">
+            <div class="error-code-badge">
+                <span class="error-code-number">404</span>
+            </div>
+            
+            <h1 class="error-title">Page Not Found</h1>
+            <p class="error-description">
+                The page you are looking for might have been moved, renamed, or no longer exists in our marketplace catalog.
+            </p>
+            
+            <div class="error-actions">
+                <a href="{% url 'home' %}" class="btn-error-primary">
+                    <i class="fa-solid fa-house"></i> Go to Homepage
+                </a>
+                <a href="{% url 'product_list' %}" class="btn-error-secondary">
+                    <i class="fa-solid fa-store"></i> Browse Catalog
+                </a>
+            </div>
+            
+            <div class="error-quick-links">
+                <p>Popular Destinations</p>
+                <div class="quick-links-grid">
+                    <a href="{% url 'home' %}"><i class="fa-solid fa-chevron-right"></i> Home</a>
+                    <a href="{% url 'product_list' %}"><i class="fa-solid fa-chevron-right"></i> All Products</a>
+                    <a href="{% url 'cart' %}"><i class="fa-solid fa-chevron-right"></i> Shopping Cart</a>
+                    <a href="{% url 'contact' %}"><i class="fa-solid fa-chevron-right"></i> Contact Support</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

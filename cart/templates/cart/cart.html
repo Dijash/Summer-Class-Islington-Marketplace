@@ -15,6 +15,7 @@
     </div>
 
     {% if cart_items %}
+        <form id="cartCheckoutForm" action="{% url 'checkout' %}" method="GET">
         <div class="cart-layout-grid" id="cartLayoutGrid">
             <!-- Items Table Section -->
             <div>
@@ -22,6 +23,9 @@
                     <table class="cart-table">
                         <thead>
                             <tr>
+                                <th class="cart-checkbox-cell">
+                                    <input type="checkbox" id="selectAllCheckbox" class="custom-cart-checkbox" checked onclick="toggleSelectAllItems(this)" title="Select All">
+                                </th>
                                 <th>Product</th>
                                 <th>Price</th>
                                 <th>Quantity</th>
@@ -32,6 +36,9 @@
                         <tbody id="cartTableBody">
                             {% for item in cart_items %}
                                 <tr class="cart-row" id="cartRow-{{ item.id }}">
+                                    <td class="cart-checkbox-cell">
+                                        <input type="checkbox" name="selected_items" value="{{ item.id }}" class="custom-cart-checkbox item-select-checkbox" id="itemCheckbox-{{ item.id }}" data-item-id="{{ item.id }}" data-price="{{ item.product.price }}" data-qty="{{ item.quantity }}" checked onchange="updateSelectedSummary()">
+                                    </td>
                                     <td>
                                         <div class="cart-product-cell">
                                             <img src="{{ item.product.primary_image }}" alt="{{ item.product.title }}" class="cart-item-img">
@@ -96,9 +103,9 @@
                         </div>
                     </div>
 
-                    <a href="{% url 'checkout' %}" class="btn btn-primary btn-full btn-lg btn-checkout">
+                    <button type="submit" class="btn btn-primary btn-full btn-lg btn-checkout" id="checkoutSubmitBtn">
                         Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
-                    </a>
+                    </button>
 
                     <div class="trust-guarantee-box">
                         <div class="trust-item">
@@ -114,6 +121,7 @@
                 </div>
             </div>
         </div>
+        </form>
     {% else %}
         <div class="empty-cart-box">
             <i class="fa-solid fa-cart-flatbed"></i>
@@ -125,6 +133,63 @@
 </div>
 
 <script>
+function updateSelectedSummary() {
+    const checkboxes = document.querySelectorAll('.item-select-checkbox');
+    const selectAllCb = document.getElementById('selectAllCheckbox');
+
+    let selectedSubtotal = 0;
+    let selectedCount = 0;
+    let totalItems = checkboxes.length;
+
+    checkboxes.forEach(cb => {
+        if (cb.checked) {
+            const price = parseFloat(cb.getAttribute('data-price')) || 0;
+            const qty = parseInt(cb.getAttribute('data-qty')) || 0;
+            selectedSubtotal += price * qty;
+            selectedCount++;
+        }
+    });
+
+    if (selectAllCb) {
+        selectAllCb.checked = (selectedCount === totalItems && totalItems > 0);
+    }
+
+    let shipping = (selectedSubtotal > 1000 || selectedSubtotal === 0) ? 0 : 99;
+    let tax = Math.round(selectedSubtotal * 0.05);
+    let grandTotal = Math.round(selectedSubtotal + shipping + tax);
+
+    const subtotalEl = document.getElementById('summarySubtotal');
+    const shippingEl = document.getElementById('summaryShipping');
+    const taxEl = document.getElementById('summaryTax');
+    const grandTotalEl = document.getElementById('summaryGrandTotal');
+    const checkoutBtn = document.getElementById('checkoutSubmitBtn');
+
+    if (subtotalEl) subtotalEl.innerText = `₹${Math.round(selectedSubtotal).toLocaleString()}`;
+    if (shippingEl) shippingEl.innerHTML = (selectedSubtotal === 0 || shipping === 0) ? '<strong class="text-success">FREE</strong>' : `₹${shipping}`;
+    if (taxEl) taxEl.innerText = `₹${Math.round(tax).toLocaleString()}`;
+    if (grandTotalEl) grandTotalEl.innerText = `₹${Math.round(grandTotal).toLocaleString()}`;
+
+    if (checkoutBtn) {
+        if (selectedCount === 0) {
+            checkoutBtn.disabled = true;
+            checkoutBtn.style.opacity = '0.5';
+            checkoutBtn.style.cursor = 'not-allowed';
+        } else {
+            checkoutBtn.disabled = false;
+            checkoutBtn.style.opacity = '1';
+            checkoutBtn.style.cursor = 'pointer';
+        }
+    }
+}
+
+function toggleSelectAllItems(selectAllCb) {
+    const checkboxes = document.querySelectorAll('.item-select-checkbox');
+    checkboxes.forEach(cb => {
+        cb.checked = selectAllCb.checked;
+    });
+    updateSelectedSummary();
+}
+
 function updateCartQty(itemId, action) {
     fetch(`/cart/update/${itemId}/?action=${action}`, {
         headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -138,10 +203,12 @@ function updateCartQty(itemId, action) {
             } else {
                 const qtyInput = document.getElementById(`cartQtyInput-${itemId}`);
                 const itemSubtotal = document.getElementById(`itemSubtotal-${itemId}`);
+                const itemCheckbox = document.getElementById(`itemCheckbox-${itemId}`);
                 if (qtyInput) qtyInput.value = data.item_qty;
                 if (itemSubtotal) itemSubtotal.innerText = `₹${Math.round(data.item_subtotal).toLocaleString()}`;
+                if (itemCheckbox) itemCheckbox.setAttribute('data-qty', data.item_qty);
             }
-            updateSummaryTotals(data);
+            updateSelectedSummary();
             refreshMiniCart();
         }
     });
@@ -163,7 +230,7 @@ function removeCartItem(itemId) {
                 row.style.opacity = '0';
                 setTimeout(() => {
                     row.remove();
-                    updateSummaryTotals(data);
+                    updateSelectedSummary();
                     refreshMiniCart();
                 }, 300);
             }
@@ -171,28 +238,14 @@ function removeCartItem(itemId) {
     });
 }
 
-function updateSummaryTotals(data) {
-    const subtotalEl = document.getElementById('summarySubtotal');
-    const shippingEl = document.getElementById('summaryShipping');
-    const taxEl = document.getElementById('summaryTax');
-    const grandTotalEl = document.getElementById('summaryGrandTotal');
-    const tbody = document.getElementById('cartTableBody');
-
-    if (tbody && tbody.children.length === 0) {
-        window.location.reload();
-        return;
-    }
-
-    if (subtotalEl) subtotalEl.innerText = `₹${Math.round(data.subtotal).toLocaleString()}`;
-    if (shippingEl) shippingEl.innerHTML = data.shipping === 0 ? '<strong class="text-success">FREE</strong>' : `₹${data.shipping}`;
-    if (taxEl) taxEl.innerText = `₹${Math.round(data.tax).toLocaleString()}`;
-    if (grandTotalEl) grandTotalEl.innerText = `₹${Math.round(data.grand_total).toLocaleString()}`;
-}
-
 function refreshMiniCart() {
     if (typeof loadMiniCart === 'function') {
         loadMiniCart();
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    updateSelectedSummary();
+});
 </script>
 {% endblock %}

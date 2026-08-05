@@ -192,8 +192,25 @@ def product_detail(request, pk=None, slug=None):
     breakdown = product.rating_breakdown
     counts_dict = breakdown.get('counts') if isinstance(breakdown, dict) and 'counts' in breakdown else breakdown
     percentages_dict = breakdown.get('percentages', {}) if isinstance(breakdown, dict) else {}
-    review_counts = [counts_dict.get(i, 0) for i in range(5, 0, -1)]
-    review_percentages = [percentages_dict.get(i, 0) for i in range(5, 0, -1)]
+    review_counts = [counts_dict.get(i, 0) for i in range(5, 0, -1)] if isinstance(counts_dict, dict) else [0]*5
+    review_percentages = [percentages_dict.get(i, 0) for i in range(5, 0, -1)] if isinstance(percentages_dict, dict) else [0]*5
+    review_stats = [
+        {'star': i, 'count': counts_dict.get(i, 0) if isinstance(counts_dict, dict) else 0, 'percent': percentages_dict.get(i, 0) if isinstance(percentages_dict, dict) else 0}
+        for i in range(5, 0, -1)
+    ]
+
+    # Fetch Recommended Products (same category first, fallback to active products - 3x3 grid / 9 products)
+    rec_qs = Product.objects.filter(is_active=True).exclude(pk=product.pk)
+    if product.category:
+        same_cat = list(rec_qs.filter(category=product.category).select_related('category').prefetch_related('colors__images')[:9])
+        if len(same_cat) < 9:
+            needed = 9 - len(same_cat)
+            other_prods = list(rec_qs.exclude(category=product.category).select_related('category').prefetch_related('colors__images')[:needed])
+            recommended_products = same_cat + other_prods
+        else:
+            recommended_products = same_cat
+    else:
+        recommended_products = list(rec_qs.select_related('category').prefetch_related('colors__images')[:9])
 
     return render(request, 'product/product_detail.html', {
         'product': product,
@@ -204,6 +221,8 @@ def product_detail(request, pk=None, slug=None):
         'user_review': user_review,
         'review_counts': review_counts,
         'review_percentages': review_percentages,
+        'review_stats': review_stats,
+        'recommended_products': recommended_products,
     })
 
 

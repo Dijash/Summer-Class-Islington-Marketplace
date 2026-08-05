@@ -13,11 +13,7 @@
 <form action="{% url 'login' %}" method="POST" class="auth-form slide-up-anim" id="loginForm" style="--delay: 0.2s;" novalidate>
     {% csrf_token %}
 
-    {% if error %}
-    <div class="auth-error-msg">
-        <i class="fa-solid fa-circle-exclamation"></i> {{ error }}
-    </div>
-    {% endif %}
+
     
     <!-- Username / Email Field -->
     <div class="form-group">
@@ -36,7 +32,7 @@
         </div>
         <!-- Forgot Password Link -->
         <div class="forgot-password-row">
-            <a href="#" class="forgot-link">Forgot Password?</a>
+            <a href="{% url 'forgot_password' %}" class="forgot-link">Forgot Password?</a>
         </div>
     </div>
 
@@ -69,6 +65,15 @@
 {% endblock %}
 
 {% block auth_scripts %}
+{% if messages %}
+    {% for message in messages %}
+        <div class="django-flash-message" data-message="{{ message|escapejs }}" data-type="{% if message.tags == 'error' or message.tags == 'danger' %}error{% else %}success{% endif %}"></div>
+    {% endfor %}
+{% endif %}
+{% if error %}
+    <div class="django-flash-message" data-message="{{ error|escapejs }}" data-type="error"></div>
+{% endif %}
+
 <script>
 function toggleAuthPassword(btn) {
     const container = btn.closest('.input-with-icon');
@@ -84,6 +89,10 @@ function toggleAuthPassword(btn) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.django-flash-message').forEach(el => {
+        showToast(el.dataset.message, el.dataset.type);
+    });
+
     const emailInput = document.getElementById('loginEmail');
     const passwordInput = document.getElementById('loginPassword');
     const loginSubmitBtn = document.getElementById('loginSubmitBtn');

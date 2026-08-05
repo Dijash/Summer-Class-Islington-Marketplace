@@ -1,0 +1,43 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}500 - Internal Server Error | MarketPlace{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/error_page/500.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="error-page-wrapper">
+    <div class="error-card">
+        <div class="error-content-inner">
+            <div class="error-code-badge">
+                <span class="error-code-number">500</span>
+            </div>
+            
+            <h1 class="error-title">Internal Server Error</h1>
+            <p class="error-description">
+                Oops! Something went wrong on our end. Our technical team has been notified and is already working to resolve the issue.
+            </p>
+            
+            <div class="error-actions">
+                <button type="button" onclick="window.location.reload();" class="btn-error-primary">
+                    <i class="fa-solid fa-rotate-right"></i> Refresh Page
+                </button>
+                <a href="{% url 'home' %}" class="btn-error-secondary">
+                    <i class="fa-solid fa-house"></i> Return to Safety
+                </a>
+            </div>
+            
+            <div class="error-quick-links">
+                <p>Need Assistance?</p>
+                <div class="quick-links-grid">
+                    <a href="{% url 'contact' %}"><i class="fa-solid fa-headset"></i> Contact Support</a>
+                    <a href="{% url 'home' %}"><i class="fa-solid fa-chevron-right"></i> Home Page</a>
+                    <a href="{% url 'product_list' %}"><i class="fa-solid fa-chevron-right"></i> Shop Catalog</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

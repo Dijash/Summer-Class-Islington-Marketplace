@@ -51,12 +51,15 @@ class Product(models.Model):
         reviews = self.reviews.all()
         if reviews.exists():
             avg = reviews.aggregate(models.Avg('rating'))['rating__avg']
-            return round(avg, 1) if avg else 2.0
-        return 2.0
+            return round(avg, 1) if avg else (self.rating or 2.0)
+        return self.rating or 2.0
 
     @property
     def computed_reviews_count(self):
-        return self.reviews.count()
+        count = self.reviews.count()
+        if count > 0:
+            return count
+        return self.reviews_count or 0
 
     @property
     def rating_breakdown(self):

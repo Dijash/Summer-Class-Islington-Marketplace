@@ -6,7 +6,7 @@ from django.utils import timezone
 from django.utils.html import json_script
 import json
 from datetime import timedelta
-from .models import SellerProfile, ProductRequest
+from .models import SellerProfile, ProductRequest, ProductRequestImage
 from core.models import Category
 
 
@@ -21,6 +21,10 @@ def get_or_create_seller(user):
 @login_required(login_url='login')
 def seller_dashboard(request):
     seller = get_or_create_seller(request.user)
+    if not seller.is_verified and seller.status != 'approved':
+        from django.contrib import messages
+        messages.warning(request, 'You must submit your business details and be approved by an administrator to access the Seller Dashboard.')
+        return redirect('profile')
 
     total_revenue = seller.total_revenue
     total_products = seller.total_products
@@ -125,6 +129,36 @@ SIZES_LINGERIE = ['30B', '32B', '32C', '34B', '34C', '36B', '36C', '38B', '38C']
 SIZES_FOOTWEAR = ['UK 4', 'UK 5', 'UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11', 'UK 12']
 
 
+COLOR_MAP = {
+    'black': '#111111', 'ebony': '#111111', 'pitch': '#111111', 'jet': '#111111', 'midnight': '#0f172a',
+    'white': '#ffffff', 'off white': '#fafaf9', 'off-white': '#fafaf9', 'cream': '#fef3c7', 'ivory': '#fffbeb', 'snow': '#f8fafc',
+    'navy': '#0f172a', 'midnight navy': '#020617', 'dark blue': '#1e3a8a', 'blue': '#2563eb', 'royal blue': '#1d4ed8', 'cobalt': '#1e40af', 'sky blue': '#38bdf8', 'light blue': '#7dd3fc', 'baby blue': '#bae6fd', 'indigo': '#4f46e5', 'azure': '#0284c7',
+    'red': '#dc2626', 'crimson': '#991b1b', 'ruby': '#b91c1c', 'scarlet': '#ef4444', 'cherry': '#c2410c', 'maroon': '#881337', 'burgundy': '#4c0519', 'wine': '#701a75', 'oxblood': '#450a0a',
+    'pink': '#ec4899', 'rose': '#f43f5e', 'blush': '#f472b6', 'dusty rose': '#fb7185', 'fuchsia': '#d946ef', 'magenta': '#c026d3', 'peach': '#fdba74', 'coral': '#fb923c',
+    'purple': '#8b5cf6', 'violet': '#7c3aed', 'plum': '#581c87', 'lavender': '#c084fc', 'lilac': '#e9d5ff', 'orchid': '#a855f7',
+    'green': '#16a34a', 'dark green': '#14532d', 'forest green': '#166534', 'emerald': '#059669', 'olive': '#65a30d', 'army green': '#3f6212', 'khaki': '#84cc16', 'sage': '#86efac', 'mint': '#6ee7b7', 'seafoam': '#99f6e4',
+    'yellow': '#eab308', 'mustard': '#ca8a04', 'gold': '#d97706', 'lemon': '#fde047', 'canary': '#facc15',
+    'orange': '#ea580c', 'rust': '#c2410c', 'amber': '#f59e0b', 'terracotta': '#9a3412', 'copper': '#b45309',
+    'brown': '#78350f', 'chocolate': '#451a03', 'coffee': '#78350f', 'tan': '#d97706', 'camel': '#b45309', 'chestnut': '#78350f', 'bronze': '#92400e',
+    'beige': '#fef3c7', 'nude': '#fde68a', 'sand': '#fef08a', 'taupe': '#78716c', 'wheat': '#fef3c7',
+    'grey': '#475569', 'gray': '#475569', 'dark grey': '#1e293b', 'dark gray': '#1e293b', 'charcoal': '#334155', 'slate': '#64748b', 'silver': '#cbd5e1', 'ash': '#94a3b8',
+    'teal': '#0d9488', 'turquoise': '#14b8a6', 'cyan': '#06b6d4', 'aqua': '#22d3ee'
+}
+
+
+def get_color_hex_from_name(name):
+    if not name:
+        return '#000000'
+    clean = name.strip().lower()
+    if clean in COLOR_MAP:
+        return COLOR_MAP[clean]
+    for word in clean.split():
+        if word in COLOR_MAP:
+            return COLOR_MAP[word]
+    h = sum(ord(c) for c in clean) % 360
+    return f"hsl({h}, 45%, 45%)"
+
+
 @login_required(login_url='login')
 def add_product(request):
     seller = get_or_create_seller(request.user)
@@ -140,8 +174,21 @@ def add_product(request):
         quantity = request.POST.get('quantity', '1').strip()
         image = request.FILES.get('image')
 
-        color_name = request.POST.get('color_name', 'Default').strip() or 'Default'
-        color_code = request.POST.get('color_code', '#000000').strip() or '#000000'
+        color_names = request.POST.getlist('color_name')
+        color_codes = request.POST.getlist('color_code')
+        
+        valid_colors = []
+        for idx, cn in enumerate(color_names):
+            name_str = cn.strip()
+            if name_str:
+                code_str = color_codes[idx].strip() if idx < len(color_codes) and color_codes[idx].strip() else get_color_hex_from_name(name_str)
+                valid_colors.append((name_str, code_str))
+        
+        if not valid_colors:
+            valid_colors = [('Default', '#000000')]
+
+        color_name = ', '.join([c[0] for c in valid_colors])
+        color_code = ', '.join([c[1] for c in valid_colors])
         sizes_list = request.POST.getlist('sizes')
         sizes = ','.join(sizes_list)
         image2 = request.FILES.get('image2')
@@ -177,6 +224,7 @@ def add_product(request):
                 'parent_categories': parent_categories,
                 'errors': errors,
                 'form_data': request.POST,
+                'colors_list': valid_colors,
                 'sizes_clothing': SIZES_CLOTHING,
                 'sizes_lingerie': SIZES_LINGERIE,
                 'sizes_footwear': SIZES_FOOTWEAR,
@@ -185,7 +233,7 @@ def add_product(request):
 
         category = get_object_or_404(Category, pk=category_id)
 
-        ProductRequest.objects.create(
+        pr = ProductRequest.objects.create(
             seller=seller,
             brand_name=brand_name,
             title=title,
@@ -206,6 +254,33 @@ def add_product(request):
             offers_text=offers_text,
             size_guidelines=size_guidelines,
         )
+
+        # Process per-color image uploads
+        angles = [('Front View', 0), ('Side View', 1), ('Back View', 2), ('Detail View', 3)]
+        for idx, (cname, ccode) in enumerate(valid_colors):
+            for angle_name, angle_order in angles:
+                img_key = f'color_{idx}_image_{angle_order}'
+                img_file = request.FILES.get(img_key)
+                if not img_file and idx == 0:
+                    legacy_keys = {0: 'image', 1: 'image2', 2: 'image3', 3: 'image4'}
+                    img_file = request.FILES.get(legacy_keys[angle_order])
+                
+                if img_file:
+                    ProductRequestImage.objects.create(
+                        product_request=pr,
+                        color_index=idx,
+                        color_name=cname,
+                        image=img_file,
+                        angle_label=angle_name,
+                        order=angle_order,
+                    )
+                    if idx == 0:
+                        if angle_order == 0: pr.image = img_file
+                        elif angle_order == 1: pr.image2 = img_file
+                        elif angle_order == 2: pr.image3 = img_file
+                        elif angle_order == 3: pr.image4 = img_file
+
+        pr.save()
 
         return redirect('seller_requests')
 
