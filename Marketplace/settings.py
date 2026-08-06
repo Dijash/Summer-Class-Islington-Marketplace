@@ -57,7 +57,6 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware',
 ]
 
-
 ROOT_URLCONF = 'Marketplace.urls'
 
 TEMPLATES = [
@@ -98,6 +97,20 @@ if os.getenv('RENDER') or config('USE_POSTGRES', default=False, cast=bool):
             database_url = re.sub(r'(@dpg-[a-z0-9]+-[a-z0-9]+)(/|\?|$)', r'\1.singapore-postgres.render.com\2', database_url)
         DATABASES['default'] = dj_database_url.parse(database_url, conn_max_age=600)
 
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'neondb',
+#         'USER': 'neondb_owner',
+#         'PASSWORD': 'npg_LXSrHwvOcN65',
+#         'HOST': 'ep-rough-wildflower-aypyd0mt-pooler.c-5.us-east-2.aws.neon.tech',
+#         'PORT': '5432',
+#         'OPTIONS': {
+#             'sslmode': 'require',
+#         },
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
