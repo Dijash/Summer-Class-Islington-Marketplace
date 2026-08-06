@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-6x!w@s_dk4&b^#@7+z82%yzl(mqs2ro#!=2t*-ms3o9!ggrv+s')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=False, cast=bool)
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['*']
 
@@ -33,11 +33,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts.apps.AccountsConfig',
-    'cart.apps.CartConfig',
+    'customer.cart.apps.CartConfig',
     'core.apps.CoreConfig',
     'customer.apps.CustomerConfig',
     'product.apps.ProductConfig',
     'seller.apps.SellerConfig',
+    'offers.apps.OffersConfig',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -88,10 +89,14 @@ DATABASES = {
     }
 }
 
-# 2. This safely overrides it ONLY if DATABASE_URL is present in the environment (e.g., on Render)
-database_url = config('DATABASE_URL', default=None)
-if database_url:
-    DATABASES['default'] = dj_database_url.parse(database_url, conn_max_age=600)
+# 2. Use PostgreSQL in production (e.g., on Render) or if USE_POSTGRES=True
+if os.getenv('RENDER') or config('USE_POSTGRES', default=False, cast=bool):
+    database_url = config('DATABASE_URL', default=None)
+    if database_url:
+        if not os.getenv('RENDER') and '@dpg-' in database_url and '.render.com' not in database_url:
+            import re
+            database_url = re.sub(r'(@dpg-[a-z0-9]+-[a-z0-9]+)(/|\?|$)', r'\1.singapore-postgres.render.com\2', database_url)
+        DATABASES['default'] = dj_database_url.parse(database_url, conn_max_age=600)
 
 
 # Password validation

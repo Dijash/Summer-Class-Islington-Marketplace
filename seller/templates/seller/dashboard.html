@@ -38,12 +38,78 @@
         </div>
     </div>
     <div class="card seller-stat-card">
-        <div class="stat-icon-wrapper bg-warning-light"><i class="fa-solid fa-clock"></i></div>
+        <div class="stat-icon-wrapper bg-warning-light"><i class="fa-solid fa-tags"></i></div>
         <div>
-            <span class="stat-value">{{ pending_requests|default:"0" }}</span>
-            <span class="stat-label">Pending Review</span>
+            <span class="stat-value">{{ active_offers_count|default:"0" }}</span>
+            <span class="stat-label">Active Offers</span>
         </div>
     </div>
+</div>
+
+<!-- Store Promotions Section -->
+<div class="card seller-table-card" style="margin-bottom: 2rem;">
+    <div class="card-header">
+        <h2 class="card-title"><i class="fa-solid fa-tags" style="color: #ec4899; margin-right: 0.5rem;"></i> Active Store Promotions</h2>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <a href="{% url 'seller_offer_create' %}" class="btn btn-seller" style="padding: 0.4rem 0.85rem; font-size: 0.82rem;">
+                <i class="fa-solid fa-plus"></i> New Offer
+            </a>
+            <a href="{% url 'seller_offers_list' %}" style="font-size: 0.85rem; font-weight: 600; color: var(--seller-sidebar-active); text-decoration: none;">View All <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+    </div>
+
+    {% if seller_offers %}
+    <div class="table-responsive">
+        <table class="seller-table">
+            <thead>
+                <tr>
+                    <th>Offer Title</th>
+                    <th>Discount</th>
+                    <th>Attached Products</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offer in seller_offers %}
+                <tr>
+                    <td>
+                        <strong>{{ offer.title }}</strong>
+                        {% if offer.description %}<br><small style="color: var(--seller-text-muted);">{{ offer.description|truncatewords:6 }}</small>{% endif %}
+                    </td>
+                    <td>
+                        <span class="badge badge-info" style="font-weight: 800;">
+                            {% if offer.offer_type == 'percentage' %}{{ offer.discount_value|floatformat:0 }}% OFF{% else %}NPR {{ offer.discount_value }} OFF{% endif %}
+                        </span>
+                    </td>
+                    <td>{{ offer.products.count }} Product(s)</td>
+                    <td>
+                        {% if offer.is_valid %}
+                            <span class="badge badge-success"><i class="fa-solid fa-circle-check"></i> Active</span>
+                        {% else %}
+                            <span class="badge badge-secondary"><i class="fa-solid fa-circle-minus"></i> Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        <a href="{% url 'seller_offer_delete' offer.id %}" onclick="return confirm('Delete offer {{ offer.title }}?');" style="color: #ef4444; font-weight: 700; font-size: 0.85rem; text-decoration: none;">
+                            <i class="fa-solid fa-trash-can"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-solid fa-tags"></i>
+        <h3>No Active Promotions</h3>
+        <p>Boost your product sales by creating special promotional discounts for your accepted store products.</p>
+        <a href="{% url 'seller_offer_create' %}" class="btn btn-seller" style="margin-top: 0.75rem;">
+            <i class="fa-solid fa-plus"></i> Create First Offer
+        </a>
+    </div>
+    {% endif %}
 </div>
 
 <!-- Recent Submissions -->

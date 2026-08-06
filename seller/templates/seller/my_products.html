@@ -21,7 +21,9 @@
                     <th>Category</th>
                     <th>MRP</th>
                     <th>Price</th>
+                    <th>Status</th>
                     <th>Added On</th>
+                    <th style="text-align: right;">Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -43,9 +45,21 @@
                         </div>
                     </td>
                     <td>{{ p.category.name }}</td>
-                    <td>₹{{ p.mrp|floatformat:0 }}</td>
-                    <td><strong>₹{{ p.price|floatformat:0 }}</strong></td>
+                    <td>NPR {{ p.mrp|floatformat:0 }}</td>
+                    <td><strong>NPR {{ p.price|floatformat:0 }}</strong></td>
+                    <td>
+                        {% if p.status == 'pending' %}
+                        <span class="badge badge-warning" style="background: #fffbeb; color: #d97706; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">Edit Pending Review</span>
+                        {% else %}
+                        <span class="badge badge-success" style="background: #ecfdf5; color: #059669; padding: 0.25rem 0.6rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 700;">Live</span>
+                        {% endif %}
+                    </td>
                     <td style="color: var(--seller-text-muted);">{{ p.created_at|date:"M j, Y" }}</td>
+                    <td style="text-align: right;">
+                        <a href="{% url 'seller_edit_product' p.id %}" class="btn btn-seller" style="background: #e0f2fe; color: #0284c7; padding: 0.4rem 0.85rem; font-size: 0.8rem; border-radius: 6px; text-decoration: none; font-weight: 600;">
+                            <i class="fa-solid fa-pen-to-square"></i> Edit
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>

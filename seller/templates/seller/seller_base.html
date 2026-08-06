@@ -83,6 +83,12 @@
                     </a>
                 </li>
                 <li>
+                    <a href="{% url 'seller_offers_list' %}" class="sidebar-link {% if 'offer' in request.resolver_match.url_name %}active{% endif %}">
+                        <i class="fa-solid fa-tags"></i>
+                        <span>Promotions</span>
+                    </a>
+                </li>
+                <li>
                     <a href="{% url 'seller_requests' %}" class="sidebar-link {% if request.resolver_match.url_name == 'seller_requests' %}active{% endif %}">
                         <i class="fa-solid fa-clock-rotate-left"></i>
                         <span>Requests</span>

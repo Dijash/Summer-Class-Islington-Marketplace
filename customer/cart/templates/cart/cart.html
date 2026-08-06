@@ -103,6 +103,18 @@
                         </div>
                     </div>
 
+                    <!-- Coupon Application Box -->
+                    <div style="margin: 1.25rem 0; padding: 1rem; background: #f8fafc; border: 1px dashed var(--border-light); border-radius: 8px;">
+                        <label style="font-size: 0.8rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                            <i class="fa-solid fa-ticket" style="color: #ef4444;"></i> Have a Promo Coupon?
+                        </label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" id="couponCodeInput" placeholder="e.g. SAVE20" style="flex: 1; padding: 0.5rem 0.75rem; font-size: 0.85rem; border: 1px solid var(--border-light); border-radius: 6px; outline: none; text-transform: uppercase; font-family: monospace; font-weight: 700;">
+                            <button type="button" onclick="applyCouponCode()" style="background: #000000; color: #ffffff; font-weight: 700; font-size: 0.8rem; padding: 0.5rem 0.9rem; border: none; border-radius: 6px; cursor: pointer;">Apply</button>
+                        </div>
+                        <div id="couponFeedbackMsg" style="font-size: 0.8rem; font-weight: 600; margin-top: 0.4rem; display: none;"></div>
+                    </div>
+
                     <button type="submit" class="btn btn-primary btn-full btn-lg btn-checkout" id="checkoutSubmitBtn">
                         Proceed to Checkout <i class="fa-solid fa-arrow-right"></i>
                     </button>
@@ -133,6 +145,57 @@
 </div>
 
 <script>
+let appliedDiscountAmount = 0;
+
+function applyCouponCode() {
+    const input = document.getElementById('couponCodeInput');
+    const feedback = document.getElementById('couponFeedbackMsg');
+    if (!input || !feedback) return;
+
+    const code = input.value.trim();
+    if (!code) {
+        feedback.style.display = 'block';
+        feedback.style.color = '#ef4444';
+        feedback.innerText = 'Please enter a valid coupon code.';
+        return;
+    }
+
+    const subtotalText = document.getElementById('summarySubtotal').innerText.replace(/[^\d.]/g, '');
+    const currentSubtotal = parseFloat(subtotalText) || 0;
+
+    const formData = new FormData();
+    formData.append('code', code);
+    formData.append('cart_total', currentSubtotal);
+
+    fetch('/offers/api/validate-coupon/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        feedback.style.display = 'block';
+        if (data.success) {
+            feedback.style.color = '#16a34a';
+            feedback.innerHTML = `<i class="fa-solid fa-check-circle"></i> ${data.message} (-₹${data.discount_amount})`;
+            appliedDiscountAmount = data.discount_amount;
+            updateSelectedSummary();
+        } else {
+            feedback.style.color = '#ef4444';
+            feedback.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${data.message}`;
+            appliedDiscountAmount = 0;
+            updateSelectedSummary();
+        }
+    })
+    .catch(err => {
+        feedback.style.display = 'block';
+        feedback.style.color = '#ef4444';
+        feedback.innerText = 'Error validating coupon code.';
+    });
+}
+
 function updateSelectedSummary() {
     const checkboxes = document.querySelectorAll('.item-select-checkbox');
     const selectAllCb = document.getElementById('selectAllCheckbox');
@@ -156,7 +219,7 @@ function updateSelectedSummary() {
 
     let shipping = (selectedSubtotal > 1000 || selectedSubtotal === 0) ? 0 : 99;
     let tax = Math.round(selectedSubtotal * 0.05);
-    let grandTotal = Math.round(selectedSubtotal + shipping + tax);
+    let grandTotal = Math.max(0, Math.round(selectedSubtotal + shipping + tax - appliedDiscountAmount));
 
     const subtotalEl = document.getElementById('summarySubtotal');
     const shippingEl = document.getElementById('summaryShipping');

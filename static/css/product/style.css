@@ -33,6 +33,12 @@
 
 /* Catalog Page Layout */
 .product-page-container {
+  max-width: 1645px !important;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2rem;
+  padding-right: 2rem;
   padding-top: 2rem;
   padding-bottom: 4rem;
 }
@@ -47,8 +53,14 @@
 /* Catalog Product Grid */
 .catalog-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 1399px) {
+  .catalog-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 1024px) {
@@ -966,28 +978,37 @@ body.sidebar-open {
    JOCKEY LUXURY REFERENCE PRODUCT DETAIL STYLES
    ========================================================================== */
 .product-detail-container {
-  max-width: 1440px;
+  max-width: 1645px;
   margin: 1.5rem auto 4rem;
-  padding: 0 1.5rem;
+  padding: 0 2rem;
 }
 
 .jockey-detail-layout {
   display: grid;
-  grid-template-columns: 56% 44%;
+  grid-template-columns: 60% 40%;
   gap: 2.5rem;
   margin-top: 1rem;
+  align-items: start;
 }
 
 /* Left Column: Multi-Angle Image Grid */
 .jockey-gallery-col {
   width: 100%;
+  position: sticky;
+  top: 100px;
+  align-self: start;
 }
 
 /* Update the grid layout to a 6-column system */
 .jockey-gallery-grid {
   display: grid;
   grid-template-columns: repeat(6, 1fr);
-  gap: 14px;
+  gap: 16px;
+}
+
+/* Single image: take full width */
+.jockey-gallery-item:only-child {
+  grid-column: span 6 !important;
 }
 
 /* Make the first two images take up 50% width (3 of 6 columns) */
@@ -1004,12 +1025,11 @@ body.sidebar-open {
 .jockey-gallery-item {
   position: relative;
   width: 100%;
+  aspect-ratio: 2 / 3;
   border-radius: 12px;
   overflow: hidden;
   background: #f8fafc;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  /* Optional: Adjust aspect ratio if you want the images slightly taller/shorter */
-  /* aspect-ratio: 4 / 5; */
 }
 
 /* Style for the new discount ribbon */

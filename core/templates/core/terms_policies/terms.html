@@ -1,0 +1,154 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Terms & Conditions - MarketPlace{% endblock %}
+
+{% block content %}
+<!-- Full Width Layout Container -->
+<div class="legal-content-container" style="max-width: 1400px; margin: 2.5rem auto 5rem; padding: 0 2rem;">
+    <!-- Minimal Clean Header -->
+    <div style="margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.35rem 0; tracking-tight: -0.02em;">Terms & Conditions</h1>
+            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0;">Welcome to MarketPlace. Please review our service terms governing your rights and platform guidelines.</p>
+        </div>
+        <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); background: #f8fafc; border: 1px solid var(--border-light); padding: 0.4rem 0.85rem; border-radius: 6px;">
+            Last Updated: August 2026
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2.5rem; align-items: start;">
+        
+        <!-- Left Sticky Sidebar -->
+        <aside style="position: sticky; top: 140px; align-self: start; z-index: 90; display: flex; flex-direction: column; gap: 1.5rem;">
+            <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm);">
+                <h4 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light);">
+                    Contents
+                </h4>
+                <nav style="display: flex; flex-direction: column; gap: 0.35rem;">
+                    <a href="#acceptance" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        1. Acceptance of Terms
+                    </a>
+                    <a href="#accounts" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        2. User Accounts
+                    </a>
+                    <a href="#seller-terms" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        3. Seller Guidelines
+                    </a>
+                    <a href="#purchases" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        4. Orders & Payments
+                    </a>
+                    <a href="#intellectual-property" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        5. Intellectual Property
+                    </a>
+                    <a href="#liability" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        6. Liability & Protection
+                    </a>
+                    <a href="#contact-us" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        7. Contact Support
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <article id="acceptance" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">1. Acceptance of Terms</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin-bottom: 0.85rem;">
+                    By creating an account, placing orders, browsing product offerings, or registering as a merchant store on MarketPlace, you acknowledge that you have read, understood, and agreed to be legally bound by these Terms & Conditions and our Privacy Policy.
+                </p>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin: 0;">
+                    If you do not consent to all provisions set forth in this agreement, you must immediately cease all access and utilization of MarketPlace services.
+                </p>
+            </article>
+
+            <article id="accounts" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">2. User Accounts & Security</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin-bottom: 1rem;">
+                    To unlock core capabilities—including customer order tracking or seller storefront creation—you must establish a verified account.
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; margin-top: 1rem;">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.1rem; border-radius: 8px;">
+                        <h4 style="font-size: 0.92rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Accurate Details</h4>
+                        <p style="font-size: 0.86rem; color: #64748b; margin: 0; line-height: 1.5;">You must provide valid registration details and update them promptly upon any change.</p>
+                    </div>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.1rem; border-radius: 8px;">
+                        <h4 style="font-size: 0.92rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Credential Security</h4>
+                        <p style="font-size: 0.86rem; color: #64748b; margin: 0; line-height: 1.5;">You are solely responsible for protecting your account password and session authentication credentials.</p>
+                    </div>
+                </div>
+            </article>
+
+            <article id="seller-terms" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">3. Seller Guidelines & Photo Requirements</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin-bottom: 1rem;">
+                    Merchants registered on MarketPlace must maintain high standards of product authenticity, transparent pricing, and complete image sets.
+                </p>
+                <div style="background: #f8fafc; border-left: 3px solid #000000; padding: 1.1rem 1.25rem; border-radius: 0 8px 8px 0;">
+                    <p style="font-size: 0.9rem; color: #1e293b; line-height: 1.6; margin: 0;">
+                        <strong>Mandatory Photo Rule:</strong> Every product listing must include a <strong>minimum of 2 photos</strong> (Front and Side view) and can support up to <strong>5 photos total per color variant</strong>. Listings containing inaccurate images, missing required angles, or counterfeit goods will be rejected.
+                    </p>
+                </div>
+            </article>
+
+            <article id="purchases" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">4. Orders, Pricing & Delivery</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin-bottom: 0.85rem;">
+                    All prices displayed on MarketPlace are shown in local currency. Prices include applicable product taxes unless explicitly highlighted during checkout.
+                </p>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin: 0;">
+                    We reserve the right to modify order quantities, correct system pricing errors, or cancel orders in cases of stock unavailability or fraud flags.
+                </p>
+            </article>
+
+            <article id="intellectual-property" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">5. Intellectual Property Rights</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin: 0;">
+                    All software code, brand identity elements, trademarks, logos, page layouts, and UI designs featured across MarketPlace are the exclusive property of MarketPlace and protected under IP laws.
+                </p>
+            </article>
+
+            <article id="liability" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">6. Limitation of Liability</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin: 0;">
+                    MarketPlace provides services on an "as is" and "as available" basis. To the maximum extent permitted under applicable law, MarketPlace disclaims liability for indirect, incidental, or consequential damages resulting from technical downtime or third-party merchant fulfillment delays.
+                </p>
+            </article>
+
+            <article id="contact-us" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">7. Questions & Support Contact</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin-bottom: 1rem;">
+                    If you have questions, feedback, or legal inquiries regarding these terms, please contact us:
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 1.25rem;">
+                    <a href="mailto:utsavbhattarai29@gmail.com" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #0f172a; font-weight: 600; font-size: 0.9rem; text-decoration: none; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.6rem 1rem; border-radius: 6px;">
+                        <i class="fa-solid fa-envelope" style="color: var(--text-main);"></i> utsavbhattarai29@gmail.com
+                    </a>
+                    <a href="tel:+9779813217337" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #0f172a; font-weight: 600; font-size: 0.9rem; text-decoration: none; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.6rem 1rem; border-radius: 6px;">
+                        <i class="fa-solid fa-phone" style="color: var(--text-main);"></i> +977 9813217337
+                    </a>
+                </div>
+            </article>
+
+        </main>
+
+    </div>
+</div>
+
+<style>
+.legal-nav-link:hover {
+    background-color: #f8fafc !important;
+    color: #000000 !important;
+}
+@media (max-width: 992px) {
+    .legal-content-container > div {
+        grid-template-columns: 1fr !important;
+    }
+    aside {
+        position: static !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'superadmin/base_admin.html' %}
+
+{% block title %}Dashboard Overview | SuperAdmin Control Center{% endblock %}
+
+{% block admin_content %}
+<!-- Section 0: Executive KPI Summary -->
+<div class="kpi-grid">
+    <div class="kpi-card" style="border-top: 3px solid #10b981;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <div class="kpi-title">Total Marketplace Revenue</div>
+                <div class="kpi-val" style="color: #059669;">NPR {{ total_revenue|floatformat:2 }}</div>
+            </div>
+            <div class="kpi-icon" style="background: #d1fae5; color: #059669; border: 1px solid #a7f3d0;">
+                <i class="fa-solid fa-wallet"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fa-solid fa-circle-check" style="color: #10b981;"></i> {{ completed_orders_count }} Completed Orders
+        </div>
+    </div>
+
+    <div class="kpi-card" style="border-top: 3px solid #3b82f6;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <div class="kpi-title">Total Orders Placed</div>
+                <div class="kpi-val" style="color: #2563eb;">{{ total_orders_count }}</div>
+            </div>
+            <div class="kpi-icon" style="background: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe;">
+                <i class="fa-solid fa-bag-shopping"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.85rem;">
+            Customer Checkout Transactions
+        </div>
+    </div>
+
+    <div class="kpi-card" style="border-top: 3px solid #f59e0b;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <div class="kpi-title">Seller Accounts</div>
+                <div class="kpi-val" style="color: #d97706;">{{ total_sellers_count }}</div>
+            </div>
+            <div class="kpi-icon" style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a;">
+                <i class="fa-solid fa-shop"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.85rem; display: flex; align-items: center; gap: 0.4rem;">
+            <i class="fa-solid fa-clock" style="color: #f59e0b;"></i> {{ pending_sellers_count }} Pending Approvals
+        </div>
+    </div>
+
+    <div class="kpi-card" style="border-top: 3px solid #a855f7;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <div class="kpi-title">Active Products</div>
+                <div class="kpi-val" style="color: #7e22ce;">{{ active_products_count }}</div>
+            </div>
+            <div class="kpi-icon" style="background: #f3e8ff; color: #7e22ce; border: 1px solid #e9d5ff;">
+                <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.85rem;">
+            Out of {{ total_products_count }} Total Listings
+        </div>
+    </div>
+</div>
+
+<!-- Section 1: Analytics & Category Breakdown -->
+<div class="admin-card">
+    <div class="card-header-row">
+        <h3 class="card-title-text"><i class="fa-solid fa-chart-column" style="color: #3b82f6;"></i> Category Inventory Distribution</h3>
+        <span style="font-size: 0.8rem; color: var(--text-secondary);">Real-time inventory volume across top categories</span>
+    </div>
+    <div style="position: relative; height: 280px; width: 100%;">
+        <canvas id="categoryChart"></canvas>
+    </div>
+</div>
+
+<!-- Recent Orders Table Summary -->
+<div class="admin-card">
+    <div class="card-header-row">
+        <h3 class="card-title-text"><i class="fa-solid fa-clock-rotate-left" style="color: #000000;"></i> Recent Platform Transactions</h3>
+        <a href="{% url 'superadmin_orders' %}" style="font-size: 0.82rem; font-weight: 700; color: #ef4444; text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
+            View All Orders <i class="fa-solid fa-arrow-right"></i>
+        </a>
+    </div>
+    {% if recent_orders %}
+    <div style="overflow-x: auto;">
+        <table class="jazzmin-table">
+            <thead>
+                <tr>
+                    <th>Order #</th>
+                    <th>Customer</th>
+                    <th>Date</th>
+                    <th>Payment Method</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ord in recent_orders %}
+                <tr>
+                    <td style="font-weight: 800; color: #2563eb;">{{ ord.order_number }}</td>
+                    <td>{{ ord.user.username }}</td>
+                    <td style="color: var(--text-secondary); font-size: 0.8rem;">{{ ord.created_at|date:"M d, Y H:i" }}</td>
+                    <td><span style="text-transform: uppercase; font-weight: 700; font-size: 0.78rem; color: #64748b;">{{ ord.payment_method }}</span></td>
+                    <td>
+                        {% if ord.status == 'completed' or ord.status == 'delivered' %}
+                        <span class="badge-status badge-accepted">{{ ord.status|capfirst }}</span>
+                        {% elif ord.status == 'cancelled' %}
+                        <span class="badge-status badge-rejected">Cancelled</span>
+                        {% else %}
+                        <span class="badge-status badge-pending">{{ ord.status|capfirst }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right; font-weight: 800; color: #000000;">NPR {{ ord.total_amount|floatformat:0 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No platform transactions recorded yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('categoryChart');
+    if (ctx) {
+        new Chart(ctx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ cat_names_json|escapejs }}'),
+                datasets: [{
+                    label: 'Products in Stock',
+                    data: JSON.parse('{{ cat_counts_json|escapejs }}'),
+                    backgroundColor: [
+                        '#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#6366f1'
+                    ],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#000000', font: { family: 'Plus Jakarta Sans', weight: '600' } } }
+                },
+                scales: {
+                    x: { ticks: { color: '#334155' }, grid: { color: '#e2e8f0' } },
+                    y: { ticks: { color: '#334155' }, grid: { color: '#e2e8f0' } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

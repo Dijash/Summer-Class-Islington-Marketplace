@@ -1,62 +1,89 @@
 <!-- Site Footer -->
 <footer class="site-footer">
-    <div class="footer-content container">
-        <div class="footer-brand-col">
-            <a href="{% url 'home' %}" class="brand-logo footer-logo">
-                <span class="logo-icon"><i class="fa-solid fa-store"></i></span>
-                <span class="logo-text">Islington<span>Marketplace</span></span>
-            </a>
-            <p class="brand-tagline">The premier multi-vendor marketplace for electronics, fashion, home goods, and more. Connecting buyers and sellers globally.</p>
-            <div class="social-links">
-                <a href="#" aria-label="Facebook"><i class="fa-brands fa-facebook-f"></i></a>
-                <a href="#" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
-                <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
-                <a href="#" aria-label="LinkedIn"><i class="fa-brands fa-linkedin-in"></i></a>
+    <div class="container">
+        
+        <!-- Top Section: Info & Menus -->
+        <div class="footer-top">
+            <!-- Left Info Column -->
+            <div class="footer-info">
+                <div class="social-links">
+                    <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://x.com" target="_blank" rel="noopener" aria-label="Twitter"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="https://youtube.com" target="_blank" rel="noopener" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+                </div>
+                
+                <div class="contact-details">
+                    <p>
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Islington College, Kamalpokhari<br>Kathmandu, Nepal</span>
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-envelope"></i>
+                        <a href="mailto:utsavbhattarai29@gmail.com">utsavbhattarai29@gmail.com</a>
+                    </p>
+                    <p>
+                        <i class="fa-solid fa-phone"></i>
+                        <a href="tel:+9779813217337">+977 9813217337</a>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Right Menu Columns -->
+            <div class="footer-menus">
+                <div class="footer-links-col">
+                    <h4 class="footer-heading">CATEGORIES</h4>
+                    <ul class="footer-list">
+                        <li><a href="{% url 'product_list' %}?category=clothing">Clothing</a></li>
+                        <li><a href="{% url 'product_list' %}?category=shoes">Shoes & Footwear</a></li>
+                        <li><a href="{% url 'product_list' %}?category=accessories">Accessories</a></li>
+                        <li><a href="{% url 'product_list' %}?category=beauty">Beauty</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links-col">
+                    <h4 class="footer-heading">CUSTOMER</h4>
+                    <ul class="footer-list">
+                        <li><a href="{% url 'public_offers_list' %}">Offers & Coupons</a></li>
+                        <li><a href="{% url 'contact' %}">Help Center</a></li>
+                        <li><a href="{% url 'customer_orders' %}">Track Order</a></li>
+                        <li><a href="{% url 'terms' %}#purchases">Shipping Policy</a></li>
+                        <li><a href="{% url 'terms' %}#purchases">Returns & Refunds</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-links-col">
+                    <h4 class="footer-heading">SELLER</h4>
+                    <ul class="footer-list">
+                        <li><a href="{% url 'seller_dashboard' %}">Dashboard</a></li>
+                        <li><a href="{% url 'seller_add_product' %}">Add Listing</a></li>
+                        <li><a href="{% url 'seller_my_products' %}">Inventory</a></li>
+                        <li><a href="{% url 'terms' %}#seller-terms">Seller Policy</a></li>
+                    </ul>
+                </div>
             </div>
         </div>
 
-        <div class="footer-links-col">
-            <h4 class="footer-heading">Shop Categories</h4>
-                <ul>
-                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-laptop"></i> Electronics & Tech</a></li>
-                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-shirt"></i> Fashion & Apparel</a></li>
-                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-couch"></i> Home & Garden</a></li>
-                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-wand-magic-sparkles"></i> Beauty & Personal Care</a></li>
-                    <li><a href="{% url 'product_list' %}"><i class="fa-solid fa-dumbbell"></i> Sports & Fitness</a></li>
-                </ul>
+        <!-- Divider & Action Button -->
+        <div class="footer-divider-wrapper">
+            <hr class="footer-divider">
+            <a href="{% url 'product_list' %}" class="btn-get-started">Get Started</a>
         </div>
 
-        <div class="footer-links-col">
-            <h4 class="footer-heading">Customer Care</h4>
-                <ul>
-                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-circle-question"></i> Help Center & FAQ</a></li>
-                    <li><a href="{% url 'customer_orders' %}"><i class="fa-solid fa-box"></i> Track Your Order</a></li>
-                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-truck-fast"></i> Shipping & Delivery</a></li>
-                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-arrow-rotate-left"></i> Returns & Refunds</a></li>
-                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-headset"></i> Contact Customer Support</a></li>
-                </ul>
+        <!-- Middle Section: Mission & Legal -->
+        <div class="footer-middle">
+            <div class="footer-mission">
+                <p>From branding to digital marketing. Our expert<br>team is here to elevate your brand and connect you<br>with your audience</p>
+            </div>
+            <div class="footer-legal">
+                <a href="{% url 'terms' %}">TERMS & CONDITIONS</a>
+                <a href="{% url 'privacy' %}">PRIVACY POLICY</a>
+            </div>
         </div>
 
-        <div class="footer-links-col">
-            <h4 class="footer-heading">Seller & Business</h4>
-                <ul>
-                    <li><a href="{% url 'seller_dashboard' %}"><i class="fa-solid fa-store"></i> Become a Seller</a></li>
-                    <li><a href="{% url 'seller_add_product' %}"><i class="fa-solid fa-plus-circle"></i> Add New Listing</a></li>
-                    <li><a href="{% url 'seller_my_products' %}"><i class="fa-solid fa-warehouse"></i> Manage Inventory</a></li>
-                    <li><a href="{% url 'contact' %}"><i class="fa-solid fa-handshake"></i> Partner Program</a></li>
-                </ul>
-        </div>
     </div>
 
-    <div class="footer-bottom">
-        <div class="container footer-bottom-wrapper">
-            <p>&copy; 2025 MarketPlace Inc. All rights reserved.</p>
-            <div class="payment-badges">
-                <span><i class="fa-brands fa-cc-visa"></i></span>
-                <span><i class="fa-brands fa-cc-mastercard"></i></span>
-                <span><i class="fa-solid fa-mobile-screen-button"></i> Khalti</span>
-                <span><i class="fa-solid fa-money-bill-wave"></i> COD</span>
-            </div>
-        </div>
+    <!-- Huge Cropped Text Background -->
+    <div class="footer-big-text-wrapper">
+        <h1 class="footer-big-text">ISLINGTON</h1>
     </div>
 </footer>

@@ -60,6 +60,7 @@
     <form class="checkout-form-grid" id="checkoutForm" action="{% url 'place_order' %}" method="POST">
         {% csrf_token %}
         <input type="hidden" name="selected_items" value="{{ selected_items_csv }}">
+        <input type="hidden" name="coupon_code" id="hiddenCouponCodeInput" value="">
         <!-- Main Form Column -->
         <div class="checkout-main-col">
             <!-- Section 1: Shipping Address -->
@@ -196,6 +197,20 @@
                         </div>
                     </div>
                 </div>
+                <!-- Promo Code / Coupon Section -->
+                <div class="form-group" style="margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px dashed #e2e8f0;">
+                    <label class="form-label" style="font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <i class="fa-solid fa-tag" style="color: #2563eb;"></i> Apply Promo Code / Coupon
+                    </label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="text" id="checkoutCouponInput" placeholder="e.g. SAVE20" class="form-control" style="text-transform: uppercase; font-weight: 600; font-size: 0.9rem; letter-spacing: 0.05em;">
+                        <button type="button" id="applyCouponBtn" onclick="applyCheckoutCoupon()" class="btn btn-primary" style="padding: 0.65rem 1.25rem; font-weight: 700; white-space: nowrap; border-radius: 8px;">
+                            Apply
+                        </button>
+                    </div>
+                    <div id="checkoutCouponMsg" style="display: none; font-size: 0.82rem; font-weight: 600; margin-top: 0.45rem;"></div>
+                </div>
+
                 <p class="field-error" id="paymentError" style="display:none; color:#ef4444; font-size:0.85rem; margin-top:0.5rem;">
                     <i class="fa-solid fa-circle-exclamation"></i> Please select a payment method
                 </p>
@@ -234,6 +249,10 @@
                     <div class="summary-line">
                         <span>Tax (5%)</span>
                         <span id="summaryTaxLine">NPR {{ tax|floatformat:0 }}</span>
+                    </div>
+                    <div class="summary-line" id="summaryDiscountRow" style="display: none; color: #16a34a; font-weight: 700;">
+                        <span>Coupon Discount (<span id="appliedCouponCode"></span>)</span>
+                        <span id="summaryDiscountLine">-NPR 0</span>
                     </div>
                     <div class="summary-divider"></div>
                     <div class="summary-line total-line">
@@ -282,13 +301,15 @@
     });
 
     const baseSubtotal = parseFloat("{{ subtotal|floatformat:2 }}");
+    let appliedCheckoutDiscount = 0;
+    let appliedCheckoutCode = '';
 
     function recalculateCheckoutTotals() {
         const selectedShipping = document.querySelector('input[name="shipping_method"]:checked');
         const shippingCost = (selectedShipping && selectedShipping.value === 'express') ? 13.00 : 0.00;
 
         const tax = Math.round(baseSubtotal * 0.05);
-        const grandTotal = Math.round(baseSubtotal + shippingCost + tax);
+        const grandTotal = Math.max(0, Math.round(baseSubtotal + shippingCost + tax - appliedCheckoutDiscount));
 
         const shippingElem = document.getElementById('summaryShippingLine');
         if (shippingElem) {
@@ -320,6 +341,81 @@
                 placeOrderBtn.innerHTML = `<i class="fa-solid fa-check"></i> Place Order with COD (NPR ${grandTotal})`;
             }
         }
+    }
+
+    function applyCheckoutCoupon() {
+        const input = document.getElementById('checkoutCouponInput');
+        const msgBox = document.getElementById('checkoutCouponMsg');
+        if (!input || !msgBox) return;
+
+        const code = input.value.trim();
+        if (!code) {
+            msgBox.style.display = 'block';
+            msgBox.style.color = '#ef4444';
+            msgBox.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Please enter a coupon code.';
+            return;
+        }
+
+        const applyBtn = document.getElementById('applyCouponBtn');
+        if (applyBtn) {
+            applyBtn.disabled = true;
+            applyBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Checking...';
+        }
+
+        const formData = new FormData();
+        formData.append('code', code);
+        formData.append('cart_total', baseSubtotal);
+
+        fetch('/offers/api/validate-coupon/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: formData
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (applyBtn) {
+                applyBtn.disabled = false;
+                applyBtn.innerHTML = 'Apply';
+            }
+            msgBox.style.display = 'block';
+            if (data.success) {
+                msgBox.style.color = '#16a34a';
+                msgBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${data.message} (-NPR ${data.discount_amount})`;
+                appliedCheckoutDiscount = parseFloat(data.discount_amount) || 0;
+                appliedCheckoutCode = data.code;
+                document.getElementById('hiddenCouponCodeInput').value = data.code;
+
+                const discRow = document.getElementById('summaryDiscountRow');
+                const discCode = document.getElementById('appliedCouponCode');
+                const discLine = document.getElementById('summaryDiscountLine');
+                if (discRow && discCode && discLine) {
+                    discRow.style.display = 'flex';
+                    discCode.innerText = data.code;
+                    discLine.innerText = `-NPR ${appliedCheckoutDiscount}`;
+                }
+                recalculateCheckoutTotals();
+            } else {
+                msgBox.style.color = '#ef4444';
+                msgBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${data.message}`;
+                appliedCheckoutDiscount = 0;
+                appliedCheckoutCode = '';
+                document.getElementById('hiddenCouponCodeInput').value = '';
+                const discRow = document.getElementById('summaryDiscountRow');
+                if (discRow) discRow.style.display = 'none';
+                recalculateCheckoutTotals();
+            }
+        })
+        .catch(err => {
+            if (applyBtn) {
+                applyBtn.disabled = false;
+                applyBtn.innerHTML = 'Apply';
+            }
+            msgBox.style.display = 'block';
+            msgBox.style.color = '#ef4444';
+            msgBox.innerText = 'Error validating coupon code.';
+        });
     }
 
     // Payment section toggle

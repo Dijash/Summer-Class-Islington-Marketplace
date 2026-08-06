@@ -296,10 +296,23 @@ def place_order(request):
 
     shipping_address = f"{first_name} {last_name}\n{street}\n{city}, {state} {zip_code}\nPhone: {phone}\nEmail: {email}"
 
+    coupon_code = request.POST.get('coupon_code', '').strip()
+    discount_amount = 0.0
+
     subtotal = float(sum(i.get_subtotal() for i in cart_items))
     shipping_cost = 0 if shipping_method == 'standard' else 12.99
     tax = round(subtotal * 0.05, 2)
-    grand_total = subtotal + shipping_cost + tax
+
+    if coupon_code:
+        from offers.models import Coupon
+        coupon = Coupon.objects.filter(code__iexact=coupon_code).first()
+        if coupon and coupon.is_usable:
+            if subtotal >= float(coupon.min_purchase_amount):
+                discount_amount = float(coupon.calculate_discount(subtotal))
+                coupon.times_used += 1
+                coupon.save()
+
+    grand_total = max(0.0, subtotal + shipping_cost + tax - discount_amount)
 
     order = Order.objects.create(
         user=request.user,

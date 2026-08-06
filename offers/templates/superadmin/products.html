@@ -1,0 +1,404 @@
+{% extends 'superadmin/base_admin.html' %}
+
+{% block title %}Products Catalog Directory | SuperAdmin Control Center{% endblock %}
+
+{% block admin_content %}
+<!-- Platform Products Directory & CRUD Management -->
+<div class="admin-card">
+    <div class="card-header-row">
+        <div>
+            <h3 class="card-title-text"><i class="fa-solid fa-boxes-stacked" style="color: #ef4444;"></i> Platform Products Directory</h3>
+            <span style="font-size: 0.8rem; color: var(--text-secondary);">Manage product listings, inventory levels, live publishing, edit details, and add or remove catalog items</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="width: 260px; position: relative;">
+                <input type="text" id="catalogSearchInput" placeholder="Search catalog..." class="form-control" style="padding-left: 2.2rem;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+            </div>
+            <button type="button" class="btn-action btn-black" onclick="openAddProductModal()">
+                <i class="fa-solid fa-plus"></i> Add Product
+            </button>
+        </div>
+    </div>
+
+    {% if all_products %}
+    <div style="overflow-x: auto;">
+        <table class="jazzmin-table" id="catalogTable">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Seller</th>
+                    <th>Price & MRP</th>
+                    <th>Stock Level</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for prod in all_products %}
+                <tr>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <img src="{{ prod.primary_image }}" alt="{{ prod.title }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color);">
+                            <div>
+                                <span style="font-weight: 700; color: #000000; display: block;">{{ prod.title }}</span>
+                                <small style="color: var(--text-muted); font-size: 0.75rem;">{{ prod.brand_name }}</small>
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ prod.category.name|default:"Uncategorized" }}</td>
+                    <td><span style="font-weight: 600; color: #000000;">{{ prod.seller_name|default:"SuperAdmin Store" }}</span></td>
+                    <td>
+                        <strong style="color: #000000;">NPR {{ prod.price|floatformat:0 }}</strong>
+                        {% if prod.mrp > prod.price %}
+                        <br><small style="color: var(--text-muted); text-decoration: line-through; font-size: 0.75rem;">NPR {{ prod.mrp|floatformat:0 }}</small>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if prod.stock > 0 %}
+                        <span style="font-weight: 700; color: #047857;">{{ prod.stock }} units</span>
+                        {% else %}
+                        <span style="font-weight: 700; color: #dc2626;">Out of Stock</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if prod.is_active %}
+                        <span style="display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; color: #000000; font-size: 0.85rem;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background-color: #10b981; display: inline-block; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);"></span>
+                            Live
+                        </span>
+                        {% else %}
+                        <span style="display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; color: #64748b; font-size: 0.85rem;">
+                            <span style="width: 10px; height: 10px; border-radius: 50%; background-color: #ef4444; display: inline-block; box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);"></span>
+                            Inactive
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 0.4rem;">
+                            <!-- Edit Product Button -->
+                            <button type="button" class="btn-action btn-outline" style="padding: 0.4rem 0.65rem; font-size: 0.78rem;"
+                                data-id="{{ prod.id }}"
+                                data-title="{{ prod.title }}"
+                                data-brand="{{ prod.brand_name }}"
+                                data-category="{{ prod.category.id }}"
+                                data-mrp="{{ prod.mrp }}"
+                                data-price="{{ prod.price }}"
+                                data-stock="{{ prod.stock }}"
+                                data-seller="{{ prod.seller_name }}"
+                                data-description="{{ prod.description }}"
+                                data-image="{{ prod.primary_image }}"
+                                data-active="{{ prod.is_active|yesno:'true,false' }}"
+                                onclick="openEditProductModal(this)">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+
+                            <!-- Toggle Status Button -->
+                            <a href="{% url 'superadmin_toggle_product_status' prod.id %}" class="btn-action {% if prod.is_active %}btn-outline{% else %}btn-success{% endif %}" style="padding: 0.4rem 0.65rem; font-size: 0.78rem;" title="{% if prod.is_active %}Deactivate product{% else %}Publish product{% endif %}">
+                                <i class="fa-solid {% if prod.is_active %}fa-eye-slash{% else %}fa-eye{% endif %}"></i>
+                                {% if prod.is_active %}Deactivate{% else %}Publish{% endif %}
+                            </a>
+
+                            <!-- Delete Product Button -->
+                            <button type="button" class="btn-action btn-red" style="padding: 0.4rem 0.65rem; font-size: 0.78rem;"
+                                data-id="{{ prod.id }}"
+                                data-title="{{ prod.title }}"
+                                onclick="openDeleteProductModal(this)">
+                                <i class="fa-solid fa-trash-can"></i> Delete
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if all_products.has_other_pages %}
+    <div class="pagination-container" style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+        <div style="font-size: 0.82rem; color: var(--text-secondary);">
+            Page <span style="font-weight: 700; color: #000000;">{{ all_products.number }}</span> of <span style="font-weight: 700; color: #000000;">{{ all_products.paginator.num_pages }}</span> (Total {{ all_products.paginator.count }} products)
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            {% if all_products.has_previous %}
+            <a href="?page={{ all_products.previous_page_number }}" class="btn-action btn-outline">
+                <i class="fa-solid fa-chevron-left"></i> Previous
+            </a>
+            {% else %}
+            <span class="btn-action btn-outline" style="opacity: 0.4; cursor: not-allowed;">
+                <i class="fa-solid fa-chevron-left"></i> Previous
+            </span>
+            {% endif %}
+
+            {% if all_products.has_next %}
+            <a href="?page={{ all_products.next_page_number }}" class="btn-action btn-outline">
+                Next <i class="fa-solid fa-chevron-right"></i>
+            </a>
+            {% else %}
+            <span class="btn-action btn-outline" style="opacity: 0.4; cursor: not-allowed;">
+                Next <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <p style="color: var(--text-muted); text-align: center; padding: 2rem 0;">No products registered in the catalog yet.</p>
+    {% endif %}
+</div>
+
+<!-- ========================================== -->
+<!-- ADD PRODUCT MODAL                          -->
+<!-- ========================================== -->
+<div class="admin-modal-overlay" id="addProductModal">
+    <div class="admin-modal-card">
+        <div class="admin-modal-header">
+            <h4><i class="fa-solid fa-plus-circle" style="color: #ef4444;"></i> Add New Catalog Product</h4>
+            <button type="button" class="admin-modal-close" onclick="closeModal('addProductModal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form method="POST" action="{% url 'superadmin_add_product' %}">
+            {% csrf_token %}
+            <div class="admin-modal-body" style="display: flex; flex-direction: column; gap: 1.1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end;">
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Product Title <span style="color: #ef4444; margin-left: 2px;">*</span></label>
+                        <input type="text" name="title" required class="form-control" placeholder="e.g. Wireless Headphones">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Brand Name <span style="color: #ef4444; margin-left: 2px;">*</span></label>
+                        <input type="text" name="brand_name" required class="form-control" placeholder="e.g. Sony, Nike">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end;">
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Category <span style="color: #ef4444; margin-left: 2px;">*</span></label>
+                        <select name="category_id" required class="form-select">
+                            <option value="">-- Select Category --</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Seller / Store Name</label>
+                        <input type="text" name="seller_name" class="form-control" placeholder="SuperAdmin / Direct Store" value="SuperAdmin / Direct Store">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.85rem; align-items: end;">
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">MRP Price (NPR)</label>
+                        <input type="number" step="0.01" name="mrp" required class="form-control" placeholder="2500">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Selling Price (NPR)</label>
+                        <input type="number" step="0.01" name="price" required class="form-control" placeholder="1999">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; justify-content: space-between; min-height: 1.5rem; margin-bottom: 0.35rem;">
+                            <span>Stock Qty <span style="color: #ef4444;">*</span></span>
+                            <small style="font-weight: 500; color: var(--text-muted); font-size: 0.7rem;">(0=Out of stock)</small>
+                        </label>
+                        <input type="number" name="stock" required class="form-control" placeholder="10" value="10">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: block; margin-bottom: 0.35rem;">Primary Image URL</label>
+                    <input type="url" name="image_url" class="form-control" placeholder="https://images.unsplash.com/...">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: block; margin-bottom: 0.35rem;">Description</label>
+                    <textarea name="description" rows="3" class="form-control" placeholder="Detailed product specifications and information..."></textarea>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 0.65rem; padding: 0.75rem 1rem; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <input type="checkbox" name="is_active" id="add_is_active" checked style="width: 18px; height: 18px; accent-color: #000000; cursor: pointer; flex-shrink: 0;">
+                    <label for="add_is_active" style="font-size: 0.85rem; font-weight: 700; color: #000000; cursor: pointer; margin: 0; user-select: none;">Publish Product as Live immediately</label>
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn-action btn-outline" onclick="closeModal('addProductModal')">Cancel</button>
+                <button type="submit" class="btn-action btn-black"><i class="fa-solid fa-check"></i> Add Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- EDIT PRODUCT MODAL                         -->
+<!-- ========================================== -->
+<div class="admin-modal-overlay" id="editProductModal">
+    <div class="admin-modal-card">
+        <div class="admin-modal-header">
+            <h4><i class="fa-solid fa-pen-to-square" style="color: #ef4444;"></i> Edit Catalog Product</h4>
+            <button type="button" class="admin-modal-close" onclick="closeModal('editProductModal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form method="POST" id="editProductForm" action="">
+            {% csrf_token %}
+            <div class="admin-modal-body" style="display: flex; flex-direction: column; gap: 1.1rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end;">
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Product Title <span style="color: #ef4444; margin-left: 2px;">*</span></label>
+                        <input type="text" name="title" id="edit_title" required class="form-control">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Brand Name <span style="color: #ef4444; margin-left: 2px;">*</span></label>
+                        <input type="text" name="brand_name" id="edit_brand_name" required class="form-control">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; align-items: end;">
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Category <span style="color: #ef4444; margin-left: 2px;">*</span></label>
+                        <select name="category_id" id="edit_category_id" required class="form-select">
+                            <option value="">-- Select Category --</option>
+                            {% for cat in categories %}
+                            <option value="{{ cat.id }}">{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Seller Name</label>
+                        <input type="text" name="seller_name" id="edit_seller_name" class="form-control">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.85rem; align-items: end;">
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">MRP Price (NPR)</label>
+                        <input type="number" step="0.01" name="mrp" id="edit_mrp" required class="form-control">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; min-height: 1.5rem; margin-bottom: 0.35rem;">Selling Price (NPR)</label>
+                        <input type="number" step="0.01" name="price" id="edit_price" required class="form-control">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: flex; align-items: flex-end; justify-content: space-between; min-height: 1.5rem; margin-bottom: 0.35rem;">
+                            <span>Stock Qty <span style="color: #ef4444;">*</span></span>
+                            <small style="font-weight: 500; color: var(--text-muted); font-size: 0.7rem;">(0=Out of stock)</small>
+                        </label>
+                        <input type="number" name="stock" id="edit_stock" required class="form-control">
+                    </div>
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: block; margin-bottom: 0.35rem;">Primary Image URL</label>
+                    <input type="url" name="image_url" id="edit_image_url" class="form-control">
+                </div>
+
+                <div>
+                    <label style="font-size: 0.8rem; font-weight: 700; color: #000000; display: block; margin-bottom: 0.35rem;">Description</label>
+                    <textarea name="description" id="edit_description" rows="3" class="form-control"></textarea>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 0.65rem; padding: 0.75rem 1rem; background: #f8fafc; border: 1px solid var(--border-color); border-radius: 8px;">
+                    <input type="checkbox" name="is_active" id="edit_is_active" style="width: 18px; height: 18px; accent-color: #000000; cursor: pointer; flex-shrink: 0;">
+                    <label for="edit_is_active" style="font-size: 0.85rem; font-weight: 700; color: #000000; cursor: pointer; margin: 0; user-select: none;">Product is Live & Published</label>
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn-action btn-outline" onclick="closeModal('editProductModal')">Cancel</button>
+                <button type="submit" class="btn-action btn-black"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- DELETE PRODUCT CONFIRMATION MODAL          -->
+<!-- ========================================== -->
+<div class="admin-modal-overlay" id="deleteProductModal">
+    <div class="admin-modal-card" style="max-width: 440px;">
+        <div class="admin-modal-header">
+            <h4><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> Confirm Product Deletion</h4>
+            <button type="button" class="admin-modal-close" onclick="closeModal('deleteProductModal')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <form method="POST" id="deleteProductForm" action="">
+            {% csrf_token %}
+            <div class="admin-modal-body">
+                <p style="font-size: 0.9rem; color: var(--text-secondary); line-height: 1.5; margin: 0;">
+                    Are you sure you want to permanently delete <strong id="delete_product_title" style="color: #000000;"></strong> from the product catalog? This action cannot be undone.
+                </p>
+            </div>
+            <div class="admin-modal-footer">
+                <button type="button" class="btn-action btn-outline" onclick="closeModal('deleteProductModal')">Cancel</button>
+                <button type="submit" class="btn-action btn-red"><i class="fa-solid fa-trash-can"></i> Yes, Delete Permanently</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('catalogSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#catalogTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = (!query || text.includes(query)) ? '' : 'none';
+            });
+        });
+    }
+});
+
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.add('active');
+}
+
+function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.remove('active');
+}
+
+function openAddProductModal() {
+    openModal('addProductModal');
+}
+
+function openEditProductModal(btn) {
+    const pId = btn.getAttribute('data-id');
+    const title = btn.getAttribute('data-title');
+    const brand = btn.getAttribute('data-brand');
+    const catId = btn.getAttribute('data-category');
+    const mrp = btn.getAttribute('data-mrp');
+    const price = btn.getAttribute('data-price');
+    const stock = btn.getAttribute('data-stock');
+    const seller = btn.getAttribute('data-seller');
+    const desc = btn.getAttribute('data-description');
+    const img = btn.getAttribute('data-image');
+    const isActive = btn.getAttribute('data-active') === 'true';
+
+    document.getElementById('editProductForm').action = `/offers/superadmin/product/${pId}/edit/`;
+    document.getElementById('edit_title').value = title || '';
+    document.getElementById('edit_brand_name').value = brand || '';
+    document.getElementById('edit_category_id').value = catId || '';
+    document.getElementById('edit_mrp').value = mrp || '';
+    document.getElementById('edit_price').value = price || '';
+    document.getElementById('edit_stock').value = stock || '0';
+    document.getElementById('edit_seller_name').value = seller || '';
+    document.getElementById('edit_description').value = desc || '';
+    document.getElementById('edit_image_url').value = img || '';
+    document.getElementById('edit_is_active').checked = isActive;
+
+    openModal('editProductModal');
+}
+
+function openDeleteProductModal(btn) {
+    const pId = btn.getAttribute('data-id');
+    const title = btn.getAttribute('data-title');
+
+    document.getElementById('deleteProductForm').action = `/offers/superadmin/product/${pId}/delete/`;
+    document.getElementById('delete_product_title').innerText = title;
+
+    openModal('deleteProductModal');
+}
+</script>
+{% endblock %}

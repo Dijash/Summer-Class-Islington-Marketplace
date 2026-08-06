@@ -103,6 +103,81 @@ class ProductRequest(models.Model):
     def __str__(self):
         return f"{self.title} by {self.seller.shop_name} [{self.status}]"
 
+    def approve_and_sync_product(self):
+        from product.models import Product, ProductColor, ProductImage, ProductSize
+        self.status = 'approved'
+        if not self.product:
+            product = Product.objects.create(
+                brand_name=self.brand_name,
+                title=self.title,
+                category=self.category,
+                mrp=self.mrp,
+                price=self.price,
+                description=self.description,
+                seller_name=self.seller.shop_name,
+                delivery_info=self.delivery_info or 'Delivery by 3rd Aug',
+                return_policy=self.return_policy or '7 Days Return and Replacement available',
+                offers_text=self.offers_text or 'Hurry! Get 5% Cashback. Offer ends tonight.',
+                size_guidelines=self.size_guidelines or 'Please check size chart table to know the exact size to be ordered.',
+                stock=self.quantity,
+                is_active=True,
+            )
+            color_names = [cn.strip() for cn in (self.color_name or 'Default').split(',') if cn.strip()]
+            color_codes = [cc.strip() for cc in (self.color_code or '#000000').split(',') if cc.strip()]
+            if not color_names:
+                color_names = ['Default']
+
+            for idx, cname in enumerate(color_names):
+                code = color_codes[idx] if idx < len(color_codes) else '#000000'
+                col = ProductColor.objects.create(
+                    product=product,
+                    color_name=cname,
+                    color_code=code,
+                    is_default=(idx == 0),
+                )
+                color_imgs = self.images.filter(color_index=idx).order_by('order')
+                if color_imgs.exists():
+                    for req_img in color_imgs:
+                        ProductImage.objects.create(
+                            color_variant=col,
+                            image_url=req_img.image.url,
+                            angle_label=req_img.angle_label,
+                            order=req_img.order
+                        )
+                elif idx == 0:
+                    if self.image:
+                        ProductImage.objects.create(color_variant=col, image_url=self.image.url, angle_label='Front View', order=0)
+                    if self.image2:
+                        ProductImage.objects.create(color_variant=col, image_url=self.image2.url, angle_label='Side View', order=1)
+                    if self.image3:
+                        ProductImage.objects.create(color_variant=col, image_url=self.image3.url, angle_label='Back View', order=2)
+                    if self.image4:
+                        ProductImage.objects.create(color_variant=col, image_url=self.image4.url, angle_label='Detail View', order=3)
+
+            if self.sizes:
+                for size_label in [s.strip() for s in self.sizes.split(',') if s.strip()]:
+                    ProductSize.objects.create(product=product, size_label=size_label, is_available=True)
+
+            self.product = product
+        else:
+            p = self.product
+            p.brand_name = self.brand_name
+            p.title = self.title
+            if self.category:
+                p.category = self.category
+            p.mrp = self.mrp
+            p.price = self.price
+            p.stock = self.quantity
+            p.description = self.description
+            p.delivery_info = self.delivery_info or p.delivery_info
+            p.return_policy = self.return_policy or p.return_policy
+            p.offers_text = self.offers_text or p.offers_text
+            p.size_guidelines = self.size_guidelines or p.size_guidelines
+            p.is_active = True
+            p.save()
+        self.save()
+        return self.product
+
     class Meta:
         ordering = ['-created_at']
 

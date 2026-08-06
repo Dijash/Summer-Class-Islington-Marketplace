@@ -251,7 +251,7 @@
             <!-- Dynamic Image Upload Container per Color -->
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
                 <label style="display: block; font-size: 0.85rem; font-weight: 600; color: var(--seller-text-main); margin: 0;">Color Variant Images</label>
-                <small style="color: var(--seller-text-muted); font-size: 0.78rem;">Upload up to 4 images per color (Front, Side, Back, Detail)</small>
+                <small style="color: var(--seller-text-muted); font-size: 0.78rem;">Upload between 2 and 5 images per color (Front & Side View required)</small>
             </div>
 
             <div id="colorImagesContainer">
@@ -338,7 +338,15 @@ document.addEventListener('DOMContentLoaded', function() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // --- Dynamic Per-Color Image Sections ---
+    // --- Dynamic Per-Color Image Sections (Min 2, Max 5 photos) ---
+    var ALL_ANGLES = [
+        { label: 'Front View', order: 0, required: true },
+        { label: 'Side View', order: 1, required: true },
+        { label: 'Back View', order: 2, required: false },
+        { label: 'Detail View', order: 3, required: false },
+        { label: 'Extra View', order: 4, required: false }
+    ];
+
     function syncColorImageSections() {
         var container = document.getElementById('colorImagesContainer');
         if (!container) return;
@@ -372,28 +380,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 card = document.createElement('div');
                 card.className = 'color-image-card';
                 card.setAttribute('data-color-index', idx);
+                card.setAttribute('data-active-slots', '2');
                 card.style.cssText = 'margin-bottom: 1.5rem; background: #fafafa; border: 1px solid var(--seller-border); border-radius: 8px; padding: 1.25rem;';
-                
-                var angles = [
-                    { label: 'Front View', key: '0', required: (idx === 0) },
-                    { label: 'Side View', key: '1', required: false },
-                    { label: 'Back View', key: '2', required: false },
-                    { label: 'Detail View', key: '3', required: false }
-                ];
 
-                var gridHtml = angles.map(function(ang, aIdx) {
+                var slotsHtml = ALL_ANGLES.map(function(ang, aIdx) {
                     var inputName = 'color_' + idx + '_image_' + aIdx;
+                    var isVisible = aIdx < 2; // Min 2 default slots
                     return `
-                        <div class="form-group">
-                            <label style="font-size: 0.8rem; color: var(--seller-text-muted); display: flex; align-items: center; justify-content: space-between;">
+                        <div class="photo-slot-group" data-angle-idx="${aIdx}" style="display: ${isVisible ? 'flex' : 'none'}; flex-direction: column;">
+                            <label style="font-size: 0.8rem; color: var(--seller-text-muted); display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.35rem; min-height: 1.2rem;">
                                 <span>${ang.label} ${ang.required ? '<span style="color: #ef4444;">*</span>' : ''}</span>
+                                ${!ang.required ? `<button type="button" class="btn-remove-slot" data-color-idx="${idx}" data-angle-idx="${aIdx}" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.78rem; padding: 0;" title="Remove photo slot"><i class="fa-solid fa-trash-can"></i> Remove</button>` : ''}
                             </label>
-                            <div class="image-upload-dropzone" id="dropzone_${idx}_${aIdx}">
+                            <div class="image-upload-dropzone" id="dropzone_${idx}_${aIdx}" style="flex: 1;">
                                 <i class="fa-solid fa-cloud-arrow-up dropzone-icon"></i>
                                 <span style="font-size: 0.82rem; font-weight: 600;">${ang.label}</span>
                                 <input type="file" name="${inputName}" class="dropzone-file-input" accept="image/*" ${ang.required ? 'data-required="true"' : ''}>
                             </div>
-                            <div class="image-preview-wrapper" id="preview_wrapper_${idx}_${aIdx}" style="display:none;">
+                            <div class="image-preview-wrapper" id="preview_wrapper_${idx}_${aIdx}" style="display:none; flex: 1;">
                                 <img id="preview_img_${idx}_${aIdx}" src="" alt="Preview">
                                 <button type="button" class="remove-preview-btn" data-color-idx="${idx}" data-angle-idx="${aIdx}"><i class="fa-solid fa-xmark"></i></button>
                             </div>
@@ -405,10 +409,19 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem; border-bottom: 1px solid var(--seller-border); padding-bottom: 0.75rem;">
                         <span class="card-color-swatch" style="width: 18px; height: 18px; border-radius: 50%; background-color: ${col.code}; border: 1px solid rgba(0,0,0,0.15); display: inline-block;"></span>
                         <h4 class="card-color-title" style="margin: 0; font-size: 0.95rem; font-weight: 600; color: var(--seller-text-main);">Images for ${col.name}</h4>
-                        <span style="font-size: 0.75rem; color: var(--seller-text-muted); margin-left: auto;">Up to 4 angles</span>
+                        <span style="font-size: 0.78rem; font-weight: 600; color: var(--seller-sidebar-active); margin-left: auto;" class="angle-count-badge">2 of 5 photos (Min 2 required)</span>
                     </div>
-                    <div class="form-grid-4">
-                        ${gridHtml}
+                    
+                    <div class="slots-flex-wrapper" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem; align-items: stretch;">
+                        ${slotsHtml}
+                        <div class="photo-slot-group add-photo-slot-wrapper" id="addPhotoSlotWrapper_${idx}" style="display: flex; flex-direction: column;">
+                            <label style="font-size: 0.8rem; margin-bottom: 0.35rem; min-height: 1.2rem; visibility: hidden;"><span>&nbsp;</span></label>
+                            <div class="image-upload-dropzone add-photo-btn-slot" id="addPhotoSlot_${idx}" style="background: #ffffff; flex: 1;" title="Add up to 5 photos">
+                                <i class="fa-solid fa-circle-plus dropzone-icon" style="color: #2563eb;"></i>
+                                <span style="font-size: 0.85rem; font-weight: 700; color: var(--seller-text-main);">Add Photo</span>
+                                <small style="font-size: 0.72rem; color: var(--seller-text-muted);">(Up to 5 total)</small>
+                            </div>
+                        </div>
                     </div>
                 `;
 
@@ -424,13 +437,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    function updateCardSlotsState(card, colorIdx) {
+        var activeCount = 0;
+        ALL_ANGLES.forEach(function(ang, aIdx) {
+            var slotEl = card.querySelector(`.photo-slot-group[data-angle-idx="${aIdx}"]`);
+            if (slotEl && slotEl.style.display !== 'none') {
+                activeCount++;
+            }
+        });
+        card.setAttribute('data-active-slots', activeCount);
+
+        var badge = card.querySelector('.angle-count-badge');
+        if (badge) {
+            badge.textContent = activeCount + ' of 5 photos (Min 2 required)';
+        }
+
+        var addWrapper = card.querySelector('#addPhotoSlotWrapper_' + colorIdx);
+        if (addWrapper) {
+            addWrapper.style.display = activeCount >= 5 ? 'none' : 'flex';
+        }
+    }
+
     function bindDropzonesForCard(card, colorIdx) {
-        [0, 1, 2, 3].forEach(function(aIdx) {
+        // Handle + Add Photo click
+        var addBtn = card.querySelector('#addPhotoSlot_' + colorIdx);
+        if (addBtn) {
+            addBtn.addEventListener('click', function() {
+                var hiddenSlots = [];
+                ALL_ANGLES.forEach(function(ang, aIdx) {
+                    var slotEl = card.querySelector(`.photo-slot-group[data-angle-idx="${aIdx}"]`);
+                    if (slotEl && slotEl.style.display === 'none') {
+                        hiddenSlots.push(slotEl);
+                    }
+                });
+
+                if (hiddenSlots.length > 0) {
+                    hiddenSlots[0].style.display = 'flex';
+                    updateCardSlotsState(card, colorIdx);
+                }
+            });
+        }
+
+        ALL_ANGLES.forEach(function(ang, aIdx) {
+            var slotEl = card.querySelector(`.photo-slot-group[data-angle-idx="${aIdx}"]`);
             var dropzone = card.querySelector('#dropzone_' + colorIdx + '_' + aIdx);
             var fileInput = card.querySelector('input[name="color_' + colorIdx + '_image_' + aIdx + '"]');
             var previewWrapper = card.querySelector('#preview_wrapper_' + colorIdx + '_' + aIdx);
             var previewImg = card.querySelector('#preview_img_' + colorIdx + '_' + aIdx);
-            var removeBtn = card.querySelector('.remove-preview-btn[data-angle-idx="' + aIdx + '"]');
+            var removeImgBtn = card.querySelector('.remove-preview-btn[data-angle-idx="' + aIdx + '"]');
+            var removeSlotBtn = card.querySelector('.btn-remove-slot[data-angle-idx="' + aIdx + '"]');
 
             if (fileInput) {
                 fileInput.addEventListener('change', function(e) {
@@ -447,14 +502,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
 
-            if (removeBtn) {
-                removeBtn.addEventListener('click', function() {
+            if (removeImgBtn) {
+                removeImgBtn.addEventListener('click', function() {
                     if (fileInput) fileInput.value = '';
                     if (previewWrapper) previewWrapper.style.display = 'none';
                     if (dropzone) dropzone.style.display = 'flex';
                 });
             }
+
+            if (removeSlotBtn) {
+                removeSlotBtn.addEventListener('click', function() {
+                    if (fileInput) fileInput.value = '';
+                    if (previewWrapper) previewWrapper.style.display = 'none';
+                    if (dropzone) dropzone.style.display = 'flex';
+                    if (slotEl) slotEl.style.display = 'none';
+                    updateCardSlotsState(card, colorIdx);
+                });
+            }
         });
+
+        updateCardSlotsState(card, colorIdx);
     }
 
     // --- Validation logic ---
@@ -526,16 +593,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 isValid = false;
             }
         } else if (step === 3) {
-            var color0Input = panel.querySelector('input[name="color_0_image_0"]');
-            var color0Wrapper = panel.querySelector('#preview_wrapper_0_0');
+            var colorCards = panel.querySelectorAll('.color-image-card');
+            var missingImages = false;
 
-            var hasImg0 = (color0Input && color0Input.files.length > 0) || (color0Wrapper && color0Wrapper.style.display !== 'none');
+            colorCards.forEach(function(card) {
+                var idx = card.getAttribute('data-color-index');
+                // Minimum 2 photos required (Front View index 0 and Side View index 1)
+                [0, 1].forEach(function(aIdx) {
+                    var input = card.querySelector('input[name="color_' + idx + '_image_' + aIdx + '"]');
+                    var wrapper = card.querySelector('#preview_wrapper_' + idx + '_' + aIdx);
+                    var hasImg = (input && input.files.length > 0) || (wrapper && wrapper.style.display !== 'none');
+                    if (!hasImg) {
+                        var dropzone = card.querySelector('#dropzone_' + idx + '_' + aIdx);
+                        if (dropzone) dropzone.style.borderColor = '#ef4444';
+                        if (!firstInvalidEl) firstInvalidEl = input || dropzone;
+                        isValid = false;
+                        missingImages = true;
+                    }
+                });
+            });
 
-            if (!hasImg0) {
-                var dropzone0 = panel.querySelector('#dropzone_0_0');
-                if (dropzone0) dropzone0.style.borderColor = '#ef4444';
-                if (!firstInvalidEl) firstInvalidEl = color0Input;
-                isValid = false;
+            if (missingImages) {
+                showStepErrorNotice("Minimum 2 photos (Front View & Side View) are required for each color variant.");
             }
         }
 

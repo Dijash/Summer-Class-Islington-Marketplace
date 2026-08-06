@@ -1,0 +1,95 @@
+{% extends 'seller/seller_base.html' %}
+{% load static %}
+
+{% block title %}Edit Product - {{ product_req.title }} - Seller Portal{% endblock %}
+
+{% block seller_content %}
+<div class="seller-page-header">
+    <div>
+        <h1>Edit Product Listing</h1>
+        <p>Update your product information. Edits will be submitted to the Admin for review & approval before going live.</p>
+    </div>
+    <a href="{% url 'seller_my_products' %}" class="btn btn-seller" style="background: #f1f5f9; color: #475569;">
+        <i class="fa-solid fa-arrow-left"></i> Back to Inventory
+    </a>
+</div>
+
+{% if product_req.status == 'pending' %}
+<div class="card" style="background: #fffbeb; border-color: #fde68a; margin-bottom: 1.5rem; border-left: 4px solid #f59e0b;">
+    <div style="display: flex; align-items: center; gap: 1rem; color: #92400e;">
+        <i class="fa-solid fa-clock-rotate-left" style="font-size: 1.5rem;"></i>
+        <div>
+            <strong style="font-size: 0.95rem;">Approval Pending:</strong>
+            <p style="margin: 0.25rem 0 0 0; font-size: 0.88rem;">This product currently has updates awaiting review by Admin. Submitting further changes will update the pending review request.</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="card">
+    <form method="POST" action="{% url 'seller_edit_product' product_req.id %}">
+        {% csrf_token %}
+
+        <h3 style="font-size: 1.1rem; border-bottom: 1px solid var(--seller-border); padding-bottom: 1rem; margin-top: 0; margin-bottom: 1.5rem;">
+            <i class="fa-solid fa-pen-to-square" style="color: var(--seller-sidebar-active);"></i> Product Details
+        </h3>
+
+        <div class="form-grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.25rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Brand Name *</label>
+                <input type="text" name="brand_name" class="form-control" value="{{ product_req.brand_name }}" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--seller-border); border-radius: 8px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Product Title *</label>
+                <input type="text" name="title" class="form-control" value="{{ product_req.title }}" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--seller-border); border-radius: 8px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Category *</label>
+                <select name="category" class="form-control" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--seller-border); border-radius: 8px;">
+                    {% for parent in parent_categories %}
+                        <optgroup label="{{ parent.name }}">
+                            {% for child in parent.children.all %}
+                                <option value="{{ child.id }}" {% if product_req.category_id == child.id %}selected{% endif %}>{{ child.name }}</option>
+                            {% endfor %}
+                        </optgroup>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">MRP (NPR) *</label>
+                <input type="number" step="0.01" name="mrp" class="form-control" value="{{ product_req.mrp }}" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--seller-border); border-radius: 8px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Selling Price (NPR) *</label>
+                <input type="number" step="0.01" name="price" class="form-control" value="{{ product_req.price }}" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--seller-border); border-radius: 8px;">
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label class="form-label" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Product Description</label>
+            <textarea name="description" rows="5" class="form-control" style="width: 100%; padding: 0.75rem; border: 1px solid var(--seller-border); border-radius: 8px;">{{ product_req.description }}</textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 2rem;">
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Delivery Information</label>
+                <input type="text" name="delivery_info" class="form-control" value="{{ product_req.delivery_info }}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--seller-border); border-radius: 8px;">
+            </div>
+            <div class="form-group">
+                <label class="form-label" style="font-weight: 700; font-size: 0.85rem; margin-bottom: 0.5rem; display: block;">Return Policy</label>
+                <input type="text" name="return_policy" class="form-control" value="{{ product_req.return_policy }}" style="width: 100%; padding: 0.75rem; border: 1px solid var(--seller-border); border-radius: 8px;">
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+            <a href="{% url 'seller_my_products' %}" class="btn btn-seller" style="background: #f1f5f9; color: #475569; padding: 0.75rem 1.5rem; text-decoration: none; border-radius: 8px; font-weight: 600;">Cancel</a>
+            <button type="submit" class="btn btn-seller btn-primary" style="padding: 0.75rem 2rem;">
+                <i class="fa-solid fa-paper-plane"></i> Submit Edits for Review
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

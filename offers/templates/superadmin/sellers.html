@@ -1,0 +1,119 @@
+{% extends 'superadmin/base_admin.html' %}
+
+{% block title %}Seller Approvals & Management | SuperAdmin Control Center{% endblock %}
+
+{% block admin_content %}
+<div class="admin-card">
+    <div class="card-header-row">
+        <div>
+            <h3 class="card-title-text"><i class="fa-solid fa-user-shield" style="color: var(--accent-amber);"></i> Seller Accounts & Approvals</h3>
+            <span style="font-size: 0.8rem; color: var(--text-secondary);">Manage seller verification, approval status, and shop details</span>
+        </div>
+        <div style="width: 280px; position: relative;">
+            <input type="text" id="sellerSearchInput" placeholder="Search sellers..." class="form-control" style="padding-left: 2.2rem;">
+            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+        </div>
+    </div>
+
+    {% if sellers_list %}
+    <div style="overflow-x: auto;">
+        <table class="jazzmin-table" id="sellersTable">
+            <thead>
+                <tr>
+                    <th>Shop Name</th>
+                    <th>Owner Username</th>
+                    <th>Business Phone</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Status Controls & Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for seller in sellers_list %}
+                <tr>
+                    <td>
+                        <div style="font-weight: 700; color: var(--text-primary);">{{ seller.shop_name }}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">{{ seller.address|default:"No address provided" }}</div>
+                    </td>
+                    <td><span style="color: #60a5fa; font-weight: 600;">{{ seller.user.username }}</span></td>
+                    <td>{{ seller.phone_number|default:"N/A" }}</td>
+                    <td>
+                        {% if seller.status == 'pending' %}
+                        <span class="badge-status badge-pending">Pending Approval</span>
+                        {% elif seller.status == 'approved' or seller.is_verified %}
+                        <span class="badge-status badge-accepted">Approved & Verified</span>
+                        {% elif seller.status == 'rejected' %}
+                        <span class="badge-status badge-rejected">Rejected</span>
+                        {% else %}
+                        <span class="badge-status badge-pending">{{ seller.status|capfirst }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="text-align: right;">
+                        <form method="post" action="{% url 'superadmin_update_seller_status' seller.id %}" style="display: inline-flex; align-items: center; gap: 0.4rem; justify-content: flex-end;">
+                            {% csrf_token %}
+                            <select name="status" class="form-control" style="font-size: 0.75rem; padding: 0.3rem 0.5rem; width: auto; background: #111827;">
+                                <option value="approved" {% if seller.status == 'approved' or seller.is_verified %}selected{% endif %}>Approved</option>
+                                <option value="pending" {% if seller.status == 'pending' and not seller.is_verified %}selected{% endif %}>Pending</option>
+                                <option value="rejected" {% if seller.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                            </select>
+                            <button type="submit" class="btn-action btn-blue" style="padding: 0.3rem 0.65rem; font-size: 0.75rem;" title="Update Status">
+                                <i class="fa-solid fa-floppy-disk"></i> Update
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if sellers_list.has_other_pages %}
+    <div class="pagination-container" style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+        <div style="font-size: 0.82rem; color: var(--text-secondary);">
+            Page <span style="font-weight: 700; color: var(--text-primary);">{{ sellers_list.number }}</span> of <span style="font-weight: 700; color: var(--text-primary);">{{ sellers_list.paginator.num_pages }}</span> (Total {{ sellers_list.paginator.count }} sellers)
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+            {% if sellers_list.has_previous %}
+            <a href="?page={{ sellers_list.previous_page_number }}" class="btn-action" style="background: #111827; color: var(--text-primary); border: 1px solid var(--border-color);">
+                <i class="fa-solid fa-chevron-left"></i> Previous
+            </a>
+            {% else %}
+            <span class="btn-action" style="background: #111827; color: var(--text-muted); border: 1px solid var(--border-color); opacity: 0.4; cursor: not-allowed;">
+                <i class="fa-solid fa-chevron-left"></i> Previous
+            </span>
+            {% endif %}
+
+            {% if sellers_list.has_next %}
+            <a href="?page={{ sellers_list.next_page_number }}" class="btn-action" style="background: #111827; color: var(--text-primary); border: 1px solid var(--border-color);">
+                Next <i class="fa-solid fa-chevron-right"></i>
+            </a>
+            {% else %}
+            <span class="btn-action" style="background: #111827; color: var(--text-muted); border: 1px solid var(--border-color); opacity: 0.4; cursor: not-allowed;">
+                Next <i class="fa-solid fa-chevron-right"></i>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+    {% else %}
+    <p style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No seller accounts registered yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('sellerSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#sellersTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = (!query || text.includes(query)) ? '' : 'none';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

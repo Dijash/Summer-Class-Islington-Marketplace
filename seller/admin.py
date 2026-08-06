@@ -114,9 +114,8 @@ class ProductRequestAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         if change and 'status' in form.changed_data:
-            if obj.status == 'approved' and obj.product is None:
-                product = create_product_from_request(obj)
-                obj.product = product
+            if obj.status == 'approved':
+                obj.approve_and_sync_product()
             elif obj.status == 'rejected' and obj.product is not None:
                 obj.product.is_active = False
                 obj.product.save()
@@ -127,20 +126,13 @@ class ProductRequestAdmin(admin.ModelAdmin):
             obj.product.delete()
         obj.delete()
 
-    @admin.action(description='Approve selected requests & create products')
+    @admin.action(description='Approve selected requests & sync products')
     def approve_requests(self, request, queryset):
         approved = 0
         for pr in queryset.exclude(status='approved'):
-            if pr.product is None:
-                product = create_product_from_request(pr)
-                pr.product = product
-            else:
-                pr.product.is_active = True
-                pr.product.save()
-            pr.status = 'approved'
-            pr.save()
+            pr.approve_and_sync_product()
             approved += 1
-        self.message_user(request, f'{approved} request(s) approved and product(s) created.')
+        self.message_user(request, f"Successfully approved {approved} product request(s).")
 
     @admin.action(description='Reject selected requests')
     def reject_requests(self, request, queryset):

@@ -18,6 +18,12 @@ def index(request):
 def contact(request):
     return render(request, 'core/contact.html')
 
+def terms(request):
+    return render(request, 'core/terms_policies/terms.html')
+
+def privacy(request):
+    return render(request, 'core/terms_policies/privacy.html')
+
 def custom_404(request, exception=None):
     return render(request, 'error_page/404.html', status=404)
 

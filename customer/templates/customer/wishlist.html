@@ -23,8 +23,8 @@
             {% for p in products %}
                 <div class="wishlist-card" id="wishlistCard-{{ p.id }}">
                     <div class="wishlist-thumb">
-                        {% if p.discount_percentage > 0 %}
-                            <span class="badge badge-danger product-badge">-{{ p.discount_percentage }}%</span>
+                        {% if p.discount_label %}
+                            <span class="badge badge-danger product-badge">{{ p.discount_label }}</span>
                         {% endif %}
                         <img src="{{ p.primary_image }}" alt="{{ p.title }}">
                         <button type="button" class="wishlist-remove-btn" onclick="removeFromWishlist('{{ p.id }}')" title="Remove from Wishlist">

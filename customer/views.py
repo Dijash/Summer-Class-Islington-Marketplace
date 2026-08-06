@@ -70,7 +70,7 @@ def remove_from_wishlist(request, product_id):
     return redirect('wishlist')
 
 def dashboard(request):
-    from cart.models import Cart
+    from customer.cart.models import Cart
     
     wishlist_count = 0
     cart_count = 0

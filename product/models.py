@@ -19,9 +19,14 @@ class Product(models.Model):
     seller_name = models.CharField(max_length=200, default="1 PAGE INDUSTRIES LIMITED")
     delivery_info = models.CharField(max_length=200, default="Delivery by 3rd Aug")
     return_policy = models.CharField(max_length=200, default="7 Days Return and Replacement available")
+    stock = models.PositiveIntegerField(default=10, help_text="Available stock quantity")
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def is_in_stock(self):
+        return self.is_active and self.stock > 0
 
     class Meta:
         ordering = ['-created_at']
@@ -41,10 +46,48 @@ class Product(models.Model):
         super().save(*args, **kwargs)
 
     @property
+    def active_offer(self):
+        try:
+            from django.utils import timezone
+            now = timezone.now()
+            active_offers = self.offers.filter(is_active=True, start_date__lte=now)
+            valid_offers = [o for o in active_offers if not o.end_date or o.end_date >= now]
+            if valid_offers:
+                return max(valid_offers, key=lambda o: float(o.discount_value))
+        except Exception:
+            pass
+        return None
+
+    @property
     def discount_percentage(self):
+        offer = self.active_offer
+        if offer:
+            if offer.offer_type == 'percentage':
+                return int(float(offer.discount_value))
+            elif offer.offer_type == 'fixed':
+                base = float(self.mrp) if (self.mrp and self.mrp > 0) else float(self.price)
+                if base and base > 0:
+                    return int((float(offer.discount_value) / base) * 100)
+        
         if self.mrp and self.price and self.mrp > self.price:
             return int(((self.mrp - self.price) / self.mrp) * 100)
         return 0
+
+    @property
+    def discount_label(self):
+        offer = self.active_offer
+        if offer:
+            if offer.offer_type == 'percentage':
+                val = int(float(offer.discount_value)) if float(offer.discount_value).is_integer() else float(offer.discount_value)
+                return f"{val}% off"
+            elif offer.offer_type == 'fixed':
+                val = int(float(offer.discount_value)) if float(offer.discount_value).is_integer() else float(offer.discount_value)
+                return f"NPR {val} off"
+        
+        pct = self.discount_percentage
+        if pct > 0:
+            return f"{pct}% off"
+        return ""
 
     @property
     def computed_rating(self):

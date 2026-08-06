@@ -1,0 +1,164 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Offers & Coupons - MarketPlace{% endblock %}
+
+{% block content %}
+<div style="max-width: 1645px; margin: 2rem auto 5rem; padding: 0 2rem;">
+    
+    <!-- Minimal Header Section -->
+    <div style="background: #000000; color: #ffffff; padding: 3.5rem 3rem; border-radius: 12px; margin-bottom: 3.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid #111111;">
+        <div style="max-width: 650px;">
+            <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(255,255,255,0.1); color: #ffffff; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 0.35rem 0.85rem; border-radius: 4px; margin-bottom: 1.25rem;">
+                <i class="fa-solid fa-tag" style="color: #ef4444;"></i> Exclusive Deals & Savings
+            </div>
+            <h1 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: clamp(2.2rem, 4vw, 3.2rem); font-weight: 800; line-height: 1.1; margin-bottom: 1rem; color: #ffffff; letter-spacing: -0.5px;">
+                Offers & Instant Promo Coupons
+            </h1>
+            <p style="font-size: 1.05rem; color: #94a3b8; line-height: 1.6; margin: 0; font-weight: 400;">
+                Unlock exclusive discounts across MarketPlace. Apply verified promo codes during checkout or explore special price cuts directly on items.
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.85rem; flex-wrap: wrap;">
+            <a href="#active-coupons" style="background: #ffffff; color: #000000; font-weight: 700; font-size: 0.9rem; padding: 0.85rem 1.6rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.55rem; transition: all 0.2s ease;">
+                <i class="fa-solid fa-ticket"></i> View Active Coupons
+            </a>
+            <a href="#discounted-products" style="background: transparent; color: #ffffff; border: 1px solid rgba(255,255,255,0.25); font-weight: 700; font-size: 0.9rem; padding: 0.85rem 1.6rem; border-radius: 6px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.55rem; transition: all 0.2s ease;">
+                <i class="fa-solid fa-bag-shopping"></i> Discounted Products
+            </a>
+        </div>
+    </div>
+
+    <!-- Active Coupons Section -->
+    <section id="active-coupons" style="margin-bottom: 4.5rem;">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.75rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
+            <div>
+                <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.65rem; font-weight: 800; color: #000000; margin: 0; letter-spacing: -0.3px;">Available Promo Coupons</h2>
+                <p style="font-size: 0.9rem; color: #64748b; margin: 0.35rem 0 0 0;">Copy any code and paste it at checkout for instant savings</p>
+            </div>
+            <span style="font-size: 0.82rem; font-weight: 700; color: #000000; background: #f1f5f9; padding: 0.4rem 0.85rem; border-radius: 6px; border: 1px solid #e2e8f0;">
+                <i class="fa-solid fa-ticket" style="margin-right: 0.35rem; color: #64748b;"></i> {{ active_coupons|length }} Active Code{% if active_coupons|length != 1 %}s{% endif %}
+            </span>
+        </div>
+
+        {% if active_coupons %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem;">
+            {% for coupon in active_coupons %}
+            <div style="background: #ffffff; border: 1.5px dashed #cbd5e1; border-radius: 10px; padding: 1.6rem; display: flex; flex-direction: column; justify-content: space-between; position: relative; transition: border-color 0.2s ease, box-shadow 0.2s ease;" onmouseover="this.style.borderColor='#000000'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.04)';" onmouseout="this.style.borderColor='#cbd5e1'; this.style.boxShadow='none';">
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <span style="background: #000000; color: #ffffff; font-size: 0.78rem; font-weight: 800; padding: 0.35rem 0.75rem; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            {% if coupon.discount_type == 'percentage' %}{{ coupon.discount_value|floatformat:0 }}% OFF{% else %}NPR {{ coupon.discount_value|floatformat:0 }} OFF{% endif %}
+                        </span>
+                        {% if coupon.min_purchase_amount %}
+                        <span style="font-size: 0.78rem; font-weight: 600; color: #64748b; background: #f8fafc; padding: 0.25rem 0.6rem; border-radius: 4px; border: 1px solid #f1f5f9;">
+                            Min Spend: NPR {{ coupon.min_purchase_amount|floatformat:0 }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    <h3 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.2rem; font-weight: 800; color: #000000; margin: 0 0 0.4rem 0;">{{ coupon.title|default:coupon.code }}</h3>
+                    <p style="font-size: 0.85rem; color: #64748b; margin: 0 0 1.5rem 0; line-height: 1.45;">Valid for all qualified purchases across MarketPlace catalog.</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.75rem; background: #f8fafc; padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    <code style="font-family: monospace; font-size: 1.15rem; font-weight: 800; color: #000000; flex: 1; letter-spacing: 1.5px;">{{ coupon.code }}</code>
+                    <button onclick="copyCouponCode('{{ coupon.code }}', this)" style="background: #000000; color: #ffffff; border: none; font-size: 0.8rem; font-weight: 700; padding: 0.5rem 0.9rem; border-radius: 6px; cursor: pointer; transition: background 0.2s ease; display: inline-flex; align-items: center; gap: 0.4rem;">
+                        <i class="fa-regular fa-copy"></i> Copy Code
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3.5rem 1rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px;">
+            <i class="fa-solid fa-ticket" style="font-size: 2.2rem; color: #cbd5e1; margin-bottom: 0.85rem; display: block;"></i>
+            <p style="color: #64748b; font-size: 0.95rem; font-weight: 500; margin: 0;">No active promo coupons available right now. Check back soon for new discounts!</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Discounted Products Section -->
+    <section id="discounted-products">
+        <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.75rem; border-bottom: 1px solid #e2e8f0; padding-bottom: 1rem;">
+            <div>
+                <h2 style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.65rem; font-weight: 800; color: #000000; margin: 0; letter-spacing: -0.3px;">Featured Discounted Products</h2>
+                <p style="font-size: 0.9rem; color: #64748b; margin: 0.35rem 0 0 0;">Items with active store price cuts and promo offers</p>
+            </div>
+            <a href="{% url 'product_list' %}" style="font-size: 0.88rem; font-weight: 700; color: #000000; text-decoration: none; display: inline-flex; align-items: center; gap: 0.4rem;">
+                Explore Catalog <i class="fa-solid fa-arrow-right" style="font-size: 0.8rem;"></i>
+            </a>
+        </div>
+
+        {% if discounted_products %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1.5rem;">
+            {% for product in discounted_products %}
+            <div class="product-card" data-url="{% url 'product_detail' product.slug %}" onclick="window.location=this.dataset.url">
+                <div class="product-thumb">
+                    {% if not product.is_in_stock %}
+                        <span class="badge badge-danger product-badge" style="background: #ef4444; color: #ffffff; font-weight: 800;">Out of Stock</span>
+                    {% elif product.discount_label %}
+                        <span class="badge badge-danger product-badge">{{ product.discount_label }}</span>
+                    {% else %}
+                        <span class="badge badge-danger product-badge" style="background: #ef4444; color: #ffffff; font-weight: 800;">ON SALE</span>
+                    {% endif %}
+                    {% if product.primary_image %}
+                        <img src="{{ product.primary_image }}" alt="{{ product.title }}">
+                    {% else %}
+                        <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #cbd5e1; background: #f8fafc;">
+                            <i class="fa-solid fa-image" style="font-size: 2.8rem;"></i>
+                        </div>
+                    {% endif %}
+                    <div class="product-actions">
+                        <button type="button" class="action-btn" onclick="event.stopPropagation(); toggleWishlist('{{ product.id }}', this)" title="Add to Wishlist"><i class="fa-regular fa-heart"></i></button>
+                        <a href="{% url 'product_detail' product.slug %}" class="action-btn" title="Quick View" onclick="event.stopPropagation()"><i class="fa-regular fa-eye"></i></a>
+                    </div>
+                </div>
+                <div class="product-details">
+                    <span class="product-category">{{ product.brand_name|default:product.category.name|default:"General" }}</span>
+                    <h3 class="product-title">{{ product.title }}</h3>
+                    {% if product.rating %}
+                    <div class="product-rating">
+                        <div class="stars"><i class="fa-solid fa-star"></i></div>
+                        <span class="rating-count"><strong>{{ product.rating }}</strong> ({{ product.reviews_count|default:"0" }} reviews)</span>
+                    </div>
+                    {% endif %}
+                    <div class="product-price-row">
+                        <div class="price-box">
+                            <span class="price-current">NPR {{ product.price|floatformat:0 }}</span>
+                            {% if product.mrp > product.price %}
+                                <span class="price-old">NPR {{ product.mrp|floatformat:0 }}</span>
+                            {% endif %}
+                        </div>
+                        {% if product.is_in_stock %}
+                            <button type="button" class="btn-cart-add" onclick="event.stopPropagation(); addToCart('{{ product.id }}', this)" title="Add to Cart"><i class="fa-solid fa-bag-shopping"></i></button>
+                        {% else %}
+                            <button type="button" class="btn-cart-add" disabled style="opacity: 0.5; cursor: not-allowed; background: #e2e8f0; color: #64748b;" title="Out of Stock"><i class="fa-solid fa-ban"></i></button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 3.5rem 1rem; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px;">
+            <i class="fa-solid fa-box-open" style="font-size: 2.2rem; color: #cbd5e1; margin-bottom: 0.85rem; display: block;"></i>
+            <p style="color: #64748b; font-size: 0.95rem; font-weight: 500; margin: 0;">No discounted products currently featured. Check out our main catalog!</p>
+        </div>
+        {% endif %}
+    </section>
+
+</div>
+
+<script>
+function copyCouponCode(code, btnElement) {
+    navigator.clipboard.writeText(code).then(() => {
+        const origText = btnElement.innerHTML;
+        btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Copied!';
+        btnElement.style.background = '#16a34a';
+        setTimeout(() => {
+            btnElement.innerHTML = origText;
+            btnElement.style.background = '#000000';
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

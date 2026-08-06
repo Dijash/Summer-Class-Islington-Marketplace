@@ -336,8 +336,10 @@
                 {% for p in page_obj %}
                     <div class="product-card" data-url="{% url 'product_detail' p.slug %}" onclick="window.location=this.dataset.url">
                         <div class="product-thumb">
-                            {% if p.discount_percentage > 0 %}
-                                <span class="badge badge-danger product-badge">-{{ p.discount_percentage }}%</span>
+                            {% if not p.is_in_stock %}
+                                <span class="badge badge-danger product-badge" style="background: #ef4444; color: #ffffff; font-weight: 800;">Out of Stock</span>
+                            {% elif p.discount_label %}
+                                <span class="badge badge-danger product-badge">{{ p.discount_label }}</span>
                             {% endif %}
                             <img src="{{ p.primary_image }}" alt="{{ p.title }}">
                             <div class="product-actions">
@@ -359,7 +361,11 @@
                                         <span class="price-old">₹{{ p.mrp|floatformat:0 }}</span>
                                     {% endif %}
                                 </div>
-                                <button type="button" class="btn-cart-add" onclick="event.stopPropagation(); addToCart('{{ p.id }}', this)" title="Add to Cart"><i class="fa-solid fa-bag-shopping"></i></button>
+                                {% if p.is_in_stock %}
+                                    <button type="button" class="btn-cart-add" onclick="event.stopPropagation(); addToCart('{{ p.id }}', this)" title="Add to Cart"><i class="fa-solid fa-bag-shopping"></i></button>
+                                {% else %}
+                                    <button type="button" class="btn-cart-add" disabled style="opacity: 0.5; cursor: not-allowed; background: #e2e8f0; color: #64748b;" title="Out of Stock"><i class="fa-solid fa-ban"></i></button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>

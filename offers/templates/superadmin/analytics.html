@@ -1,0 +1,190 @@
+{% extends 'superadmin/base_admin.html' %}
+
+{% block title %}System Analytics & Market Insights | SuperAdmin Control Center{% endblock %}
+
+{% block admin_content %}
+<!-- Analytics Summary Header Cards -->
+<div class="kpi-grid">
+    <div class="kpi-card" style="border-top: 3px solid #10b981;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <div class="kpi-title">Gross Revenue</div>
+                <div class="kpi-val" style="color: #059669;">NPR {{ total_revenue|floatformat:2 }}</div>
+            </div>
+            <div class="kpi-icon" style="background: #d1fae5; color: #059669; border: 1px solid #a7f3d0;">
+                <i class="fa-solid fa-chart-line"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.85rem;">
+            Processed Marketplace Checkout Total
+        </div>
+    </div>
+
+    <div class="kpi-card" style="border-top: 3px solid #3b82f6;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <div class="kpi-title">Total Orders Placed</div>
+                <div class="kpi-val" style="color: #2563eb;">{{ total_orders }}</div>
+            </div>
+            <div class="kpi-icon" style="background: #dbeafe; color: #2563eb; border: 1px solid #bfdbfe;">
+                <i class="fa-solid fa-bag-shopping"></i>
+            </div>
+        </div>
+        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.85rem;">
+            Customer Order Volume
+        </div>
+    </div>
+</div>
+
+<!-- Charts Grid Row 1 -->
+<div class="analytics-grid" style="grid-template-columns: 1fr 1fr; margin-top: 1.5rem;">
+    <!-- Chart 1: Category Distribution -->
+    <div class="admin-card">
+        <div class="card-header-row">
+            <h3 class="card-title-text"><i class="fa-solid fa-chart-column" style="color: #3b82f6;"></i> Category Product Inventory</h3>
+        </div>
+        <div style="position: relative; height: 280px; width: 100%;">
+            <canvas id="categoryAnalyticsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 2: Fulfillment Status Breakdown -->
+    <div class="admin-card">
+        <div class="card-header-row">
+            <h3 class="card-title-text"><i class="fa-solid fa-chart-pie" style="color: #f59e0b;"></i> Order Status Distribution</h3>
+        </div>
+        <div style="position: relative; height: 280px; width: 100%;">
+            <canvas id="orderStatusChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Grid Row 2 -->
+<div class="analytics-grid" style="grid-template-columns: 1fr 1fr; margin-top: 1.5rem;">
+    <!-- Chart 3: Payment Method Ratio -->
+    <div class="admin-card">
+        <div class="card-header-row">
+            <h3 class="card-title-text"><i class="fa-solid fa-credit-card" style="color: #a855f7;"></i> Payment Gateway Preference</h3>
+        </div>
+        <div style="position: relative; height: 280px; width: 100%;">
+            <canvas id="paymentMethodChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Chart 4: Top Sellers Inventory Leaderboard -->
+    <div class="admin-card">
+        <div class="card-header-row">
+            <h3 class="card-title-text"><i class="fa-solid fa-shop" style="color: #10b981;"></i> Seller Inventory Leaders</h3>
+        </div>
+        <div style="position: relative; height: 280px; width: 100%;">
+            <canvas id="sellerLeaderboardChart"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const colorPalette = ['#3b82f6', '#10b981', '#a855f7', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899', '#6366f1'];
+
+    // 1. Category Chart
+    const catCtx = document.getElementById('categoryAnalyticsChart');
+    if (catCtx) {
+        new Chart(catCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ cat_names_json|escapejs }}'),
+                datasets: [{
+                    label: 'Product Count',
+                    data: JSON.parse('{{ cat_counts_json|escapejs }}'),
+                    backgroundColor: colorPalette,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#000000', font: { weight: 'bold' } } } },
+                scales: {
+                    x: { ticks: { color: '#334155' }, grid: { color: '#e2e8f0' } },
+                    y: { ticks: { color: '#334155' }, grid: { color: '#e2e8f0' } }
+                }
+            }
+        });
+    }
+
+    // 2. Order Status Chart
+    const orderCtx = document.getElementById('orderStatusChart');
+    if (orderCtx) {
+        new Chart(orderCtx.getContext('2d'), {
+            type: 'doughnut',
+            data: {
+                labels: JSON.parse('{{ order_status_labels_json|escapejs }}'),
+                datasets: [{
+                    data: JSON.parse('{{ order_status_counts_json|escapejs }}'),
+                    backgroundColor: ['#f59e0b', '#3b82f6', '#10b981', '#ef4444', '#a855f7', '#06b6d4'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: '#000000', font: { weight: 'bold' } } } }
+            }
+        });
+    }
+
+    // 3. Payment Method Chart
+    const payCtx = document.getElementById('paymentMethodChart');
+    if (payCtx) {
+        new Chart(payCtx.getContext('2d'), {
+            type: 'pie',
+            data: {
+                labels: JSON.parse('{{ payment_labels_json|escapejs }}'),
+                datasets: [{
+                    data: JSON.parse('{{ payment_counts_json|escapejs }}'),
+                    backgroundColor: ['#a855f7', '#10b981', '#3b82f6'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { color: '#000000', font: { weight: 'bold' } } } }
+            }
+        });
+    }
+
+    // 4. Seller Leaderboard Chart
+    const sellerCtx = document.getElementById('sellerLeaderboardChart');
+    if (sellerCtx) {
+        new Chart(sellerCtx.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: JSON.parse('{{ seller_names_json|escapejs }}'),
+                datasets: [{
+                    indexAxis: 'y',
+                    label: 'Product Submissions',
+                    data: JSON.parse('{{ seller_counts_json|escapejs }}'),
+                    backgroundColor: ['#10b981', '#3b82f6', '#a855f7', '#f59e0b', '#ec4899'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                plugins: { legend: { labels: { color: '#000000', font: { weight: 'bold' } } } },
+                scales: {
+                    x: { ticks: { color: '#334155' }, grid: { color: '#e2e8f0' } },
+                    y: { ticks: { color: '#334155' }, grid: { color: '#e2e8f0' } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,183 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SuperAdmin Control Center | Islington Marketplace{% endblock %}</title>
+    <!-- FontAwesome 6 & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Toastify CSS & JS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <!-- External SuperAdmin CSS -->
+    <link rel="stylesheet" href="{% static 'css/superadmin/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<!-- Left Navigation Sidebar -->
+<aside class="jazzmin-sidebar">
+    <a href="{% url 'superadmin_dashboard' %}" class="sidebar-brand">
+        <div class="brand-logo-icon">
+            <i class="fa-solid fa-store"></i>
+        </div>
+        <div style="display: flex; flex-direction: column; line-height: 1.1;">
+            <span style="font-weight: 800; font-size: 0.92rem; letter-spacing: 0.04em; color: #000000;">ISLINGTON</span>
+            <span style="font-weight: 800; font-size: 0.7rem; letter-spacing: 0.08em; color: #ef4444;">MARKETPLACE</span>
+        </div>
+    </a>
+
+    <nav class="sidebar-menu">
+        <div class="menu-label">Main Controls</div>
+
+        <!-- Dashboard Dropdown Accordion -->
+        <div class="nav-dropdown-group {% if active_page == 'dashboard' or active_page == 'analytics' %}open{% endif %}">
+            <div class="nav-dropdown-toggle">
+                <span><i class="fa-solid fa-table-columns" style="color: #000000;"></i> Dashboard</span>
+                <i class="fa-solid fa-chevron-down toggle-arrow"></i>
+            </div>
+            <div class="nav-sub-menu">
+                <a href="{% url 'superadmin_dashboard' %}" class="sub-nav-item {% if active_page == 'dashboard' %}active{% endif %}">
+                    <i class="fa-solid fa-house" style="font-size: 0.75rem;"></i> Overview
+                </a>
+                <a href="{% url 'superadmin_analytics' %}" class="sub-nav-item {% if active_page == 'analytics' %}active{% endif %}">
+                    <i class="fa-solid fa-chart-line" style="font-size: 0.75rem;"></i> Analytics
+                </a>
+            </div>
+        </div>
+
+        <a href="{% url 'superadmin_sellers' %}" class="nav-item {% if active_page == 'sellers' %}active{% endif %}">
+            <i class="fa-solid fa-shop" style="color: #000000;"></i> Seller Approvals
+        </a>
+
+        <!-- Products Dropdown Accordion -->
+        <div class="nav-dropdown-group {% if active_page == 'products' or active_page == 'product_reviews' %}open{% endif %}">
+            <div class="nav-dropdown-toggle">
+                <span><i class="fa-solid fa-box-archive" style="color: #000000;"></i> Products</span>
+                <i class="fa-solid fa-chevron-down toggle-arrow"></i>
+            </div>
+            <div class="nav-sub-menu">
+                <a href="{% url 'superadmin_product_reviews' %}" class="sub-nav-item {% if active_page == 'product_reviews' %}active{% endif %}">
+                    <i class="fa-solid fa-clipboard-check" style="font-size: 0.75rem;"></i> Product Review
+                </a>
+                <a href="{% url 'superadmin_products' %}" class="sub-nav-item {% if active_page == 'products' %}active{% endif %}">
+                    <i class="fa-solid fa-boxes-stacked" style="font-size: 0.75rem;"></i> Catalog List
+                </a>
+            </div>
+        </div>
+
+        <a href="{% url 'superadmin_coupons' %}" class="nav-item {% if active_page == 'coupons' %}active{% endif %}">
+            <i class="fa-solid fa-ticket" style="color: #000000;"></i> Coupons & Discounts
+        </a>
+        <a href="{% url 'superadmin_promotions' %}" class="nav-item {% if active_page == 'promotions' %}active{% endif %}">
+            <i class="fa-solid fa-tags" style="color: #000000;"></i> Promotions & Offers
+        </a>
+        <a href="{% url 'superadmin_orders' %}" class="nav-item {% if active_page == 'orders' %}active{% endif %}">
+            <i class="fa-solid fa-bag-shopping" style="color: #000000;"></i> Platform Orders
+        </a>
+
+        <div class="menu-label" style="margin-top: 1rem;">System Links</div>
+        <a href="{% url 'home' %}" class="nav-item" target="_blank"><i class="fa-solid fa-globe" style="color: #000000;"></i> Public Storefront</a>
+        <a href="{% url 'logout' %}" class="nav-item" style="color: #ef4444;"><i class="fa-solid fa-power-off"></i> Log Out</a>
+    </nav>
+</aside>
+
+<!-- Right Main Admin Desk -->
+<main class="jazzmin-main">
+
+    <!-- Sticky Header -->
+    <header class="jazzmin-header">
+        <div class="header-title">
+            {% if active_page == 'dashboard' %}
+            <i class="fa-solid fa-house" style="color: #ef4444;"></i> Dashboard Overview
+            {% elif active_page == 'analytics' %}
+            <i class="fa-solid fa-chart-line" style="color: #ef4444;"></i> System Analytics
+            {% elif active_page == 'sellers' %}
+            <i class="fa-solid fa-shop" style="color: #ef4444;"></i> Seller Accounts & Approvals
+            {% elif active_page == 'product_reviews' %}
+            <i class="fa-solid fa-clipboard-check" style="color: #ef4444;"></i> Product Review & Approvals
+            {% elif active_page == 'products' %}
+            <i class="fa-solid fa-boxes-stacked" style="color: #ef4444;"></i> Products Catalog Directory
+            {% elif active_page == 'coupons' %}
+            <i class="fa-solid fa-ticket" style="color: #ef4444;"></i> Coupon & Discount Management
+            {% elif active_page == 'promotions' %}
+            <i class="fa-solid fa-tags" style="color: #ef4444;"></i> Promotions & Banner Offers
+            {% elif active_page == 'orders' %}
+            <i class="fa-solid fa-bag-shopping" style="color: #ef4444;"></i> Platform Orders & Fulfillment
+            {% else %}
+            <i class="fa-solid fa-shield-halved" style="color: #ef4444;"></i> Dashboard
+            {% endif %}
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+            <div class="user-profile-badge">
+                <div class="user-avatar">SA</div>
+                <span style="font-size: 0.85rem; font-weight: 700;">{{ request.user.username }} (Superuser)</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard-body">
+        {% if messages %}
+        <div id="django-messages-data" style="display:none;">
+            {% for message in messages %}
+                <div class="django-message-item" data-tags="{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const msgElements = document.querySelectorAll('#django-messages-data .django-message-item');
+            msgElements.forEach(function(el) {
+                const text = el.textContent;
+                const tags = el.getAttribute('data-tags');
+                let bg = '#10b981';
+                if (tags === 'error') {
+                    bg = '#ef4444';
+                } else if (tags === 'warning') {
+                    bg = '#f59e0b';
+                }
+                Toastify({
+                    text: text,
+                    duration: 4500,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    stopOnFocus: true,
+                    style: {
+                        background: bg,
+                        color: "#ffffff",
+                        borderRadius: "8px",
+                        fontSize: "0.88rem",
+                        fontWeight: "700",
+                        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.15)",
+                        padding: "12px 20px"
+                    }
+                }).showToast();
+            });
+        });
+        </script>
+        {% endif %}
+
+        {% block admin_content %}{% endblock %}
+    </div>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Accordion sidebar toggling
+    const toggles = document.querySelectorAll('.nav-dropdown-toggle');
+    toggles.forEach(toggle => {
+        toggle.addEventListener('click', function() {
+            const group = this.closest('.nav-dropdown-group');
+            group.classList.toggle('open');
+        });
+    });
+});
+</script>
+
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

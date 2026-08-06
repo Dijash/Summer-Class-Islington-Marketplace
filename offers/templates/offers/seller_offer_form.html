@@ -1,0 +1,137 @@
+{% extends 'seller/seller_base.html' %}
+{% load static %}
+
+{% block title %}Create Offer - Seller Portal{% endblock %}
+
+{% block seller_content %}
+<style>
+.products-checkbox-container {
+    max-height: 250px;
+    overflow-y: auto;
+    border: 1px solid var(--border-light);
+    border-radius: 8px;
+    padding: 0.75rem;
+    background: #f8fafc;
+}
+.products-checkbox-container div,
+.products-checkbox-container ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+.products-checkbox-container label {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-main);
+    transition: all 0.2s;
+    user-select: none;
+    margin: 0;
+}
+.products-checkbox-container label:hover {
+    border-color: #000000;
+    background: #f1f5f9;
+}
+.products-checkbox-container input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #000000;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+</style>
+
+<div class="seller-page-header">
+    <div>
+        <h1>Create New Offer</h1>
+        <p>Select from your accepted store products and apply discount percentage or fixed amount</p>
+    </div>
+    <a href="{% url 'seller_offers_list' %}" class="btn btn-seller" style="background: #f1f5f9; color: #475569;">
+        <i class="fa-solid fa-arrow-left"></i> Back to Promotions
+    </a>
+</div>
+
+<div style="max-width: 800px;">
+
+    <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm);">
+        <form method="post" style="display: flex; flex-direction: column; gap: 1.5rem;">
+            {% csrf_token %}
+            
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">Offer Title *</label>
+                {{ form.title }}
+            </div>
+
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">Description</label>
+                {{ form.description }}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">Discount Type *</label>
+                    {{ form.offer_type }}
+                </div>
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">Discount Value *</label>
+                    {{ form.discount_value }}
+                </div>
+            </div>
+
+            <div>
+                <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">
+                    Select Products (Accepted Store Products Only) *
+                </label>
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.6rem;">Check the products you wish to include in this promotional offer</div>
+                
+                {% if form.products.field.queryset.exists %}
+                <div class="products-checkbox-container">
+                    {{ form.products }}
+                </div>
+                {% else %}
+                <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 1.5rem; border-radius: 8px; text-align: center; color: #64748b;">
+                    <i class="fa-solid fa-box-open" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block; color: #94a3b8;"></i>
+                    You currently have no accepted products registered in your store. Submit products for admin approval to create promotional offers.
+                </div>
+                {% endif %}
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">Start Date</label>
+                    {{ form.start_date }}
+                </div>
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 700; color: var(--text-main); display: block; margin-bottom: 0.35rem;">End Date</label>
+                    {{ form.end_date }}
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 0.5rem; background: #f8fafc; padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid #e2e8f0;">
+                {{ form.is_active }}
+                <label for="{{ form.is_active.id_for_label }}" style="font-size: 0.88rem; font-weight: 700; color: var(--text-main); cursor: pointer; margin: 0;">
+                    Activate this offer immediately
+                </label>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem;">
+                <a href="{% url 'seller_offers_list' %}" style="background: #f1f5f9; color: #475569; font-weight: 700; font-size: 0.9rem; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none;">Cancel</a>
+                <button type="submit" style="background: #000000; color: #ffffff; font-weight: 700; font-size: 0.9rem; padding: 0.75rem 1.75rem; border: none; border-radius: 8px; cursor: pointer;">
+                    Create Offer
+                </button>
+            </div>
+        </form>
+    </div>
+
+</div>
+{% endblock %}

@@ -83,7 +83,8 @@
 html {
     font-size: 16px;
     scroll-behavior: smooth;
-    overflow-x: hidden;
+    overflow-x: clip;
+    height: 100%;
 }
 
 body {
@@ -95,7 +96,12 @@ body {
     display: flex;
     flex-direction: column;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
+}
+
+main.main-content {
+    flex: 1 0 auto;
+    width: 100%;
 }
 
 h1,

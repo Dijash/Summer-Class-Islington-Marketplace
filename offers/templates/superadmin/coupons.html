@@ -1,0 +1,152 @@
+{% extends 'superadmin/base_admin.html' %}
+
+{% block title %}Coupons & Discounts | SuperAdmin Control Center{% endblock %}
+
+{% block admin_content %}
+<div class="analytics-grid" style="grid-template-columns: 2fr 1fr;">
+    <!-- Active Coupons Table Card -->
+    <div class="admin-card">
+        <div class="card-header-row">
+            <div>
+                <h3 class="card-title-text"><i class="fa-solid fa-ticket" style="color: var(--accent-purple);"></i> Deployed Store Coupons</h3>
+                <span style="font-size: 0.8rem; color: var(--text-secondary);">Manage site-wide promo codes and discount vouchers</span>
+            </div>
+            <div style="width: 200px; position: relative;">
+                <input type="text" id="couponSearchInput" placeholder="Search code..." class="form-control" style="padding-left: 2.2rem;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+            </div>
+        </div>
+        {% if all_coupons %}
+        <div style="overflow-x: auto;">
+            <table class="jazzmin-table" id="couponsTable">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Type & Value</th>
+                        <th>Min Order</th>
+                        <th>Uses</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coupon in all_coupons %}
+                    <tr>
+                        <td style="font-weight: 800; font-family: monospace; font-size: 0.95rem; color: #60a5fa;">{{ coupon.code }}</td>
+                        <td>
+                            {% if coupon.discount_type == 'percentage' %}
+                            <span style="font-weight: 700; color: var(--accent-green);">{{ coupon.discount_value|floatformat:0 }}% OFF</span>
+                            {% else %}
+                            <span style="font-weight: 700; color: var(--accent-green);">NPR {{ coupon.discount_value }} OFF</span>
+                            {% endif %}
+                        </td>
+                        <td>NPR {{ coupon.min_purchase_amount }}</td>
+                        <td>{{ coupon.times_used }} / {% if coupon.usage_limit %}{{ coupon.usage_limit }}{% else %}∞{% endif %}</td>
+                        <td>
+                            {% if coupon.status == 'active' %}
+                            <span class="badge-status badge-accepted">Active</span>
+                            {% else %}
+                            <span class="badge-status badge-rejected">Paused</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: right;">
+                            <a href="{% url 'superadmin_toggle_coupon' coupon.id %}" class="btn-action {% if coupon.status == 'active' %}btn-danger{% else %}btn-success{% endif %}" title="{% if coupon.status == 'active' %}Pause Coupon{% else %}Activate Coupon{% endif %}">
+                                <i class="fa-solid {% if coupon.status == 'active' %}fa-pause{% else %}fa-play{% endif %}"></i>
+                            </a>
+                            <a href="{% url 'superadmin_delete_coupon' coupon.id %}" onclick="return confirm('Delete coupon {{ coupon.code }}?');" class="btn-action btn-danger">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if all_coupons.has_other_pages %}
+        <div class="pagination-container" style="display: flex; align-items: center; justify-content: space-between; margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+            <div style="font-size: 0.82rem; color: var(--text-secondary);">
+                Page <span style="font-weight: 700; color: var(--text-primary);">{{ all_coupons.number }}</span> of <span style="font-weight: 700; color: var(--text-primary);">{{ all_coupons.paginator.num_pages }}</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+                {% if all_coupons.has_previous %}
+                <a href="?page={{ all_coupons.previous_page_number }}" class="btn-action" style="background: #111827; color: var(--text-primary); border: 1px solid var(--border-color);">
+                    <i class="fa-solid fa-chevron-left"></i> Previous
+                </a>
+                {% else %}
+                <span class="btn-action" style="background: #111827; color: var(--text-muted); border: 1px solid var(--border-color); opacity: 0.4; cursor: not-allowed;">
+                    <i class="fa-solid fa-chevron-left"></i> Previous
+                </span>
+                {% endif %}
+
+                {% if all_coupons.has_next %}
+                <a href="?page={{ all_coupons.next_page_number }}" class="btn-action" style="background: #111827; color: var(--text-primary); border: 1px solid var(--border-color);">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                {% else %}
+                <span class="btn-action" style="background: #111827; color: var(--text-muted); border: 1px solid var(--border-color); opacity: 0.4; cursor: not-allowed;">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <p style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No coupons deployed yet.</p>
+        {% endif %}
+    </div>
+
+    <!-- Create Coupon Form Card -->
+    <div class="admin-card">
+        <div class="card-header-row">
+            <h3 class="card-title-text"><i class="fa-solid fa-circle-plus" style="color: var(--accent-green);"></i> Deploy New Coupon</h3>
+        </div>
+        <form method="post" style="display: flex; flex-direction: column; gap: 1rem;">
+            {% csrf_token %}
+            <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Coupon Code *</label>
+                {{ coupon_form.code }}
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div>
+                    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Type</label>
+                    {{ coupon_form.discount_type }}
+                </div>
+                <div>
+                    <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Value</label>
+                    {{ coupon_form.discount_value }}
+                </div>
+            </div>
+            <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Min Order Amount (NPR)</label>
+                {{ coupon_form.min_purchase_amount }}
+            </div>
+            <div>
+                <label style="font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">Usage Limit</label>
+                {{ coupon_form.usage_limit }}
+            </div>
+            <button type="submit" name="action_create_coupon" class="btn-action btn-success" style="padding: 0.75rem; justify-content: center; font-size: 0.9rem; margin-top: 0.5rem; font-weight: 700; border-radius: 10px;">
+                <i class="fa-solid fa-plus"></i> Save & Deploy Coupon
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('couponSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            const rows = document.querySelectorAll('#couponsTable tbody tr');
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = (!query || text.includes(query)) ? '' : 'none';
+            });
+        });
+    }
+});
+</script>
+{% endblock %}

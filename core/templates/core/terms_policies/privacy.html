@@ -1,0 +1,146 @@
+{% extends 'layouts/base.html' %}
+{% load static %}
+
+{% block title %}Privacy Policy - MarketPlace{% endblock %}
+
+{% block content %}
+<!-- Full Width Layout Container -->
+<div class="legal-content-container" style="max-width: 1400px; margin: 2.5rem auto 5rem; padding: 0 2rem;">
+    <!-- Minimal Clean Header -->
+    <div style="margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border-light); display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="font-size: 2.25rem; font-weight: 800; color: var(--text-main); margin: 0 0 0.35rem 0; tracking-tight: -0.02em;">Privacy Policy</h1>
+            <p style="font-size: 0.95rem; color: var(--text-muted); margin: 0;">Your privacy matters to us. Learn how MarketPlace collects, uses, and protects your personal data.</p>
+        </div>
+        <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted); background: #f8fafc; border: 1px solid var(--border-light); padding: 0.4rem 0.85rem; border-radius: 6px;">
+            Last Updated: August 2026
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 300px 1fr; gap: 2.5rem; align-items: start;">
+        
+        <!-- Left Sticky Sidebar -->
+        <aside style="position: sticky; top: 140px; align-self: start; z-index: 90; display: flex; flex-direction: column; gap: 1.5rem;">
+            <div style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 1.25rem; box-shadow: var(--shadow-sm);">
+                <h4 style="font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-light);">
+                    Contents
+                </h4>
+                <nav style="display: flex; flex-direction: column; gap: 0.35rem;">
+                    <a href="#collection" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        1. Information We Collect
+                    </a>
+                    <a href="#usage" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        2. How We Use Data
+                    </a>
+                    <a href="#sharing" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        3. Third-Party Sharing
+                    </a>
+                    <a href="#cookies" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        4. Cookies & Sessions
+                    </a>
+                    <a href="#security" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        5. Data Security
+                    </a>
+                    <a href="#rights" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        6. Your Privacy Rights
+                    </a>
+                    <a href="#contact" class="legal-nav-link" style="color: var(--text-main); font-size: 0.9rem; font-weight: 600; text-decoration: none; padding: 0.55rem 0.75rem; border-radius: 6px; transition: all 0.2s;">
+                        7. Contact Privacy Team
+                    </a>
+                </nav>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main style="display: flex; flex-direction: column; gap: 2rem;">
+            
+            <article id="collection" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">1. Information We Collect</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin-bottom: 1rem;">
+                    We collect personal and technical information necessary to deliver seamless customer checkout and merchant services across MarketPlace:
+                </p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.1rem; border-radius: 8px;">
+                        <h4 style="font-size: 0.92rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Account & Profile</h4>
+                        <p style="font-size: 0.86rem; color: #64748b; margin: 0; line-height: 1.5;">Full name, email address, phone number, and delivery shipping addresses.</p>
+                    </div>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.1rem; border-radius: 8px;">
+                        <h4 style="font-size: 0.92rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Order Transactions</h4>
+                        <p style="font-size: 0.86rem; color: #64748b; margin: 0; line-height: 1.5;">Payment receipts, order history, and product reviews submitted by users.</p>
+                    </div>
+                </div>
+            </article>
+
+            <article id="usage" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">2. How We Use Your Data</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin: 0;">
+                    Your data is strictly utilized to process e-commerce orders, authenticate sessions, maintain platform security, detect fraudulent activities, and provide responsive customer service.
+                </p>
+            </article>
+
+            <article id="sharing" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">3. Third-Party Sharing & Partners</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin-bottom: 0.85rem;">
+                    We do <strong>not sell, rent, or trade</strong> your personal information to advertisers.
+                </p>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin: 0;">
+                    We only share necessary operational details with verified third-party partners required to fulfill your order (e.g., payment processing gateways and shipping fulfillment logistics).
+                </p>
+            </article>
+
+            <article id="cookies" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">4. Cookies & Session Storage</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin: 0;">
+                    MarketPlace employs essential HTTP cookies and CSRF tokens to keep your session secure, remember items added to your shopping cart, and maintain user preferences.
+                </p>
+            </article>
+
+            <article id="security" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">5. Data Security Protection</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin: 0;">
+                    We implement industry-standard SSL/TLS encryption, salted password hashing, database isolation, and routine security audits to prevent unauthorized data disclosure.
+                </p>
+            </article>
+
+            <article id="rights" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">6. Your Rights & Data Access</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin: 0;">
+                    You maintain full control over your personal data. You may request a copy of your stored records, edit your profile, or request account deletion by emailing our support desk.
+                </p>
+            </article>
+
+            <article id="contact" style="background: #ffffff; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 2rem; box-shadow: var(--shadow-sm); scroll-margin-top: 140px;">
+                <h2 style="font-size: 1.35rem; font-weight: 700; color: var(--text-main); margin: 0 0 1rem 0;">7. Contact Data Privacy Officer</h2>
+                <p style="color: #334155; font-size: 0.98rem; line-height: 1.75; margin-bottom: 1rem;">
+                    For any questions or requests regarding your personal data privacy:
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 1.25rem;">
+                    <a href="mailto:utsavbhattarai29@gmail.com" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #0f172a; font-weight: 600; font-size: 0.9rem; text-decoration: none; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.6rem 1rem; border-radius: 6px;">
+                        <i class="fa-solid fa-envelope" style="color: var(--text-main);"></i> utsavbhattarai29@gmail.com
+                    </a>
+                    <a href="tel:+9779813217337" style="display: inline-flex; align-items: center; gap: 0.5rem; color: #0f172a; font-weight: 600; font-size: 0.9rem; text-decoration: none; background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.6rem 1rem; border-radius: 6px;">
+                        <i class="fa-solid fa-phone" style="color: var(--text-main);"></i> +977 9813217337
+                    </a>
+                </div>
+            </article>
+
+        </main>
+
+    </div>
+</div>
+
+<style>
+.legal-nav-link:hover {
+    background-color: #f8fafc !important;
+    color: #000000 !important;
+}
+@media (max-width: 992px) {
+    .legal-content-container > div {
+        grid-template-columns: 1fr !important;
+    }
+    aside {
+        position: static !important;
+    }
+}
+</style>
+{% endblock %}

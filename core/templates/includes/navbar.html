@@ -21,6 +21,7 @@
             <!-- Primary Navigation Links Section Div -->
             <div class="nav-links-section">
                 <ul class="nav-primary-links">
+                    <li><a href="{% url 'public_offers_list' %}" class="nav-item-link">OFFERS</a></li>
                     <li><a href="{% url 'product_list' %}?sale=true" class="nav-item-link highlight-sale-link">SALE</a></li>
                     <li><a href="{% url 'product_list' %}?category=menswear" class="nav-item-link">MENS</a></li>
                     <li><a href="{% url 'product_list' %}?category=womenswear" class="nav-item-link">WOMENS</a></li>
@@ -113,7 +114,10 @@
                                 <a href="{% url 'profile' %}" class="dropdown-item"><i class="fa-regular fa-user"></i> My Profile</a>
                                 <a href="{% url 'customer_orders' %}" class="dropdown-item"><i class="fa-solid fa-box"></i> My Orders</a>
                                 <a href="{% url 'wishlist' %}" class="dropdown-item"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                                {% if user.seller_profile and user.seller_profile.is_verified or user.seller_profile and user.seller_profile.status == 'approved' %}
+                                {% if user.is_superuser or user.is_staff %}
+                                <a href="{% url 'superadmin_dashboard' %}" class="dropdown-item"><i class="fa-solid fa-shield-halved"></i> SuperAdmin Dashboard</a>
+                                {% endif %}
+                                {% if user.seller_profile and user.seller_profile.is_verified or user.seller_profile and user.seller_profile.status == 'approved' or user.seller_profile and user.seller_profile.approval_status == 'accepted' %}
                                 <a href="{% url 'seller_dashboard' %}" class="dropdown-item"><i class="fa-solid fa-store"></i> Seller Dashboard</a>
                                 {% endif %}
                                 <hr class="dropdown-divider">

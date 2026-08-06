@@ -25,13 +25,13 @@
 
         <!-- Left Column: Multi-Angle Gallery Grid -->
         <div class="jockey-gallery-col">
-            <div class="jockey-gallery-grid" id="multiAngleGalleryGrid" data-discount="{{ product.discount_percentage|default:0 }}">
+            <div class="jockey-gallery-grid" id="multiAngleGalleryGrid" data-discount="{{ product.discount_percentage|default:0 }}" data-discount-label="{{ product.discount_label }}">
                 {% if default_color and default_color.images.all %}
                 {% for img in default_color.images.all %}
                 <div class="jockey-gallery-item">
                     <!-- Ribbon Badge on 1st Image -->
-                    {% if forloop.first and product.mrp > product.price %}
-                    <div class="gallery-discount-ribbon">{{ product.discount_percentage }}% off</div>
+                    {% if forloop.first and product.discount_label %}
+                    <div class="gallery-discount-ribbon">{{ product.discount_label }}</div>
                     {% endif %}
 
                     <img src="{{ img.image_url }}" alt="{{ img.angle_label }}" class="jockey-gallery-img">
@@ -39,8 +39,8 @@
                 {% endfor %}
                 {% else %}
                 <div class="jockey-gallery-item">
-                    {% if product.mrp > product.price %}
-                    <div class="gallery-discount-ribbon">{{ product.discount_percentage }}% off</div>
+                    {% if product.discount_label %}
+                    <div class="gallery-discount-ribbon">{{ product.discount_label }}</div>
                     {% endif %}
                     <img src="{{ product.primary_image }}" alt="{{ product.title }}" class="jockey-gallery-img">
                 </div>
@@ -62,7 +62,12 @@
                     <span class="jockey-price-value">MRP: ₹{{ product.price|floatformat:0 }}</span>
                     {% if product.mrp > product.price %}
                     <span class="jockey-mrp-old">₹{{ product.mrp|floatformat:0 }}</span>
-                    <span class="jockey-discount-badge">{{ product.discount_percentage }}% OFF</span>
+                    {% endif %}
+                    {% if product.discount_label %}
+                    <span class="jockey-discount-badge">{{ product.discount_label|upper }}</span>
+                    {% endif %}
+                    {% if not product.is_in_stock %}
+                    <span class="jockey-discount-badge" style="background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; font-weight: 800;">OUT OF STOCK</span>
                     {% endif %}
                 </div>
                 <span class="jockey-tax-note">Inclusive of all taxes</span>
@@ -150,12 +155,17 @@
                         data-product-id="{{ product.id }}" onclick="toggleWishlist(this)">
                         <i class="fa-regular fa-heart"></i>
                     </button>
-                    <button type="button" class="jockey-buy-now-btn" id="buyNowBtn" data-product-id="{{ product.id }}" onclick="buyNow(event, this)">Buy
-                        Now</button>
-                    <button type="button" class="jockey-add-bag-btn" data-product-id="{{ product.id }}"
-                        onclick="addToBag(this)">
+                    {% if product.is_in_stock %}
+                    <button type="button" class="jockey-buy-now-btn" id="buyNowBtn" data-product-id="{{ product.id }}" onclick="buyNow(event, this)">Buy Now</button>
+                    <button type="button" class="jockey-add-bag-btn" data-product-id="{{ product.id }}" onclick="addToBag(this)">
                         <i class="fa-solid fa-bag-shopping"></i> Add To Bag
                     </button>
+                    {% else %}
+                    <button type="button" class="jockey-buy-now-btn" disabled style="background: #e2e8f0; color: #94a3b8; cursor: not-allowed;">Out of Stock</button>
+                    <button type="button" class="jockey-add-bag-btn" disabled style="background: #cbd5e1; color: #64748b; cursor: not-allowed;">
+                        <i class="fa-solid fa-ban"></i> Unavailable
+                    </button>
+                    {% endif %}
                 </div>
             </div>
 
@@ -416,7 +426,8 @@
 
         const discountAttr = galleryGrid ? galleryGrid.getAttribute('data-discount') : '0';
         const discountPercentage = parseInt(discountAttr || '0');
-        const hasDiscount = discountPercentage > 0;
+        const discountLabel = galleryGrid ? (galleryGrid.getAttribute('data-discount-label') || (discountPercentage > 0 ? `${discountPercentage}% off` : '')) : '';
+        const hasDiscount = discountLabel.length > 0;
 
         if (imageContainer && galleryGrid) {
             const imageItems = imageContainer.querySelectorAll('.gallery-data-item');
@@ -428,7 +439,7 @@
                     const isFirst = (index === 0);
 
                     const discountHtml = (isFirst && hasDiscount)
-                        ? `<div class="gallery-discount-ribbon">${discountPercentage}% off</div>`
+                        ? `<div class="gallery-discount-ribbon">${discountLabel}</div>`
                         : '';
 
                     newHtml += `

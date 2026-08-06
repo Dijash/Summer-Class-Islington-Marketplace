@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -45,6 +46,11 @@ def seller_dashboard(request):
         status='rejected'
     ).select_related('category')[:5]
 
+    # Seller Promotions / Offers
+    from offers.models import Offer
+    seller_offers = Offer.objects.filter(seller=seller).order_by('-created_at')[:5]
+    active_offers_count = Offer.objects.filter(seller=seller, is_active=True).count()
+
     return render(request, 'seller/dashboard.html', {
         'seller': seller,
         'total_revenue': total_revenue,
@@ -53,6 +59,8 @@ def seller_dashboard(request):
         'pending_requests': pending_requests,
         'recent_requests': recent_requests,
         'recent_orders': recent_orders,
+        'seller_offers': seller_offers,
+        'active_offers_count': active_offers_count,
     })
 
 
@@ -218,6 +226,13 @@ def add_product(request):
         if image and image.size > 5 * 1024 * 1024:
             errors.append('Image must be under 5MB.')
 
+        # Validate minimum 2 photos (Front & Side View) per color variant
+        for c_idx, (cname, _) in enumerate(valid_colors):
+            has_front = request.FILES.get(f'color_{c_idx}_image_0') or (c_idx == 0 and request.FILES.get('image'))
+            has_side = request.FILES.get(f'color_{c_idx}_image_1') or (c_idx == 0 and request.FILES.get('image2'))
+            if not has_front or not has_side:
+                errors.append(f'Minimum 2 photos (Front View & Side View) are required for color "{cname}".')
+
         if errors:
             return render(request, 'seller/add_product.html', {
                 'seller': seller,
@@ -255,15 +270,22 @@ def add_product(request):
             size_guidelines=size_guidelines,
         )
 
-        # Process per-color image uploads
-        angles = [('Front View', 0), ('Side View', 1), ('Back View', 2), ('Detail View', 3)]
+        # Process per-color image uploads (min 2, up to 5 angles)
+        angles = [
+            ('Front View', 0),
+            ('Side View', 1),
+            ('Back View', 2),
+            ('Detail View', 3),
+            ('Extra View', 4)
+        ]
         for idx, (cname, ccode) in enumerate(valid_colors):
             for angle_name, angle_order in angles:
                 img_key = f'color_{idx}_image_{angle_order}'
                 img_file = request.FILES.get(img_key)
                 if not img_file and idx == 0:
                     legacy_keys = {0: 'image', 1: 'image2', 2: 'image3', 3: 'image4'}
-                    img_file = request.FILES.get(legacy_keys[angle_order])
+                    if angle_order in legacy_keys:
+                        img_file = request.FILES.get(legacy_keys[angle_order])
                 
                 if img_file:
                     ProductRequestImage.objects.create(
@@ -291,6 +313,43 @@ def add_product(request):
         'sizes_lingerie': SIZES_LINGERIE,
         'sizes_footwear': SIZES_FOOTWEAR,
         'form_data_sizes': [],
+    })
+
+
+@login_required(login_url='login')
+def edit_product(request, req_id):
+    seller = get_or_create_seller(request.user)
+    product_req = get_object_or_404(ProductRequest, pk=req_id, seller=seller)
+    parent_categories = Category.objects.filter(parent=None).prefetch_related('children')
+
+    if request.method == 'POST':
+        brand_name = request.POST.get('brand_name', '').strip()
+        title = request.POST.get('title', '').strip()
+        category_id = request.POST.get('category')
+        mrp = request.POST.get('mrp')
+        price = request.POST.get('price')
+        description = request.POST.get('description', '').strip()
+        delivery_info = request.POST.get('delivery_info', '').strip()
+        return_policy = request.POST.get('return_policy', '').strip()
+
+        if brand_name and title and category_id and mrp and price:
+            product_req.brand_name = brand_name
+            product_req.title = title
+            product_req.category_id = category_id
+            product_req.mrp = mrp
+            product_req.price = price
+            product_req.description = description
+            if delivery_info: product_req.delivery_info = delivery_info
+            if return_policy: product_req.return_policy = return_policy
+            product_req.status = 'pending'
+            product_req.save()
+            messages.success(request, f"Product '{title}' edits submitted for admin review and approval!")
+            return redirect('seller_my_products')
+
+    return render(request, 'seller/edit_product.html', {
+        'seller': seller,
+        'product_req': product_req,
+        'parent_categories': parent_categories,
     })
 
 
