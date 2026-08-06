@@ -9,9 +9,22 @@
             <h3 class="card-title-text"><i class="fa-solid fa-receipt" style="color: var(--accent-green);"></i> All Marketplace Transactions & Status Controls</h3>
             <span style="font-size: 0.8rem; color: var(--text-secondary);">Full administrative control to view and update order fulfillment & payment statuses</span>
         </div>
-        <div style="width: 280px; position: relative;">
-            <input type="text" id="orderSearchInput" placeholder="Search orders..." class="form-control" style="padding-left: 2.2rem;">
-            <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="width: 240px; position: relative;">
+                <input type="text" id="orderSearchInput" placeholder="Search orders..." class="form-control" style="padding-left: 2.2rem;">
+                <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+            </div>
+            <div style="position: relative; width: 220px;">
+                <select id="orderSortSelect" class="form-control" onchange="applyOrderSort(this.value)" style="padding-left: 2.2rem; cursor: pointer; background: #111827; color: var(--text-primary);">
+                    <option value="latest" {% if current_sort == 'latest' %}selected{% endif %}>Sort: Latest Orders</option>
+                    <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Sort: Oldest Orders</option>
+                    <option value="alpha_asc" {% if current_sort == 'alpha_asc' %}selected{% endif %}>Sort: Order # (A to Z)</option>
+                    <option value="alpha_desc" {% if current_sort == 'alpha_desc' %}selected{% endif %}>Sort: Order # (Z to A)</option>
+                    <option value="total_high" {% if current_sort == 'total_high' %}selected{% endif %}>Sort: Amount (High to Low)</option>
+                    <option value="total_low" {% if current_sort == 'total_low' %}selected{% endif %}>Sort: Amount (Low to High)</option>
+                </select>
+                <i class="fa-solid fa-arrow-down-short-wide" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+            </div>
         </div>
     </div>
 
@@ -32,7 +45,7 @@
             </thead>
             <tbody>
                 {% for ord in all_orders %}
-                <tr>
+                <tr data-created-at="{{ ord.created_at|date:'c' }}">
                     <td style="font-weight: 800; color: #60a5fa;">{{ ord.order_number }}</td>
                     <td>
                         <div style="font-weight: 700; color: var(--text-primary);">{{ ord.user.username }}</div>
@@ -42,7 +55,7 @@
                     <td><span style="text-transform: uppercase; font-weight: 700; font-size: 0.78rem; color: #9ca3af;">{{ ord.payment_method }}</span></td>
                     <td>
                         {% if ord.payment_status == 'paid' %}
-                        <span class="badge-status badge-accepted"><i class="fa-solid fa-check-double"></i> Paid</span>
+                        <span class="badge-status badge-accepted"><i class="fa-solid fa-circle-check"></i> Paid</span>
                         {% elif ord.payment_status == 'refunded' %}
                         <span class="badge-status badge-pending"><i class="fa-solid fa-rotate-left"></i> Refunded</span>
                         {% elif ord.payment_status == 'failed' %}
@@ -99,21 +112,21 @@
         </div>
         <div style="display: flex; gap: 0.5rem;">
             {% if all_orders.has_previous %}
-            <a href="?page={{ all_orders.previous_page_number }}" class="btn-action" style="background: #111827; color: var(--text-primary); border: 1px solid var(--border-color);">
+            <a href="?page={{ all_orders.previous_page_number }}&sort={{ current_sort }}" class="btn-action btn-outline">
                 <i class="fa-solid fa-chevron-left"></i> Previous
             </a>
             {% else %}
-            <span class="btn-action" style="background: #111827; color: var(--text-muted); border: 1px solid var(--border-color); opacity: 0.4; cursor: not-allowed;">
+            <span class="btn-action btn-outline" style="opacity: 0.45; cursor: not-allowed;">
                 <i class="fa-solid fa-chevron-left"></i> Previous
             </span>
             {% endif %}
 
             {% if all_orders.has_next %}
-            <a href="?page={{ all_orders.next_page_number }}" class="btn-action" style="background: #111827; color: var(--text-primary); border: 1px solid var(--border-color);">
+            <a href="?page={{ all_orders.next_page_number }}&sort={{ current_sort }}" class="btn-action btn-black">
                 Next <i class="fa-solid fa-chevron-right"></i>
             </a>
             {% else %}
-            <span class="btn-action" style="background: #111827; color: var(--text-muted); border: 1px solid var(--border-color); opacity: 0.4; cursor: not-allowed;">
+            <span class="btn-action btn-outline" style="opacity: 0.45; cursor: not-allowed;">
                 Next <i class="fa-solid fa-chevron-right"></i>
             </span>
             {% endif %}
@@ -141,5 +154,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+function applyOrderSort(sortValue) {
+    const tbody = document.querySelector('#ordersTable tbody');
+    if (tbody) {
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const dateA = a.dataset.createdAt ? new Date(a.dataset.createdAt).getTime() : 0;
+            const dateB = b.dataset.createdAt ? new Date(b.dataset.createdAt).getTime() : 0;
+
+            if (sortValue === 'latest') {
+                return dateB - dateA;
+            } else if (sortValue === 'oldest') {
+                return dateA - dateB;
+            } else if (sortValue === 'alpha_asc' || sortValue === 'alpha_desc') {
+                const numA = a.querySelector('td:first-child')?.textContent.trim().toLowerCase() || '';
+                const numB = b.querySelector('td:first-child')?.textContent.trim().toLowerCase() || '';
+                return sortValue === 'alpha_asc' ? numA.localeCompare(numB) : numB.localeCompare(numA);
+            } else if (sortValue === 'total_high' || sortValue === 'total_low') {
+                const amtA = parseFloat(a.querySelector('td:nth-child(7)')?.textContent.replace(/[^0-9.]/g, '') || 0);
+                const amtB = parseFloat(b.querySelector('td:nth-child(7)')?.textContent.replace(/[^0-9.]/g, '') || 0);
+                return sortValue === 'total_low' ? amtA - amtB : amtB - amtA;
+            }
+            return 0;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', sortValue);
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
+}
 </script>
 {% endblock %}

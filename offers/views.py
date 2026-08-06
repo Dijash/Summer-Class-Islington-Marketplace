@@ -356,7 +356,21 @@ def superadmin_analytics(request):
 
 @user_passes_test(is_super_admin, login_url='superadmin_login')
 def superadmin_products(request):
-    all_products_qs = Product.objects.select_related('category').prefetch_related('seller_request__seller').order_by('-id')
+    sort = request.GET.get('sort', 'latest')
+    if sort == 'alpha_asc':
+        order_by_clause = 'title'
+    elif sort == 'alpha_desc':
+        order_by_clause = '-title'
+    elif sort == 'oldest':
+        order_by_clause = 'created_at'
+    elif sort == 'price_low':
+        order_by_clause = 'price'
+    elif sort == 'price_high':
+        order_by_clause = '-price'
+    else:
+        order_by_clause = '-created_at'
+
+    all_products_qs = Product.objects.select_related('category').prefetch_related('seller_request__seller').order_by(order_by_clause)
     categories = Category.objects.all().order_by('name')
     paginator = Paginator(all_products_qs, 30)
     page_number = request.GET.get('page')
@@ -365,6 +379,7 @@ def superadmin_products(request):
         'active_page': 'products',
         'all_products': all_products,
         'categories': categories,
+        'current_sort': sort,
     })
 
 
@@ -573,7 +588,21 @@ def superadmin_promotions(request):
 @user_passes_test(is_super_admin, login_url='superadmin_login')
 def superadmin_orders(request):
     if Order is not None:
-        orders_qs = Order.objects.all().order_by('-created_at')
+        sort = request.GET.get('sort', 'latest')
+        if sort == 'alpha_asc':
+            order_by_clause = 'order_number'
+        elif sort == 'alpha_desc':
+            order_by_clause = '-order_number'
+        elif sort == 'oldest':
+            order_by_clause = 'created_at'
+        elif sort == 'total_high':
+            order_by_clause = '-total_amount'
+        elif sort == 'total_low':
+            order_by_clause = 'total_amount'
+        else:
+            order_by_clause = '-created_at'
+
+        orders_qs = Order.objects.all().order_by(order_by_clause)
         paginator = Paginator(orders_qs, 30)
         page_number = request.GET.get('page')
         all_orders = paginator.get_page(page_number)
@@ -582,6 +611,7 @@ def superadmin_orders(request):
     return render(request, 'superadmin/orders.html', {
         'active_page': 'orders',
         'all_orders': all_orders,
+        'current_sort': sort,
     })
 
 

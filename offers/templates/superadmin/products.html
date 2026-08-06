@@ -10,10 +10,21 @@
             <h3 class="card-title-text"><i class="fa-solid fa-boxes-stacked" style="color: #ef4444;"></i> Platform Products Directory</h3>
             <span style="font-size: 0.8rem; color: var(--text-secondary);">Manage product listings, inventory levels, live publishing, edit details, and add or remove catalog items</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <div style="width: 260px; position: relative;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <div style="width: 240px; position: relative;">
                 <input type="text" id="catalogSearchInput" placeholder="Search catalog..." class="form-control" style="padding-left: 2.2rem;">
                 <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
+            </div>
+            <div style="position: relative; width: 220px;">
+                <select id="catalogSortSelect" class="form-control" onchange="applyCatalogSort(this.value)" style="padding-left: 2.2rem; cursor: pointer; background: #111827; color: var(--text-primary);">
+                    <option value="latest" {% if current_sort == 'latest' %}selected{% endif %}>Sort: Latest Added</option>
+                    <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>Sort: Oldest Added</option>
+                    <option value="alpha_asc" {% if current_sort == 'alpha_asc' %}selected{% endif %}>Sort: Name (A to Z)</option>
+                    <option value="alpha_desc" {% if current_sort == 'alpha_desc' %}selected{% endif %}>Sort: Name (Z to A)</option>
+                    <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Sort: Price (Low to High)</option>
+                    <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Sort: Price (High to Low)</option>
+                </select>
+                <i class="fa-solid fa-arrow-down-short-wide" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 0.8rem;"></i>
             </div>
             <button type="button" class="btn-action btn-black" onclick="openAddProductModal()">
                 <i class="fa-solid fa-plus"></i> Add Product
@@ -37,7 +48,7 @@
             </thead>
             <tbody>
                 {% for prod in all_products %}
-                <tr>
+                <tr data-created-at="{{ prod.created_at|date:'c' }}">
                     <td>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <img src="{{ prod.primary_image }}" alt="{{ prod.title }}" style="width: 40px; height: 40px; border-radius: 8px; object-fit: cover; border: 1px solid var(--border-color);">
@@ -122,7 +133,7 @@
         </div>
         <div style="display: flex; gap: 0.5rem;">
             {% if all_products.has_previous %}
-            <a href="?page={{ all_products.previous_page_number }}" class="btn-action btn-outline">
+            <a href="?page={{ all_products.previous_page_number }}&sort={{ current_sort }}" class="btn-action btn-outline">
                 <i class="fa-solid fa-chevron-left"></i> Previous
             </a>
             {% else %}
@@ -132,7 +143,7 @@
             {% endif %}
 
             {% if all_products.has_next %}
-            <a href="?page={{ all_products.next_page_number }}" class="btn-action btn-outline">
+            <a href="?page={{ all_products.next_page_number }}&sort={{ current_sort }}" class="btn-action btn-outline">
                 Next <i class="fa-solid fa-chevron-right"></i>
             </a>
             {% else %}
@@ -399,6 +410,39 @@ function openDeleteProductModal(btn) {
     document.getElementById('delete_product_title').innerText = title;
 
     openModal('deleteProductModal');
+}
+
+function applyCatalogSort(sortValue) {
+    const tbody = document.querySelector('#catalogTable tbody');
+    if (tbody) {
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        rows.sort((a, b) => {
+            const dateA = a.dataset.createdAt ? new Date(a.dataset.createdAt).getTime() : 0;
+            const dateB = b.dataset.createdAt ? new Date(b.dataset.createdAt).getTime() : 0;
+
+            if (sortValue === 'latest') {
+                return dateB - dateA;
+            } else if (sortValue === 'oldest') {
+                return dateA - dateB;
+            } else if (sortValue === 'alpha_asc' || sortValue === 'alpha_desc') {
+                const titleA = a.querySelector('td:first-child span')?.textContent.trim().toLowerCase() || '';
+                const titleB = b.querySelector('td:first-child span')?.textContent.trim().toLowerCase() || '';
+                return sortValue === 'alpha_asc' ? titleA.localeCompare(titleB) : titleB.localeCompare(titleA);
+            } else if (sortValue === 'price_low' || sortValue === 'price_high') {
+                const priceA = parseFloat(a.querySelector('td:nth-child(4) strong')?.textContent.replace(/[^0-9.]/g, '') || 0);
+                const priceB = parseFloat(b.querySelector('td:nth-child(4) strong')?.textContent.replace(/[^0-9.]/g, '') || 0);
+                return sortValue === 'price_low' ? priceA - priceB : priceB - priceA;
+            }
+            return 0;
+        });
+
+        rows.forEach(row => tbody.appendChild(row));
+    }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('sort', sortValue);
+    url.searchParams.set('page', '1');
+    window.location.href = url.toString();
 }
 </script>
 {% endblock %}
