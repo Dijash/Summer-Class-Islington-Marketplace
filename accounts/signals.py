@@ -1,14 +1,20 @@
 from django.db.models.signals import post_save
 from django.contrib.auth.models import User
 from django.dispatch import receiver
+# pyrefly: ignore [missing-import]
 from allauth.account.signals import user_logged_in, user_signed_up
+# pyrefly: ignore [missing-import]
 from allauth.socialaccount.signals import pre_social_login
+# pyrefly: ignore [missing-import]
 from allauth.socialaccount.models import SocialAccount
 from .models import Profile
 
 
 @receiver(post_save, sender=User)
 def create_or_update_profile(sender, instance, created, **kwargs):
+    if kwargs.get('raw', False):
+        return
+
     if created:
         Profile.objects.create(user=instance)
     else:

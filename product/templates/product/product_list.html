@@ -334,7 +334,7 @@
             <!-- Products Grid -->
             <div class="grid grid-cols-3 catalog-grid">
                 {% for p in page_obj %}
-                    <div class="product-card" onclick="window.location='{% url 'product_detail' p.slug %}'">
+                    <div class="product-card" data-url="{% url 'product_detail' p.slug %}" onclick="window.location=this.dataset.url">
                         <div class="product-thumb">
                             {% if p.discount_percentage > 0 %}
                                 <span class="badge badge-danger product-badge">-{{ p.discount_percentage }}%</span>
@@ -359,7 +359,7 @@
                                         <span class="price-old">₹{{ p.mrp|floatformat:0 }}</span>
                                     {% endif %}
                                 </div>
-                                <button type="button" class="btn-cart-add" onclick="event.stopPropagation(); addToCart({{ p.id }}, this)" title="Add to Cart"><i class="fa-solid fa-bag-shopping"></i></button>
+                                <button type="button" class="btn-cart-add" onclick="event.stopPropagation(); addToCart('{{ p.id }}', this)" title="Add to Cart"><i class="fa-solid fa-bag-shopping"></i></button>
                             </div>
                         </div>
                     </div>
